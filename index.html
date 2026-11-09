@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SurGeet AI — Free AI Song Maker & Music Generator</title>
+<meta name="description" content="Create songs effortlessly with SurGeet AI. Free AI song maker, free model training, royalty-free music.">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial;background:#0f141a;color:#eef2f5}a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:9;background:#111820f2;backdrop-filter:blur(8px);display:flex;align-items:center;gap:18px;padding:14px 5%;border-bottom:1px solid #26303a}
+.logo{display:flex;gap:10px;align-items:center;font-weight:800;font-size:20px}.logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#ff5da2,#7b5cff,#00c2ff);display:grid;place-items:center;font-size:20px}
+nav{display:flex;gap:22px;margin-left:auto;flex-wrap:wrap}nav a{font-size:15px;opacity:.92}nav a:hover{opacity:1;color:#7dd7ff}
+.credits{background:#1e2a24;color:#4ade80;border:1px solid #2f5d43;padding:6px 10px;border-radius:99px;font-size:13px}
+.hero{text-align:center;padding:48px 5% 18px;max-width:1000px;margin:auto}.hero h1{font-size:clamp(34px,6vw,64px);line-height:1.05;margin:8px 0 14px}.hero p{color:#c6d0d8;font-size:18px}
+.badge{display:inline-block;background:#12291f;color:#4ade80;border:1px solid #256a47;padding:8px 16px;border-radius:99px;font-weight:700;font-size:13px}
+.try{display:block;max-width:760px;margin:26px auto;padding:18px;border-radius:10px;background:linear-gradient(90deg,#d65db1,#7b5cff,#00a8cc);font-weight:800;text-align:center}
+.card{max-width:900px;margin:18px auto;background:#161e27;border:1px solid #2a3642;border-radius:14px;padding:20px}
+.tabs{display:flex;gap:20px;border-bottom:1px solid #2a3642}.tab{padding:10px 4px;cursor:pointer;background:none;border:0;color:#aeb9c2;font-size:16px}.tab.active{color:#8b5cf6;border-bottom:3px solid #8b5cf6;font-weight:700}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0;flex-wrap:wrap}
+textarea,input[type=text],select{width:100%;background:#111820;color:#fff;border:1px solid #2e3b47;border-radius:10px;padding:13px}
+.btn{background:#232f3b;border:1px solid #3a4a59;color:#fff;padding:9px 14px;border-radius:8px;cursor:pointer}.btn.primary{background:linear-gradient(90deg,#d65db1,#00a8cc);border:0;font-size:17px;padding:15px;width:100%;font-weight:800}.btn.small{font-size:13px}
+.switch{width:52px;height:28px;background:#37424e;border-radius:99px;position:relative;cursor:pointer}.switch.on{background:#7b5cff}.switch:after{content:"";position:absolute;width:22px;height:22px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.2s}.switch.on:after{left:27px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:8px 13px;border:1px solid #3a4a59;border-radius:99px;cursor:pointer;background:#1b2632}.chip.on{background:#7b5cff}
+section{max-width:1000px;margin:34px auto;padding:0 5%}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.box{background:#161e27;border:1px solid #2a3642;border-radius:12px;padding:18px}
+details{background:#161e27;border:1px solid #2a3642;border-radius:10px;padding:14px;margin:8px 0}
+footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a}audio{width:100%;margin-top:10px}
+.progress{height:10px;background:#26303a;border-radius:99px;overflow:hidden;display:none}.progress i{display:block;height:100%;background:#4ade80;width:0}
+.steps{list-style:none;padding:0;margin:12px 0;font-size:14px}.steps li{padding:5px 0;color:#8fa0ae}.steps li.on{color:#7dd7ff;font-weight:700}.steps li.done{color:#4ade80}
+#usingModel{background:#12291f;border:1px solid #256a47;color:#4ade80;border-radius:10px;padding:10px 14px;display:none;font-weight:700}
+.stat{font-size:13px;color:#c6d0d8;line-height:1.7}.rec-on{background:#b91c1c!important;border-color:#ef4444!important}
+@media(max-width:640px){nav{display:none}.hero{padding-top:28px}}
+</style></head>
+<body>
+<header><div class="logo"><span class="logo-icon">♪</span> SurGeet AI</div>
+<nav><a href="#create">Create Song</a><a href="#tools">Tools ▾</a><a href="#cover">AI Song Cover</a><a href="#train">Free Tools ▾</a><a href="#train">Train Model — FREE</a></nav>
+<span class="credits">● Free</span></header>
+
+<div class="hero"><h1>SurGeet AI — Free AI Song Maker &amp; AI Music Generator</h1>
+<p>Create songs effortlessly with SurGeet AI. Compose tracks, generate AI songs, and enjoy royalty-free music creation with ease.</p>
+<span class="badge">✓ 20 DAILY CREDITS FREE, 100% ROYALTY-FREE.</span>
+<a class="try" href="#create">Try SurGeet AI For Free &gt;&gt;</a></div>
+
+<main class="card" id="create">
+<div class="tabs"><button class="tab active" onclick="setTab(this,'lyrics')">Lyrics to Song</button><button class="tab" onclick="setTab(this,'text')">Text to Song</button><span style="margin-left:auto"><label class="btn small">⬆ Upload Song <input type="file" accept="audio/*" hidden onchange="uploadSong(event)"></label></span></div>
+<div class="row"><b>Instrumental</b><div class="switch" id="inst" onclick="this.classList.toggle('on')"></div></div>
+<label id="mainLabel"><b>Lyrics</b></label>
+<textarea id="lyrics" rows="9" maxlength="5000" placeholder="Enter your lyrics here" oninput="document.getElementById('cnt').textContent=this.value.length+'/5000'"></textarea>
+<div class="row"><span></span><span id="cnt">0/5000</span></div>
+<div class="row"><span><button class="btn" onclick="randomLyrics()">⇄ Random Lyrics</button> <button class="btn" onclick="aiLyrics()">✦ AI Lyrics Generator</button></span></div>
+<label><b>Styles</b></label>
+<div class="chips" id="chips"></div>
+<input type="text" id="styleInput" placeholder="Or type style e.g. Pop, Rock, Hip-Hop, Jazz, Urdu, Punjabi, Lo-Fi..." style="margin-top:10px">
+<div class="row"><label>Voice / Model <select id="modelSel" onchange="onModelChange()"><option>Default Voice</option></select></label><button class="btn" type="button" onclick="testSelectedVoice()">🔊 Test Voice (selected model)</button></div>
+<p id="usingModel"></p>
+<button class="btn primary" onclick="generate()">🎵 Generate Song — Free</button>
+<p id="genStatus"></p><div id="player"></div>
+</main>
+
+<section id="train"><h2>🎤 Train Your Model — 100% FREE, Real In-Browser Training</h2><p>No payment, no subscription. Your samples are <b>really analysed on this device</b> with the Web Audio API — pitch detection (autocorrelation), FFT spectrum, tempo &amp; energy are measured from your audio, and the resulting Voice Model profile is saved in this browser (IndexedDB + localStorage). Your audio never leaves your device. When you select the model in Generate, the song's pitch, waveform, vibrato and tempo actually follow your measured profile.</p>
+<div class="box"><label>Model Name</label><input type="text" id="modelName" placeholder="e.g. My Voice 1">
+<label style="display:block;margin-top:12px">1) Upload Audio Samples (mp3/wav, 3–10 clear singing/voice files best)</label>
+<input type="file" id="samples" accept="audio/*" multiple onchange="addFiles(event)">
+<p style="margin:12px 0 4px"><b>— OR —</b></p>
+<label>2) Record Samples with Microphone</label>
+<div class="row" style="justify-content:flex-start"><button class="btn" type="button" id="recBtn" onclick="toggleRecord()">⏺ Start Recording</button><span id="recStatus" class="stat">Mic needs HTTPS / localhost and your permission.</span></div>
+<p class="stat" id="pendingList">No samples added yet.</p>
+<ul class="steps" id="trainSteps">
+<li data-s="0">1. Loading samples (decoding audio)</li>
+<li data-s="1">2. Analysing pitch (autocorrelation pitch track)</li>
+<li data-s="2">3. Extracting voice profile (FFT spectrum, tempo, energy)</li>
+<li data-s="3">4. Building model (waveform, vibrato, pitch range)</li>
+<li data-s="4">5. Done — model saved &amp; ready in Generate</li>
+</ul>
+<button class="btn primary" style="margin-top:6px" onclick="train()">🎤 Start REAL Training — Analyse My Samples</button>
+<div class="progress" id="prog"><i></i></div><p id="trainStatus"></p></div>
+
+<div class="box" style="margin-top:16px"><h3 style="margin-top:0">🖥️ Pro GPU Training (Free) — RVC-style Voice Clone</h3>
+<p>In-browser training builds a measured voice <i>profile</i>. For a full neural RVC-style voice-clone model, use the free GPU notebook: it runs the real RVC training pipeline (preprocess → RMVPE pitch extraction → train → index) on a free Kaggle / Google Colab GPU.</p>
+<p><a class="btn primary" style="display:inline-block;width:auto;text-align:center" href="SurGeet-Pro-RVC-Training.ipynb" download>⬇ Download Kaggle / Colab Notebook (.ipynb)</a></p>
+<ol class="stat" style="padding-left:18px">
+<li>Prepare 3–10 minutes of clean, dry singing/voice as one <b>dataset.zip</b> (wav/mp3).</li>
+<li>Open <b>kaggle.com/code</b> (free GPU, 30 hrs/week) or <b>colab.research.google.com</b> → Upload the downloaded notebook.</li>
+<li>Run cells top to bottom: GPU check → install Applio/RVC → upload dataset.zip → preprocess &amp; extract pitch/features.</li>
+<li>Train (notebook default: 200 epochs, batch 8 — lower to 100 on free GPU timeouts).</li>
+<li>Download the resulting <b>.pth + .index</b> model files from the notebook output.</li>
+<li>Use that model in any RVC/Applio player for full voice conversion; the in-browser profile above stays your instant, no-GPU option here.</li>
+</ol></div>
+<h3>My Models</h3><div class="grid" id="models"></div>
+<h3>My Songs</h3><div class="grid" id="songs"></div></section>
+
+<section id="cover"><h2>AI Song Cover</h2><div class="box">Upload a song above, pick a trained model from the Voice / Model list, write lyrics and press Generate — your melody is created instantly in the browser with Web Audio, free and royalty-free.</div></section>
+
+<section id="tools"><h2>Features</h2><div class="grid">
+<div class="box">🎼 <b>Lyrics to Song</b><p>Turn any lyrics into a melody in seconds.</p></div>
+<div class="box">✍️ <b>Text to Song</b><p>Describe a mood, get lyrics + music.</p></div>
+<div class="box">🎤 <b>Free Model Training</b><p>Upload samples, name &amp; save your own voice model — free forever.</p></div>
+<div class="box">🎧 <b>Instrumental Mode</b><p>Music-only tracks for videos &amp; reels.</p></div>
+<div class="box">✅ <b>Royalty-Free</b><p>Use generated songs anywhere.</p></div>
+<div class="box">📱 <b>Works on Mobile</b><p>No app, no server, no cost.</p></div></div></section>
+
+<section><h2>How It Works</h2><div class="grid"><div class="box"><b>1.</b> Write / generate lyrics</div><div class="box"><b>2.</b> Pick a style &amp; (optional) trained model</div><div class="box"><b>3.</b> Press Generate &amp; listen / download from My Songs</div></div></section>
+
+<section><h2>FAQ</h2>
+<details><summary>Is it really free?</summary><p>Yes. Generation runs in your browser, training data is stored locally — no paid server is needed.</p></details>
+<details><summary>How do I get a free domain &amp; hosting?</summary><p>Upload this folder to GitHub Pages (see README.md) — you get a free https address like username.github.io, free hosting &amp; HTTPS. Alternatives listed in README: Netlify (.netlify.app), Vercel (.vercel.app), Cloudflare Pages (.pages.dev).</p></details>
+<details><summary>Is the music royalty-free?</summary><p>Melodies generated in your browser are yours to use.</p></details></section>
+
+<footer>SurGeet AI — Free AI Song Maker &amp; Music Generator • Made for free hosting on GitHub Pages</footer>
+
+<script>
+const styles=["Pop","Rock","Hip-Hop","Jazz","Classical","Electronic","Lo-Fi","Urdu","Punjabi","Acoustic"];
+let selStyle="Pop";
+document.getElementById('chips').innerHTML=styles.map((s,i)=>`<span class="chip ${i==0?'on':''}" onclick="pick(this,'${s}')">${s}</span>`).join('');
+function pick(e,s){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));e.classList.add('on');selStyle=s}
+function setTab(e,m){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));e.classList.add('active');document.getElementById('mainLabel').innerHTML=m=='text'?'<b>Describe your song</b>':'<b>Lyrics</b>';document.getElementById('lyrics').placeholder=m=='text'?'e.g. A happy Urdu pop song about friendship...':'Enter your lyrics here'}
+function randomLyrics(){const a=["Dil ki baatein, raaton ki yaadein","Walking through the city lights tonight","Mohabbat ka safar, har pal naya hai","Dreams are calling, we will fly so high"];lyrics.value=a[Math.floor(Math.random()*a.length)]+"\n"+a[Math.floor(Math.random()*a.length)];lyrics.dispatchEvent(new Event('input'))}
+function aiLyrics(){const t=document.getElementById('styleInput').value||selStyle;lyrics.value=`[${t} Verse]\nStars are shining over my town,\nEvery dream is turning around,\nSing it loud, sing it free,\nThis is our melody.`;lyrics.dispatchEvent(new Event('input'))}
+function uploadSong(e){if(e.target.files[0]){genStatus.textContent='Uploaded: '+e.target.files[0].name;player.innerHTML=`<audio controls src="${URL.createObjectURL(e.target.files[0])}"></audio>`}}
+// ============ Storage: IndexedDB (primary) + localStorage (index/mirror) ============
+function get(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}}
+function set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function idbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('surgeet-db',1);r.onupgradeneeded=()=>{r.result.createObjectStore('models',{keyPath:'name'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function idbPut(model){try{const db=await idbOpen();await new Promise((res,rej)=>{const tx=db.transaction('models','readwrite');tx.objectStore('models').put(model);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){}}
+async function idbDel(name){try{const db=await idbOpen();await new Promise((res,rej)=>{const tx=db.transaction('models','readwrite');tx.objectStore('models').delete(name);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){}}
+async function idbAll(){try{const db=await idbOpen();return await new Promise((res,rej)=>{const q=db.transaction('models').objectStore('models').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error)})}catch(e){return[]}}
+let MODELS=[]; // full measured profiles, loaded from IndexedDB (localStorage fallback)
+async function loadModels(){const fromDb=await idbAll();MODELS=fromDb.length?fromDb:get('models',[]);set('models',MODELS);render();onModelChange()}
+
+// ============ PURE ANALYSIS CORE (no DOM/AudioContext deps — Node-testable) ============
+function fftMag(re,im){ // iterative radix-2 FFT, magnitude spectrum in re
+ const n=re.length;for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;
+  if(i<j){const tr=re[i];re[i]=re[j];re[j]=tr;const ti=im[i];im[i]=im[j];im[j]=ti}}
+ for(let len=2;len<=n;len<<=1){const ang=-2*Math.PI/len,wr=Math.cos(ang),wi=Math.sin(ang);
+  for(let i=0;i<n;i+=len){let cwr=1,cwi=0;
+   for(let j=0;j<len/2;j++){const ur=re[i+j],ui=im[i+j],vr=re[i+j+len/2],vi=im[i+j+len/2];
+    const tr=vr*cwr-vi*cwi,ti=vr*cwi+vi*cwr;re[i+j]=ur+tr;im[i+j]=ui+ti;re[i+j+len/2]=ur-tr;im[i+j+len/2]=ui-ti;
+    const nwr=cwr*wr-cwi*wi;cwi=cwr*wi+cwi*wr;cwr=nwr}}}
+ for(let i=0;i<n;i++)re[i]=Math.sqrt(re[i]*re[i]+im[i]*im[i]);return re}
+function framePitch(buf,sr){ // autocorrelation pitch of one frame, 0 if unvoiced
+ let rms=0;for(let i=0;i<buf.length;i++)rms+=buf[i]*buf[i];rms=Math.sqrt(rms/buf.length);if(rms<0.02)return 0;
+ const minLag=Math.floor(sr/1000),maxLag=Math.min(Math.floor(sr/50),buf.length-1);let best=0,bestVal=0;
+ const corr=new Float32Array(maxLag+1);
+ for(let lag=minLag;lag<=maxLag;lag++){let s=0;for(let i=0;i<buf.length-lag;i++)s+=buf[i]*buf[i+lag];corr[lag]=s}
+ for(let lag=minLag;lag<=maxLag;lag++){if(corr[lag]>bestVal){bestVal=corr[lag];best=lag}}
+ if(!best||corr[best]<=0)return 0;
+ // clarity check: peak vs zero-lag energy
+ let e0=0;for(let i=0;i<buf.length;i++)e0+=buf[i]*buf[i];if(e0<=0||bestVal/e0<0.3)return 0;
+ return sr/best}
+function analyseMono(data,sr){ // data: Float32Array mono; returns measured voice profile stats
+ const dur=data.length/sr;let sumSq=0;for(let i=0;i<data.length;i++)sumSq+=data[i]*data[i];
+ const energy=Math.sqrt(sumSq/Math.max(1,data.length));
+ // --- Pitch track: frames of 2048, spread over the file (max 80 frames)
+ const FL=2048,pitches=[],frameCount=Math.min(80,Math.floor(data.length/FL));
+ for(let f=0;f<frameCount;f++){const off=Math.floor(f*data.length/Math.max(1,frameCount));const fr=data.subarray(off,Math.min(data.length,off+FL));if(fr.length<FL)break;const p=framePitch(fr,sr);if(p>0)pitches.push(p)}
+ pitches.sort((a,b)=>a-b);
+ const med=pitches.length?pitches[Math.floor(pitches.length/2)]:0;
+ const pMin=pitches.length?pitches[Math.floor(pitches.length*0.05)]:0;
+ const pMax=pitches.length?pitches[Math.floor(pitches.length*0.95)]:0;
+ // --- Vibrato: from pitch contour in time order (re-run small track), detrended fluctuation
+ const track=[];for(let f=0;f<frameCount;f++){const off=Math.floor(f*data.length/Math.max(1,frameCount));const fr=data.subarray(off,Math.min(data.length,off+FL));if(fr.length<FL)break;const p=framePitch(fr,sr);if(p>0)track.push(p)}
+ let vibDepth=0,vibRate=0;
+ if(track.length>8){const cents=track.map(p=>1200*Math.log2(p/med));let m=0;cents.forEach(c=>m+=c);m/=cents.length;
+  let v=0;cents.forEach(c=>v+=(c-m)*(c-m));vibDepth=Math.sqrt(v/cents.length);
+  let crossings=0;for(let i=1;i<cents.length;i++)if((cents[i-1]-m)*(cents[i]-m)<0)crossings++;
+  const trackSec=frameCount*FL/sr;vibRate=trackSec>0?+(crossings/2/trackSec).toFixed(2):0;
+  if(vibRate<2||vibRate>9)vibRate=vibDepth>15?5.5:0; vibDepth=+vibDepth.toFixed(1)}
+ // --- FFT average spectrum + spectral centroid (Hann window, 2048)
+ const N=2048,acc=new Float64Array(N/2);let used=0;
+ const win=new Float32Array(N);for(let i=0;i<N;i++)win[i]=0.5*(1-Math.cos(2*Math.PI*i/(N-1)));
+ const nWin=Math.min(40,Math.floor(data.length/N));
+ for(let w=0;w<nWin;w++){const off=Math.floor(w*data.length/Math.max(1,nWin));const re=new Float64Array(N),im=new Float64Array(N);
+  for(let i=0;i<N&&off+i<data.length;i++){re[i]=data[off+i]*win[i]}
+  fftMag(re,im);for(let k=0;k<N/2;k++)acc[k]+=re[k];used++}
+ let centroid=0,magSum=0,peakBin=0,peakVal=0;
+ if(used){for(let k=1;k<N/2;k++){const mag=acc[k]/used,f=k*sr/N;centroid+=f*mag;magSum+=mag;if(mag>peakVal){peakVal=mag;peakBin=k}}
+  centroid=magSum>0?centroid/magSum:0}
+ const domFreq=peakBin*sr/N;
+ // --- Waveform type from brightness + odd-harmonic dominance
+ let waveType='sine';
+ if(used&&peakBin>0){let harm=0,odd=0,tot=0;for(let h=1;h<=6;h++){const b=peakBin*h;if(b<N/2){const v=acc[b]/used;tot+=v;if(h%2===1)odd+=v;if(h>1)harm+=v}}
+  const oddRatio=tot>0?odd/tot:0,harmRatio=tot>0?harm/tot:0;
+  if(centroid>2200||harmRatio>0.55)waveType='sawtooth';else if(oddRatio>0.75&&harmRatio>0.25)waveType='square';else if(harmRatio>0.18)waveType='triangle';else waveType='sine'}
+ // --- Tempo: onset-envelope autocorrelation (envelope rate = sr/512)
+ const hop=512,envLen=Math.floor(data.length/hop),env=new Float32Array(envLen);
+ for(let i=0;i<envLen;i++){let s=0;for(let j=0;j<hop;j++){const v=data[i*hop+j]||0;s+=v*v}env[i]=Math.sqrt(s/hop)}
+ const envRate=sr/hop;let em=0;for(let i=0;i<envLen;i++)em+=env[i];em/=Math.max(1,envLen);
+ let tempo=0;{let ev=0;for(let i=0;i<envLen;i++)ev+=(env[i]-em)*(env[i]-em);ev=Math.sqrt(ev/Math.max(1,envLen));
+  const steady=em<=0||ev/em<0.05; // steady tone (no beat) -> no tempo claim
+  const minL=Math.floor(envRate*60/200),maxL=Math.min(Math.floor(envRate*60/40),envLen-1);let bv=0,bl=0;
+  if(steady)bl=0;else
+  for(let lag=minL;lag<=maxL;lag++){let s=0;for(let i=0;i<envLen-lag;i++)s+=(env[i]-em)*(env[i+lag]-em);if(s>bv){bv=s;bl=lag}}
+  if(bl>0)tempo=Math.round(60/(bl/envRate))}
+ return{basePitch:+med.toFixed(1),pitchMin:+pMin.toFixed(1),pitchMax:+pMax.toFixed(1),centroid:Math.round(centroid),dominantFreq:Math.round(domFreq),tempo:tempo,energy:+energy.toFixed(4),waveType:waveType,vibratoDepthCents:vibDepth,vibratoRateHz:vibRate,voicedFrames:pitches.length,duration:+dur.toFixed(2)}}
+function mergeProfiles(list){ // average measured stats across samples
+ const avg=k=>list.length?list.reduce((a,p)=>a+(+p[k]||0),0)/list.length:0;
+ const counts={};list.forEach(p=>counts[p.waveType]=(counts[p.waveType]||0)+1);
+ const waveType=Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]||'sine';
+ return{basePitch:+avg('basePitch').toFixed(1),pitchMin:+Math.min(...list.map(p=>p.pitchMin||1e9)).toFixed(1),pitchMax:+Math.max(...list.map(p=>p.pitchMax||0)).toFixed(1),centroid:Math.round(avg('centroid')),dominantFreq:Math.round(avg('dominantFreq')),tempo:(()=>{const t=list.map(p=>p.tempo).filter(v=>v>0);return t.length?Math.round(t.reduce((a,b)=>a+b,0)/t.length):0})(),energy:+avg('energy').toFixed(4),waveType:waveType,vibratoDepthCents:+avg('vibratoDepthCents').toFixed(1),vibratoRateHz:+avg('vibratoRateHz').toFixed(2),duration:+list.reduce((a,p)=>a+p.duration,0).toFixed(2)}}
+
+// ============ Samples: file uploads + microphone recording ============
+let pendingSamples=[]; // {name, blob}
+let actx;function audioCtx(){actx=actx||new (window.AudioContext||window.webkitAudioContext)();return actx}
+function showPending(){const el=document.getElementById('pendingList');el.textContent=pendingSamples.length?('Samples ready: '+pendingSamples.map(s=>s.name+' ('+(s.blob.size/1024).toFixed(0)+' KB)').join(', ')):'No samples added yet.'}
+function addFiles(e){[...e.target.files].forEach(f=>pendingSamples.push({name:f.name,blob:f}));showPending()}
+let mediaRec=null,recChunks=[],recStream=null,recOn=false;
+async function toggleRecord(){const btn=document.getElementById('recBtn'),st=document.getElementById('recStatus');
+ if(recOn){mediaRec.stop();return}
+ try{recStream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(err){st.textContent='Mic permission denied / unavailable: '+err.message;return}
+ recChunks=[];mediaRec=new MediaRecorder(recStream);mediaRec.ondataavailable=e=>{if(e.data.size)recChunks.push(e.data)};
+ mediaRec.onstop=()=>{recOn=false;btn.textContent='⏺ Start Recording';btn.classList.remove('rec-on');recStream.getTracks().forEach(t=>t.stop());
+  const blob=new Blob(recChunks,{type:mediaRec.mimeType||'audio/webm'});pendingSamples.push({name:'mic-recording-'+new Date().toLocaleTimeString().replace(/[: ]/g,'')+'.webm',blob:blob});
+  st.textContent='Recording added ✓ ('+(blob.size/1024).toFixed(0)+' KB)';showPending()};
+ mediaRec.start();recOn=true;btn.textContent='⏹ Stop Recording';btn.classList.add('rec-on');st.textContent='Recording… sing clearly, then Stop.'}
+
+// ============ REAL TRAINING FLOW (progress follows actual processing) ============
+const tick=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(r,10)));
+function setStep(i,frac,statusText){document.querySelectorAll('#trainSteps li').forEach(li=>{const s=+li.dataset.s;li.className=s<i?'done':(s===i?'on':'')});
+ const bar=document.getElementById('prog');bar.style.display='block';bar.firstElementChild.style.width=Math.round(frac*100)+'%';
+ if(statusText)document.getElementById('trainStatus').textContent=statusText}
+async function train(){
+ const name=document.getElementById('modelName').value.trim();
+ if(!name)return alert('Model ka naam likhein');
+ if(!pendingSamples.length)return alert('Pehle audio sample upload karein ya mic se record karein');
+ const ac=audioCtx();await ac.resume();const profiles=[];
+ try{
+  const total=pendingSamples.length;
+  for(let i=0;i<total;i++){const s=pendingSamples[i];
+   setStep(0,(i)/total*0.35,'1/5 Loading sample '+(i+1)+'/'+total+': '+s.name+' — decoding…');await tick();
+   const buf=await ac.decodeAudioData(await s.blob.arrayBuffer());
+   setStep(1,0.35+(i)/total*0.3,'2/5 Analysing pitch of '+s.name+' ('+buf.duration.toFixed(1)+'s, '+buf.sampleRate+' Hz)…');await tick();
+   const mono=new Float32Array(buf.length);for(let ch=0;ch<buf.numberOfChannels;ch++){const d=buf.getChannelData(ch);for(let j=0;j<buf.length;j++)mono[j]+=d[j]/buf.numberOfChannels}
+   setStep(2,0.65+(i)/total*0.2,'3/5 Extracting voice profile (FFT / tempo / energy) of '+s.name+'…');await tick();
+   profiles.push(analyseMono(mono,buf.sampleRate))}
+  setStep(3,0.9,'4/5 Building model from '+total+' measured profile(s)…');await tick();
+  const stats=mergeProfiles(profiles);
+  if(!stats.basePitch)throw new Error('Kisi sample mein clear voice pitch nahi mili — saaf, qareeb se gayi hui awaaz ke samples try karein.');
+  const model=Object.assign({name:name,samples:total,date:new Date().toLocaleString(),status:'Trained ✓ (real analysis)'},stats);
+  MODELS=MODELS.filter(m=>m.name!==name);MODELS.unshift(model);set('models',MODELS);await idbPut(model);
+  setStep(4,1,'5/5 Done ✓');document.querySelectorAll('#trainSteps li').forEach(li=>li.className='done');
+  document.getElementById('trainStatus').textContent='Model "'+name+'" trained & saved ✓ Base pitch '+stats.basePitch+' Hz • range '+stats.pitchMin+'–'+stats.pitchMax+' Hz • waveform '+stats.waveType+' • tempo ~'+stats.tempo+' BPM. Ab upar Generate mein is model ko select karke song banayein — pitch/waveform/vibrato/tempo isi profile se chalega.';
+  pendingSamples=[];showPending();render();selectModel(name);
+ }catch(err){setStep(0,0,'Training ruk gayi: '+err.message);document.getElementById('trainStatus').textContent='Error: '+err.message}}
+
+// ============ Model usage in Generate + Test Voice ============
+function selectedModel(){const v=document.getElementById('modelSel').value;return MODELS.find(m=>m.name===v)||null}
+function onModelChange(){const m=selectedModel(),el=document.getElementById('usingModel');
+ if(m){el.style.display='block';el.textContent='🎤 Using model: '+m.name+' — base pitch '+m.basePitch+' Hz, waveform '+m.waveType+', vibrato '+(m.vibratoRateHz||0)+' Hz / '+(m.vibratoDepthCents||0)+' cents, tempo ~'+(m.tempo||'—')+' BPM'}
+ else{el.style.display='none';el.textContent=''}}
+function selectModel(name){render();document.getElementById('modelSel').value=name;onModelChange();document.getElementById('create').scrollIntoView({behavior:'smooth'})}
+async function deleteModel(name){MODELS=MODELS.filter(m=>m.name!==name);set('models',MODELS);await idbDel(name);render();onModelChange()}
+function playVoice(freq,type,vibRate,vibDepthCents,when,dur,vol){const ac=audioCtx();const o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.value=freq;
+ if(vibRate>0&&vibDepthCents>0){const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=vibRate;lg.gain.value=freq*(Math.pow(2,vibDepthCents/1200)-1);lfo.connect(lg);lg.connect(o.frequency);lfo.start(when);lfo.stop(when+dur)}
+ o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(vol||.16,when);g.gain.exponentialRampToValueAtTime(.001,when+dur*.92);o.start(when);o.stop(when+dur)}
+function testVoiceOf(m){if(!m)return alert('Pehle ek model train karke select karein');audioCtx().resume();const t=audioCtx().currentTime+.08;
+ [1,1.25,1.5,2].forEach((r,i)=>playVoice(m.basePitch*r,m.waveType,m.vibratoRateHz,m.vibratoDepthCents,t+i*.45,.42));
+ document.getElementById('genStatus').textContent='🔊 Test Voice: "'+m.name+'" profile baj raha hai (base '+m.basePitch+' Hz, '+m.waveType+').'}
+function testSelectedVoice(){testVoiceOf(selectedModel())}
+function testModelByName(n){testVoiceOf(MODELS.find(m=>m.name===n))}
+
+// Web Audio generation: melody from lyrics hash + style — NOW driven by selected trained model profile
+let ctx;function generate(){
+ const text=(document.getElementById('lyrics').value||'').trim()||"la la la";const inst=document.getElementById('inst').classList.contains('on');
+ const m=selectedModel();ctx=audioCtx();ctx.resume();
+ const scales={Pop:[261,293,329,392,440],Rock:[220,261,293,329],Jazz:[261,311,349,392],default:[261,293,329,349,392,440]};
+ let scale=(scales[selStyle]||scales.default).slice();
+ let transpose=1,wave='sine',vibR=0,vibD=0,noteDur=.42;
+ if(m){ // REAL model integration: root the scale on the model's measured base pitch
+  transpose=m.basePitch/261.63;transpose=Math.max(.5,Math.min(2,transpose));wave=m.waveType||'sine';vibR=m.vibratoRateHz||0;vibD=m.vibratoDepthCents||0;
+  if(m.tempo>0)noteDur=.42*Math.max(.7,Math.min(1.4,120/m.tempo))}
+ let seed=[...text].reduce((a,c)=>a+c.charCodeAt(0),0);
+ const now=ctx.currentTime+.1;
+ for(let i=0;i<16;i++){seed=(seed*9301+49297)%233280;const f=scale[Math.floor(seed/233280*scale.length)]*(i%8==7?1.5:1)*transpose;
+  playVoice(f,wave,vibR,vibD,now+i*noteDur,noteDur*.92,.18);
+  if(inst)playVoice(f/2,'triangle',0,0,now+i*noteDur,noteDur*.92,.10)}
+ document.getElementById('genStatus').textContent='Playing generated '+selStyle+' song'+(m?(' — 🎤 Using model: '+m.name+' (base pitch '+m.basePitch+' Hz, '+wave+', tempo step '+noteDur.toFixed(2)+'s)'):' (Default Voice)')+'…';
+ saveSong(text,m?m.name:'Default Voice')}
+function saveSong(text,modelName){let s=get('songs',[]);s.unshift({name:(text.split('\n')[0]||'Untitled').slice(0,40),style:selStyle,model:modelName||'Default Voice',date:new Date().toLocaleString()});set('songs',s.slice(0,20));render()}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function render(){const mlist=MODELS;const cur=document.getElementById('modelSel').value;
+ document.getElementById('models').innerHTML=mlist.length?mlist.map(x=>`<div class="box"><b>${esc(x.name)}</b><p class="stat">${x.samples} sample(s) • ${esc(x.status||'Trained ✓')}<br>Base pitch: <b>${x.basePitch} Hz</b> • Range: ${x.pitchMin}–${x.pitchMax} Hz<br>Centroid: ${x.centroid} Hz • Dominant: ${x.dominantFreq} Hz<br>Waveform: ${esc(x.waveType)} • Vibrato: ${x.vibratoRateHz} Hz / ${x.vibratoDepthCents}¢<br>Tempo: ~${x.tempo} BPM • Energy: ${x.energy} • Audio: ${x.duration}s<br>${esc(x.date)}</p><button class="btn small" onclick="testModelByName('${esc(x.name)}')">🔊 Test Voice</button> <button class="btn small" onclick="selectModel('${esc(x.name)}')">✔ Use in Generate</button> <button class="btn small" onclick="deleteModel('${esc(x.name)}')">🗑 Delete</button></div>`).join(''):'<div class="box">No model yet — train one above, free.</div>';
+ const sel=document.getElementById('modelSel');sel.innerHTML='<option>Default Voice</option>'+mlist.map(x=>`<option>${esc(x.name)}</option>`).join('');
+ if(mlist.some(x=>x.name===cur))sel.value=cur;
+ let s=get('songs',[]);document.getElementById('songs').innerHTML=s.length?s.map(x=>`<div class="box"><b>${esc(x.name)}</b><p>${esc(x.style)} • Model: ${esc(x.model||'Default Voice')}<br>${esc(x.date)}</p></div>`).join(''):'<div class="box">No songs yet.</div>'}
+loadModels();
+</script></body></html>
