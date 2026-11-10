@@ -88,14 +88,47 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <h3>My Models</h3><div class="grid" id="models"></div>
 <h3>My Songs</h3><p id="songMsg" class="song-msg"></p><div class="grid" id="songs"></div></section>
 
-<section id="cover"><h2>AI Song Cover — melody re-voicing (analysis + replay)</h2><div class="box">
-<p class="stat">Honest version: ye uploaded song ki <b>melody contour analyse</b> karke usay upar select kiye hue <b>trained model ki root pitch + waveform</b> mein dobara bajata hai (browser analysis + replay). Full studio voice-conversion ke liye Train section wala free Pro GPU (RVC) notebook use karein.</p>
-<label>1) Song upload karein (ya upar wala Upload Song use karein)</label>
+<section id="cover"><h2>AI Song Cover — Indian Singer Voice Models</h2><div class="box">
+<p class="stat"><b>Saaf baat / Honest note:</b> Asli RVC celebrity voice models (.pth) ek static browser page ke andar <b>nahi chal sakte</b> — un ke liye GPU chahiye. Is liye yahan 2 asal raste hain: <b>(1) Singer Style Profiles</b> — isi browser mein foran kaam karte hain (ye asal singer ki clone awaaz <b>nahi</b>, us playback style ka musical profile hai); <b>(2) Real RVC Models panel</b> — apna .pth model yahan save karein aur free Colab/Kaggle GPU notebook se asal singer-voice cover banayein.</p>
+<h3 style="margin-bottom:6px">🎤 Singer Style Profiles — <span style="color:#7ee2a8">Style Profile (in-browser)</span></h3>
+<p class="stat">Har profile alag hai: apni root pitch (130–330 Hz folded), waveform, vibrato, tempo feel aur scale/mode. Profile select karke neeche song upload karein aur Create Cover dabayein — ya wahi profile upar <b>Voice / Model</b> list se select karke Generate mein bhi istemal hoti hai.</p>
+<div class="grid" id="singerProfiles"></div>
+<label style="display:block;margin-top:12px">1) Song upload karein (ya upar wala Upload Song use karein)</label>
 <input type="file" accept="audio/*" onchange="uploadSong(event)">
 <p class="stat" id="coverInfo">Abhi koi song upload nahi hua.</p>
-<label style="display:block;margin-top:10px">2) Model: upar Create section ke <b>Voice / Model</b> list se select karein (koi model na ho to song ki apni pitch profile use hogi)</label>
+<label style="display:block;margin-top:10px">2) Cover voice chunein</label>
+<select id="coverVoiceSel"><option value="generate">Upar Generate wala selected model/profile</option></select>
 <button class="btn primary" style="margin-top:12px" onclick="createCover()">🎤 Create Cover — Free</button>
-<p id="coverStatus" class="song-msg"></p></div></section>
+<p id="coverStatus" class="song-msg"></p></div>
+
+<div class="box" style="margin-top:16px"><h3 style="margin-top:0">🧬 Real RVC Models — asal singer-voice cover (Free GPU route)</h3>
+<p class="stat">Apna RVC model (.pth / .index) yahan save karein — file isi device ke IndexedDB mein rehti hai, kahin upload nahi hoti. Phir free GPU notebook mein yehi model + apna song load karke <b>asal voice-conversion cover</b> banta hai.</p>
+<label>Model ka naam</label><input type="text" id="rvcName" placeholder="e.g. My RVC Voice / Singer X model">
+<label style="display:block;margin-top:10px">GitHub / HuggingFace RVC model (.pth) URL paste karein</label>
+<input type="text" id="rvcUrl" placeholder="https://huggingface.co/.../model.pth ya github.com/.../model.pth">
+<div class="row" style="justify-content:flex-start;margin-top:8px"><button class="btn" type="button" onclick="addRvcUrl()">➕ Save Model URL</button></div>
+<label style="display:block;margin-top:12px">— YA — .pth / .index file apne device se upload karein</label>
+<input type="file" id="rvcFile" accept=".pth,.index" onchange="addRvcFile(event)">
+<p id="rvcMsg" class="song-msg"></p>
+<h4>My RVC Models</h4><div class="grid" id="rvcList"></div>
+<p style="margin-top:14px"><a class="btn primary" style="display:inline-block;width:auto;text-align:center" href="SurGeet-Pro-RVC-Training.ipynb" download>⬇ Open Free Colab / Kaggle Notebook (.ipynb)</a></p>
+<ol class="stat" style="padding-left:18px">
+<li>Notebook download karke <a href="https://colab.research.google.com" target="_blank" rel="noopener">Google Colab</a> ya <a href="https://www.kaggle.com/code" target="_blank" rel="noopener">Kaggle</a> (free GPU) mein upload / open karein.</li>
+<li>Notebook mein upar wala <b>.pth model (file ya URL)</b> aur apna <b>song</b> load karein, cells top-to-bottom chalain (RVC inference).</li>
+<li>Tayyar <b>singer-voice cover</b> download karein — ye asal GPU voice conversion hai, browser profile wala short version nahi.</li>
+</ol>
+<h4>Preset Singer Models — Verified Links (HuggingFace)</h4><div id="rvcPresets"><div class="grid">
+<div class="box"><b>Arijit Singh — RVC Model</b><p class="stat">Source: HuggingFace — enescakircali/Arijit-Singh (.pth + .index repo files se). Page par license stated nahi.</p><a class="btn small" href="https://huggingface.co/enescakircali/Arijit-Singh" target="_blank" rel="noopener">🔗 Model Page</a> <button class="btn small" onclick="usePresetUrl('https://huggingface.co/enescakircali/Arijit-Singh','Arijit Singh RVC')">➕ Use This Model</button> <a class="btn small" href="SurGeet-Pro-RVC-Training.ipynb" download>🧬 Notebook</a></div>
+<div class="box"><b>Neha Kakkar — RVC Model</b><p class="stat">Source: HuggingFace — enescakircali/Neha-Kakkar (.pth + .index repo files se). Page par license stated nahi.</p><a class="btn small" href="https://huggingface.co/enescakircali/Neha-Kakkar" target="_blank" rel="noopener">🔗 Model Page</a> <button class="btn small" onclick="usePresetUrl('https://huggingface.co/enescakircali/Neha-Kakkar','Neha Kakkar RVC')">➕ Use This Model</button> <a class="btn small" href="SurGeet-Pro-RVC-Training.ipynb" download>🧬 Notebook</a></div>
+<div class="box"><b>Palak Muchhal — RVC Model</b><p class="stat">Source: HuggingFace — enescakircali/Palak-Muchhal (.pth + .index repo files se). Page par license stated nahi.</p><a class="btn small" href="https://huggingface.co/enescakircali/Palak-Muchhal" target="_blank" rel="noopener">🔗 Model Page</a> <button class="btn small" onclick="usePresetUrl('https://huggingface.co/enescakircali/Palak-Muchhal','Palak Muchhal RVC')">➕ Use This Model</button> <a class="btn small" href="SurGeet-Pro-RVC-Training.ipynb" download>🧬 Notebook</a></div>
+<div class="box"><b>Arijit Singh (Crepe v2) 450 Epoch — RVC Model</b><p class="stat">Source: HuggingFace — QuickWick/Music-AI-Voices mega-repo ke andar folder (.zip → .pth + .index).</p><a class="btn small" href="https://huggingface.co/QuickWick/Music-AI-Voices/tree/main/Arijit%20Singh%20(RVC)%20(Crepe%20v2)%20450%20Epoch" target="_blank" rel="noopener">🔗 Model Page</a> <button class="btn small" onclick="usePresetUrl('https://huggingface.co/QuickWick/Music-AI-Voices/tree/main/Arijit%20Singh%20(RVC)%20(Crepe%20v2)%20450%20Epoch','Arijit Singh Crepe v2 RVC')">➕ Use This Model</button> <a class="btn small" href="SurGeet-Pro-RVC-Training.ipynb" download>🧬 Notebook</a></div>
+<div class="box"><b>Jubin Nautiyal — RVC Model</b><p class="stat">Source: HuggingFace — Jupy/RVC_Voice_Models (direct .zip → .pth + .index; RVC v2, RMVPE).</p><a class="btn small" href="https://huggingface.co/Jupy/RVC_Voice_Models" target="_blank" rel="noopener">🔗 Model Page</a> <button class="btn small" onclick="usePresetUrl('https://huggingface.co/Jupy/RVC_Voice_Models/resolve/main/J%20Nautiyal.zip?download=true','Jubin Nautiyal RVC')">⬇ Use Direct Zip</button> <a class="btn small" href="SurGeet-Pro-RVC-Training.ipynb" download>🧬 Notebook</a></div>
+</div>
+<h4>Model Hubs — aur singers yahan search karein</h4>
+<p class="stat"><a href="https://huggingface.co/collections/enescakircali/rvc-voice-modes-66648a1a93abed2f1f1a91b6" target="_blank" rel="noopener">enescakircali — RVC Voice Modes Collection (35 models)</a> • <a href="https://huggingface.co/QuickWick/Music-AI-Voices/tree/main" target="_blank" rel="noopener">QuickWick / Music-AI-Voices</a> • <a href="https://huggingface.co/Jupy/RVC_Voice_Models" target="_blank" rel="noopener">Jupy / RVC_Voice_Models</a> • <a href="https://voice-models.com" target="_blank" rel="noopener">voice-models.com</a></p>
+<p class="stat">Shreya Ghoshal, Sonu Nigam aur Atif Aslam ke <b>verified direct model pages nahi mile</b> — ye singers sirf in hubs par search karke mil sakte hain, is liye yahan un ka koi andaazay wala direct link nahi diya gaya.</p></div>
+<div style="border:1px solid #c9a227;border-radius:10px;padding:10px 12px;margin-top:14px"><p class="stat" style="margin:0">⚠️ <b>Disclaimer:</b> Ye models <b>third-party community models</b> hain — SurGeet AI inhein <b>host nahi karta</b>, sirf links diye gaye hain; model hamesha apne hi notebook mein load karein. Sirf <b>personal / experimental use</b> ke liye. Bina ijazat kisi celebrity singer ki awaaz clone karna un ke <b>personality rights</b> ki khilaf-warzi ho sakti hai (Bombay High Court — Arijit Singh case). Commercial use na karein.</p></div>
+</div></section>
 
 <section id="tools"><h2>Features</h2><div class="grid">
 <div class="box">🎼 <b>Lyrics to Song</b><p>Turn any lyrics into a melody in seconds.</p></div>
@@ -282,7 +315,7 @@ async function train(){
  }catch(err){setStep(0,0,'Training ruk gayi: '+err.message);showTrainMsg('⚠ Training ruk gayi: '+err.message);document.getElementById('trainStatus').textContent='Error: '+err.message}}
 
 // ============ Model usage in Generate + Test Voice ============
-function selectedModel(){const v=document.getElementById('modelSel').value;return MODELS.find(m=>m.name===v)||null}
+function selectedModel(){const v=document.getElementById('modelSel').value;if(v&&v.indexOf('singer:')===0){const p=SINGER_PROFILES.find(x=>'singer:'+x.id===v);return p?singerAsModel(p):null}return MODELS.find(m=>m.name===v)||null}
 function onModelChange(){const m=selectedModel(),el=document.getElementById('usingModel');
  if(m){const sm=sanitizeModel(m);el.style.display='block';el.textContent='🎤 Using model: '+m.name+' (root '+sm.root+' Hz) — measured base pitch '+m.basePitch+' Hz, waveform '+sm.waveType+', vibrato '+sm.vibratoRateHz+' Hz / '+sm.vibratoDepthCents+' cents, tempo ~'+(m.tempo||'—')+' BPM'}
  else{el.style.display='none';el.textContent=''}}
@@ -300,11 +333,11 @@ async function createCover(){const st=document.getElementById('coverStatus');con
  if(!UPLOAD){say('⚠ Pehle song upload karein — Please upload a song first (upar ya Cover section se).');return}
  say('⏳ Song analyse ho raha hai…');try{await ensureUploadAnalysed()}catch(err){say('⚠ Analysis fail: '+err.message);return}
  if(!UPLOAD.contour||!UPLOAD.contour.length||!UPLOAD.median){say('⚠ Is song mein saaf melody/pitch nahi mili — clear gaana/awaaz wala doosra song try karein.');return}
- const m=selectedModel();const sm=m?sanitizeModel(m):null;const root=sm?sm.root:foldRoot(UPLOAD.median);const wave=sm?sm.waveType:'sine';const vibR=sm?sm.vibratoRateHz:0,vibD=sm?sm.vibratoDepthCents:0,noteDur=.4;
+ const m=coverVoice();const sm=m?sanitizeModel(m):null;const root=sm?sm.root:foldRoot(UPLOAD.median);const wave=sm?sm.waveType:'sine';const vibR=sm?sm.vibratoRateHz:0,vibD=sm?sm.vibratoDepthCents:0,noteDur=.4;
  const notes=UPLOAD.contour.map((f,i)=>({f:foldNote(root*(f/UPLOAD.median)),t:+(i*noteDur).toFixed(3),d:.37,type:wave,vibR:vibR,vibD:vibD,vol:+(.18*waveGain(wave)).toFixed(3)}));
  const params={lyrics:'Cover of '+UPLOAD.name,style:'Cover',requestedStyle:'Cover',model:m?m.name:'Original Voice',modelProfile:modelSnapshot(m),instrumental:false,seed:0,noteDur:noteDur,rootHz:root,wave:wave,notes:notes,duration:+(notes.length*noteDur+0.4).toFixed(2)};
  playParamsLive(params);saveSong(params);
- say('✓ Cover tayyar — melody \''+UPLOAD.name+'\' (base '+UPLOAD.median+' Hz) se li, root '+root+' Hz'+(m?(' par model \''+m.name+'\' ki waveform ('+wave+')'):(' par original voice profile ('+wave+')'))+' mein baj rahi hai. My Songs mein Cover entry save ho gayi — wahan se Play / Download WAV kar sakte hain.')}
+ say('✓ Cover tayyar — Voice used: '+(m?((m.singerProfile?'Singer Style Profile (in-browser): ':'Trained Model: ')+m.name):'Original Voice')+' | melody \''+UPLOAD.name+'\' (base '+UPLOAD.median+' Hz) se li, root '+root+' Hz'+(m?(' par model \''+m.name+'\' ki waveform ('+wave+')'):(' par original voice profile ('+wave+')'))+' mein baj rahi hai. My Songs mein Cover entry save ho gayi — wahan se Play / Download WAV kar sakte hain.')}
 
 function waveGain(type){return type==='square'?0.5:(type==='sawtooth'?0.6:(type==='triangle'?0.85:1))} // soften harsh waveforms -> no clipping/screech
 function sanitizeModel(m){if(!m)return null;let vibR=+m.vibratoRateHz||0,vibD=+m.vibratoDepthCents||0;
@@ -340,13 +373,14 @@ function lyricsFromDescription(desc){ // PURE: description ke keywords/mood se a
  party:['Nach le yaar, '+topic+' ki hai raat,','Beat pe jhoom, bhool ja har baat,','Haathon ko utha, dil ki sun awaaz,',topic+' — party ka ye andaaz hai.']};
  return T[mood].join('\n')}
 // ============ Song generation params (PURE — Node-testable, replayable) ============
-function modelSnapshot(m){if(!m)return null;const sm=sanitizeModel(m);return{name:m.name,basePitch:m.basePitch,root:sm.root,pitchMin:m.pitchMin,pitchMax:m.pitchMax,centroid:m.centroid,waveType:m.waveType,vibratoRateHz:m.vibratoRateHz,vibratoDepthCents:m.vibratoDepthCents,tempo:m.tempo}}
+function modelSnapshot(m){if(!m)return null;const sm=sanitizeModel(m);return{name:m.name,basePitch:m.basePitch,root:sm.root,pitchMin:m.pitchMin,pitchMax:m.pitchMax,centroid:m.centroid,waveType:m.waveType,vibratoRateHz:m.vibratoRateHz,vibratoDepthCents:m.vibratoDepthCents,tempo:m.tempo,semis:(m.semis&&m.semis.length)?m.semis:null}}
 function buildSongParams(text,style,m,inst){ // deterministic: same lyrics+style+model => same notes
  const cfgName=resolveStyle(style),cfg=STYLE_CFG[cfgName],root0=261.63;
  let wave=cfg.wave,vibR=0,vibD=0,noteDur=cfg.dur,rootUsed=root0;
- let scale=cfg.semis.map(semi=>root0*Math.pow(2,semi/12));
+ const semis=(m&&m.semis&&m.semis.length)?m.semis:cfg.semis;
+ let scale=semis.map(semi=>root0*Math.pow(2,semi/12));
  if(m){const sm=sanitizeModel(m);rootUsed=sm.root;wave=sm.waveType;vibR=sm.vibratoRateHz;vibD=sm.vibratoDepthCents;
-  scale=cfg.semis.map(semi=>rootUsed*Math.pow(2,semi/12)); // style intervals, rooted on model's folded root
+  scale=semis.map(semi=>rootUsed*Math.pow(2,semi/12)); // profile/style intervals, rooted on model's folded root
   if(sm.tempo>0)noteDur=cfg.dur*Math.max(.7,Math.min(1.4,120/sm.tempo))}
  const words=(text||'').split(/\s+/).filter(Boolean).length;
  const nNotes=Math.max(16,Math.min(48,Math.round(words*1.25)||16)); // song length follows lyrics length (16-48 notes)
@@ -404,8 +438,41 @@ function saveSong(params){let s=get('songs',[]);s.unshift({name:(params.lyrics.s
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function render(){const mlist=MODELS;const cur=document.getElementById('modelSel').value;
  document.getElementById('models').innerHTML=mlist.length?mlist.map(x=>`<div class="box"><b>${esc(x.name)}</b><p class="stat">${x.samples} sample(s) • ${esc(x.status||'Trained ✓')}<br>Base pitch: <b>${x.basePitch} Hz</b> • Range: ${x.pitchMin}–${x.pitchMax} Hz<br>Centroid: ${x.centroid} Hz • Dominant: ${x.dominantFreq} Hz<br>Waveform: ${esc(x.waveType)} • Vibrato: ${x.vibratoRateHz} Hz / ${x.vibratoDepthCents}¢<br>Tempo: ~${x.tempo} BPM • Energy: ${x.energy} • Audio: ${x.duration}s<br>${esc(x.date)}</p><button class="btn small" onclick="testModelByName('${esc(x.name)}')">🔊 Test Voice</button> <button class="btn small" onclick="selectModel('${esc(x.name)}')">✔ Use in Generate</button> <button class="btn small" onclick="deleteModel('${esc(x.name)}')">🗑 Delete</button></div>`).join(''):'<div class="box">No model yet — train one above, free.</div>';
- const sel=document.getElementById('modelSel');sel.innerHTML='<option>Default Voice</option>'+mlist.map(x=>`<option>${esc(x.name)}</option>`).join('');
- if(mlist.some(x=>x.name===cur))sel.value=cur;
+ const sel=document.getElementById('modelSel');sel.innerHTML='<option value="Default Voice">Default Voice</option>'+(mlist.length?('<optgroup label="My Trained Models">'+mlist.map(x=>`<option value="${esc(x.name)}">${esc(x.name)}</option>`).join('')+'</optgroup>'):'')+'<optgroup label="Singer Style Profiles (in-browser)">'+SINGER_PROFILES.map(p=>`<option value="singer:${p.id}">${esc(p.name)} — Style Profile</option>`).join('')+'</optgroup>';
+ if([...sel.options].some(o=>o.value===cur))sel.value=cur;
+ renderCoverVoices();
  let s=get('songs',[]);document.getElementById('songs').innerHTML=s.length?s.map((x,i)=>`<div class="box"><b>${esc(x.name)}</b><p>${esc(x.style)} • Model: ${esc(x.model||'Default Voice')}<br>${esc(x.date)}</p>${(x.notes&&x.notes.length)?`<button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button>`:`<p class="stat">Purana entry — replay data nahi. Dobara Generate karein.</p><button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button>`}</div>`).join(''):'<div class="box">No songs yet — Generate a song above, then Play / Download it here.</div>'}
+
+// ============ Singer Style Profiles (in-browser, REAL distinct profiles) ============
+// Honest label: ye asal singer ki clone awaaz NAHI — us playback style ka measured musical profile hai.
+const SINGER_PROFILES=[
+ {id:'romantic-male',name:'Romantic Male Playback (Arijit-style)',basePitch:196,wave:'sine',vibR:5.0,vibD:35,tempo:82,semis:[0,2,4,7,9],scaleLabel:'Major pentatonic',feel:'Slow romantic ballad, soft vibrato, lambe notes'},
+ {id:'classical-female',name:'Classical Female Playback (Shreya-style)',basePitch:294,wave:'triangle',vibR:5.8,vibD:45,tempo:92,semis:[0,2,4,5,7,9,11],scaleLabel:'Full major scale',feel:'Classical melody, tez gamak-jaisa vibrato'},
+ {id:'legendary-female',name:'Legendary Female (Lata-style)',basePitch:330,wave:'sine',vibR:4.6,vibD:25,tempo:78,semis:[0,2,4,5,7,9],scaleLabel:'Major (no 7th)',feel:'Saaf unchi melody, halka vibrato, dheema tempo'},
+ {id:'sufi-male',name:'Sufi Male Playback',basePitch:165,wave:'triangle',vibR:4.2,vibD:50,tempo:72,semis:[0,1,4,5,7,9,10],scaleLabel:'Ahir Bhairav touch',feel:'Gehra sufi rang, gehra vibrato, bohat dheema'},
+ {id:'punjabi-folk-male',name:'Punjabi Folk Male',basePitch:220,wave:'triangle',vibR:3.8,vibD:20,tempo:138,semis:[0,2,4,6,7,9],scaleLabel:'Punjabi folk scale',feel:'Bhangra energy, tez tempo, seedhi awaaz'},
+ {id:'bollywood-rap',name:'Bollywood Rap / Hip-Hop Voice',basePitch:147,wave:'square',vibR:0,vibD:0,tempo:150,semis:[0,3,5,7,10],scaleLabel:'Minor pentatonic',feel:'Rap flow, koi vibrato nahi, punchy short notes'},
+ {id:'melody-queen',name:'Melody Queen (Soft Female Playback)',basePitch:262,wave:'sine',vibR:5.4,vibD:40,tempo:88,semis:[0,2,4,5,7,9,10],scaleLabel:'Khamaj touch (major + flat 7th)',feel:'Naram melody, darmiyana vibrato'},
+ {id:'folk-female',name:'Folk Female Voice',basePitch:247,wave:'sawtooth',vibR:4.8,vibD:30,tempo:112,semis:[0,1,4,5,7,8,11],scaleLabel:'Hijaz touch',feel:'Kachi folk awaaz, tez-darmiyana tempo'}];
+function singerAsModel(p){if(!p)return null;return{name:p.name,basePitch:p.basePitch,pitchMin:+(p.basePitch*0.85).toFixed(1),pitchMax:+(p.basePitch*1.6).toFixed(1),centroid:0,dominantFreq:p.basePitch,waveType:p.wave,vibratoRateHz:p.vibR,vibratoDepthCents:p.vibD,tempo:p.tempo,semis:p.semis.slice(),singerProfile:true,samples:0,status:'Style Profile (in-browser)'}}
+function renderSingerProfiles(){const el=document.getElementById('singerProfiles');if(!el)return;el.innerHTML=SINGER_PROFILES.map(p=>`<div class="box"><b>${esc(p.name)}</b><p class="stat"><span style="color:#7ee2a8">Style Profile (in-browser)</span> — asal singer ki clone awaaz nahi, us style ka profile hai.<br>Root: <b>${foldRoot(p.basePitch)} Hz</b> (base ${p.basePitch} Hz) • Waveform: ${esc(p.wave)}<br>Vibrato: ${p.vibR} Hz / ${p.vibD}¢ • Tempo feel: ~${p.tempo} BPM<br>Scale: ${esc(p.scaleLabel)}<br>${esc(p.feel)}</p><button class="btn small" onclick="useSingerProfile('${p.id}')">🎤 Use for Cover / Generate</button></div>`).join('')}
+function useSingerProfile(id){const p=SINGER_PROFILES.find(x=>x.id===id);if(!p)return;const v='singer:'+id;const sel=document.getElementById('modelSel');if(sel&&[...sel.options].some(o=>o.value===v))sel.value=v;const cs=document.getElementById('coverVoiceSel');if(cs&&[...cs.options].some(o=>o.value===v))cs.value=v;onModelChange();const st=document.getElementById('coverStatus');if(st)st.textContent='🎤 Singer Style Profile select ho gaya: '+p.name+' (root '+foldRoot(p.basePitch)+' Hz, '+p.wave+') — ab song upload karke Create Cover dabayein, ya upar Generate se isi profile mein gana banayein.';document.getElementById('cover').scrollIntoView({behavior:'smooth'})}
+function renderCoverVoices(){const cs=document.getElementById('coverVoiceSel');if(!cs)return;const cur=cs.value;cs.innerHTML='<option value="generate">Upar Generate wala selected model/profile</option>'+SINGER_PROFILES.map(p=>`<option value="singer:${p.id}">${esc(p.name)} — Style Profile (in-browser)</option>`).join('')+(MODELS.length?('<optgroup label="My Trained Models">'+MODELS.map(x=>`<option value="model:${esc(x.name)}">${esc(x.name)}</option>`).join('')+'</optgroup>'):'');if([...cs.options].some(o=>o.value===cur))cs.value=cur}
+function coverVoice(){const cs=document.getElementById('coverVoiceSel');const v=cs?cs.value:'generate';if(v&&v.indexOf('singer:')===0){const p=SINGER_PROFILES.find(x=>'singer:'+x.id===v);return p?singerAsModel(p):null}if(v&&v.indexOf('model:')===0){return MODELS.find(m=>'model:'+m.name===v)||null}return selectedModel()}
+// ============ Real RVC Models (URL/file isi device par save; asal conversion = free GPU notebook) ============
+let RVC_MODELS=get('rvcModels',[]);
+function rvcDbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('surgeet-rvc',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('files'))r.result.createObjectStore('files',{keyPath:'name'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function rvcPutFile(name,blob){try{const db=await rvcDbOpen();await new Promise((res,rej)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put({name:name,blob:blob});tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){}}
+async function rvcDelFile(name){try{const db=await rvcDbOpen();await new Promise((res,rej)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').delete(name);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){}}
+function rvcMsg(t){const el=document.getElementById('rvcMsg');if(el)el.textContent=t||''}
+function rvcValidate(name,url){if(!name)return 'Model ka naam likhein — Please enter a model name.';if(!url)return 'Model URL paste karein — Please paste a .pth model URL.';if(!/^https?:\/\//i.test(url))return 'URL http/https se shuru hona chahiye.';const lu=url.toLowerCase();if(lu.indexOf('.pth')<0&&lu.indexOf('huggingface.co')<0&&lu.indexOf('github.com')<0)return 'URL ek .pth file ka, ya HuggingFace/GitHub model repo ka link hona chahiye.';return null}
+function usePresetUrl(url,name){const u=document.getElementById('rvcUrl'),n=document.getElementById('rvcName');if(u)u.value=url;if(n)n.value=name;rvcMsg('Preset select ho gaya: "'+name+'" — ab "Save Model URL" dabakar isay My RVC Models mein save karein, phir notebook mein yehi model load karke asal cover banayein. (Repo/folder link ho to wahan se .pth + .index files lein.)');if(u)u.scrollIntoView({behavior:'smooth',block:'center'})}
+function saveRvcMeta(entry){RVC_MODELS=RVC_MODELS.filter(x=>x.name!==entry.name);RVC_MODELS.unshift(entry);set('rvcModels',RVC_MODELS);renderRvc()}
+function addRvcUrl(){const name=(document.getElementById('rvcName').value||'').trim();const url=(document.getElementById('rvcUrl').value||'').trim();const err=rvcValidate(name,url);if(err){rvcMsg('⚠ '+err);return}saveRvcMeta({name:name,kind:'url',url:url,date:new Date().toLocaleString()});rvcMsg('✓ RVC model URL save ho gaya: "'+name+'" — ab neeche notebook steps se isay Colab/Kaggle mein load karke asal singer-voice cover banayein.')}
+async function addRvcFile(e){const f=e.target.files&&e.target.files[0];if(!f)return;const low=f.name.toLowerCase();if(!(low.endsWith('.pth')||low.endsWith('.index'))){rvcMsg('⚠ Sirf .pth ya .index RVC file select karein.');return}const name=(document.getElementById('rvcName').value||'').trim()||f.name.replace(/\.(pth|index)$/i,'');await rvcPutFile(name,f);saveRvcMeta({name:name,kind:'file',fileName:f.name,size:f.size,date:new Date().toLocaleString()});rvcMsg('✓ RVC model file isi device par save ho gayi: "'+name+'" ('+f.name+', '+(f.size/1048576).toFixed(1)+' MB) — notebook chalate waqt yehi file wahan upload karni hai.')}
+async function deleteRvc(name){RVC_MODELS=RVC_MODELS.filter(x=>x.name!==name);set('rvcModels',RVC_MODELS);await rvcDelFile(name);renderRvc();rvcMsg('🗑 RVC model hata diya: "'+name+'"')}
+function rvcNotebookHelp(name){rvcMsg('🧬 "'+name+'" ka asal cover: 1) Neeche wala free Colab/Kaggle notebook kholein. 2) Notebook mein ye model (URL/file) + apna song load karein. 3) Cells chala kar GPU inference se converted song download karein. Browser page mein .pth nahi chalta — yehi asal tareeqa hai.')}
+function renderRvc(){const el=document.getElementById('rvcList');if(!el)return;el.innerHTML=RVC_MODELS.length?RVC_MODELS.map(x=>`<div class="box"><b>${esc(x.name)}</b><p class="stat">${x.kind==='url'?('🔗 URL model<br>'+esc(x.url)):('💾 File (is device par): '+esc(x.fileName||'')+' • '+((x.size||0)/1048576).toFixed(1)+' MB')}<br>${esc(x.date||'')}</p><button class="btn small" onclick="rvcNotebookHelp('${esc(x.name)}')">🧬 Notebook se Asal Cover</button> <button class="btn small" onclick="deleteRvc('${esc(x.name)}')">🗑 Delete</button></div>`).join(''):'<div class="box">Abhi koi RVC model save nahi — upar URL paste karein ya .pth file upload karein, ya neeche presets se chunein.</div>'}
+renderSingerProfiles();renderRvc();renderCoverVoices();
 loadModels();
 </script></body></html>
