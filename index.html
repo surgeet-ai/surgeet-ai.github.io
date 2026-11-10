@@ -26,6 +26,11 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 .train-msg{display:none;background:#3a1414;border:1px solid #ef4444;color:#fecaca;border-radius:10px;padding:12px 14px;font-weight:700;margin:12px 0}
 .train-msg.ok{background:#12291f;border-color:#256a47;color:#4ade80}
 .song-msg{font-size:14px;color:#7dd7ff;min-height:20px;margin:8px 0}
+.box{overflow-wrap:anywhere}
+#trainMsg{font-size:16px;line-height:1.65}
+#trainMsg.ok{font-size:17px;padding:16px}
+.uguide{padding-left:20px;line-height:2;color:#dbe6ee;font-size:15px;margin:6px 0}
+.sample-row{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#111820;border:1px solid #2e3b47;border-radius:8px;padding:7px 10px;margin:5px 0;font-size:13px;color:#dbe6ee}
 .stat{font-size:13px;color:#c6d0d8;line-height:1.7}.rec-on{background:#b91c1c!important;border-color:#ef4444!important}
 @media(max-width:640px){nav{display:none}.hero{padding-top:28px}}
 </style></head>
@@ -43,7 +48,7 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <div class="tabs"><button class="tab active" onclick="setTab(this,'lyrics')">Lyrics to Song</button><button class="tab" onclick="setTab(this,'text')">Text to Song</button><span style="margin-left:auto"><label class="btn small">⬆ Upload Song <input type="file" accept="audio/*" hidden onchange="uploadSong(event)"></label></span></div>
 <div class="row"><b>Instrumental</b><div class="switch" id="inst" onclick="this.classList.toggle('on')"></div></div>
 <label id="mainLabel"><b>Lyrics</b></label>
-<textarea id="lyrics" rows="9" maxlength="5000" placeholder="Enter your lyrics here" oninput="document.getElementById('cnt').textContent=this.value.length+'/5000'"></textarea>
+<textarea id="lyrics" dir="auto" rows="9" maxlength="5000" placeholder="Enter your lyrics here" oninput="document.getElementById('cnt').textContent=this.value.length+'/5000'"></textarea>
 <div class="row"><span></span><span id="cnt">0/5000</span></div>
 <div class="row"><span><button class="btn" onclick="randomLyrics()">⇄ Random Lyrics</button> <button class="btn" onclick="aiLyrics()">✦ AI Lyrics Generator</button></span></div>
 <label><b>Styles</b></label>
@@ -53,16 +58,31 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <p id="usingModel"></p>
 <button class="btn primary" onclick="generate()">🎵 Generate Song — Free</button>
 <p id="genStatus"></p><div id="player"></div>
+<div class="box" style="margin-top:14px"><h3 style="margin-top:0">📝 Audio Song se Lyrics</h3>
+<p class="stat">Koi audio song upload karein (upar <b>⬆ Upload Song</b> se), phir ye button dabayein — browser ke andar hi asal <b>Whisper AI</b> se song ke lyrics niklein ge. <b>Pehli dafa model download hoga — internet zaroori hai (lagbhag 40–75 MB, sirf ek dafa)</b>, phir ye isi device par chalta rahega. Bol-chaal, Urdu, English, Hindi — sab chalti hain. <b>Saaf baat:</b> tez background music ke sath gaaye hue song mein accuracy kam ho sakti hai, aur <b>Saraiki song aksar Urdu/Punjabi se qareeb text</b> mein transcribe hota hai.</p>
+<button class="btn" type="button" id="transcribeBtn" onclick="transcribeSong()">📝 Is Song ke Lyrics Nikalein (Transcribe)</button>
+<p id="trStatus" class="song-msg"></p>
+<textarea id="trResult" rows="6" dir="auto" placeholder="Transcribed lyrics yahan aayein ge — aap in ko edit bhi kar sakte hain" style="display:none"></textarea>
+<div class="row" id="trActions" style="display:none;justify-content:flex-start;margin-top:8px"><span><button class="btn" type="button" onclick="trToLyrics()">➡ Lyrics Box mein Daal dein</button> <button class="btn" type="button" onclick="trCopy()">📋 Copy</button></span></div>
+<p class="stat">Agar model load na ho (kamzor device ya internet masla) to doosra free tareeqa: <b>Google Colab</b> mein <i>pip install openai-whisper</i> karke apna song upload karein aur <i>whisper song.mp3</i> chalayein — lyrics wahan se copy karke yahan Lyrics box mein paste kar dein.</p></div>
+<div class="box" style="margin-top:14px"><h3 style="margin-top:0">🎚️ Music aur Awaaz Alag Karein (Vocal / Music Separation)</h3>
+<p class="stat">Upload kiye hue song se <b>sirf MUSIC (karaoke)</b> aur <b>sirf AWAAZ (vocals)</b> alag karein — ye browser wala tareeqa hai, foran, koi server nahi. <b>Honest note:</b> quality gana ke mix par depend karti hai — vocals agar song ke centre mein hon to behtar kaam karta hai. <b>100% saaf separation</b> ke liye neeche wala AI (Demucs) free tareeqa hai.</p>
+<button class="btn" type="button" id="sepBtn" onclick="separateSong()">🎚️ Music aur Awaaz Alag Karein</button>
+<p id="sepStatus" class="song-msg"></p>
+<div id="sepResults"></div>
+<p class="stat" style="margin-top:10px">AI tareeqa (Demucs, free GPU): <a class="btn small" href="SurGeet-Demucs-Separation.ipynb" download>⬇ Demucs Notebook Download</a> — Google Colab / Kaggle mein notebook kholein, song upload karein, cells chalayein: <b>vocals + music (aur drums / bass / other)</b> alag alag, saaf quality mein download ho jayenge — mono song par bhi kaam karta hai.</p></div>
 </main>
 
 <section id="train"><h2>🎤 Train Your Model — 100% FREE, Real In-Browser Training</h2><p>No payment, no subscription. Your samples are <b>really analysed on this device</b> with the Web Audio API — pitch detection (autocorrelation), FFT spectrum, tempo &amp; energy are measured from your audio, and the resulting Voice Model profile is saved in this browser (IndexedDB + localStorage). Your audio never leaves your device. When you select the model in Generate, the song's pitch, waveform, vibrato and tempo actually follow your measured profile.</p>
-<div class="box"><label>Model Name</label><input type="text" id="modelName" placeholder="e.g. My Voice 1">
+<div class="box" style="margin-bottom:16px"><h3 style="margin-top:0">📋 Model Train Karne Ka Tareeqa — Step by Step (Asaan Urdu)</h3><ol class="uguide"><li><b>Step 1 — Naam likhein:</b> neeche <b>Model Name</b> mein apne model ka naam likhein (masalan: <i>Meri Awaaz</i>).</li><li><b>Step 2 — Samples dein:</b> apni awaaz ke <b>3–5 samples</b> upload karein ya mic se record karein — har sample <b>30–60 second</b> ka ho, saaf awaaz ho, aas paas shor na ho.</li><li><b>Step 3 — Train dabayein:</b> <b>Start REAL Training</b> wala button dabayein aur progress 100% hone ka intezaar karein (internet ki zaroorat nahi, sab isi phone/browser mein hota hai).</li><li><b>Step 4 — Model select karein:</b> model ban jaye to woh <b>khud select</b> ho jata hai — warna <b>My Models</b> mein ja kar <b>Use in Generate</b> dabayein.</li><li><b>Step 5 — Gana banayein:</b> upar <b>Lyrics</b> wale hisse mein apne gana ke alfaaz likh kar <b>Generate</b> dabayein — gana aap ke model ki awaaz/pitch mein banega.</li></ol></div>
+<div class="box"><h3 style="margin-top:0">🎤 Apna Model Khud Train Karein — Model ki Audio Upload Karke</h3><p class="stat"><b>Ye wala option aap ke liye hai:</b> jis awaaz ka model banana hai, us ki audio yahan <b>upload karein (ya mic se record karein)</b>, phir <b>Train</b> dabayein — model ban jayega. Us ke baad upar <b>Lyrics</b> likh kar Generate karein, gana usi model ki awaaz/pitch mein banega.</p><label>Model Name</label><input type="text" id="modelName" placeholder="e.g. My Voice 1">
 <label style="display:block;margin-top:12px">1) Upload Audio Samples (mp3/wav, 3–10 clear singing/voice files best)</label>
 <input type="file" id="samples" accept="audio/*" multiple onchange="addFiles(event)">
 <p style="margin:12px 0 4px"><b>— OR —</b></p>
 <label>2) Record Samples with Microphone</label>
 <div class="row" style="justify-content:flex-start"><button class="btn" type="button" id="recBtn" onclick="toggleRecord()">⏺ Start Recording</button><span id="recStatus" class="stat">Mic needs HTTPS / localhost and your permission.</span></div>
-<p class="stat" id="pendingList">No samples added yet.</p>
+<div class="stat" id="pendingList">No samples added yet.</div>
+<div id="recPreview"></div>
 <ul class="steps" id="trainSteps">
 <li data-s="0">1. Loading samples (decoding audio)</li>
 <li data-s="1">2. Analysing pitch (autocorrelation pitch track)</li>
@@ -148,28 +168,32 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <footer>SurGeet AI — Free AI Song Maker &amp; Music Generator • Made for free hosting on GitHub Pages</footer>
 
 <script>
-const styles=["Pop","Rock","Hip-Hop","Jazz","Classical","Electronic","Lo-Fi","Urdu","Punjabi","Acoustic"];
+const styles=["Pop","Rock","Hip-Hop","Jazz","Classical","Electronic","Lo-Fi","Urdu","Punjabi","Saraiki","Acoustic"];
 let selStyle="Pop";
 document.getElementById('chips').innerHTML=styles.map((s,i)=>`<span class="chip ${i==0?'on':''}" onclick="pick(this,'${s}')">${s}</span>`).join('');
 function pick(e,s){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));e.classList.add('on');selStyle=s}
-let tabMode='lyrics';function setTab(e,m){tabMode=m;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));e.classList.add('active');document.getElementById('mainLabel').innerHTML=m=='text'?'<b>Describe your song</b>':'<b>Lyrics</b>';document.getElementById('lyrics').placeholder=m=='text'?'e.g. A happy Urdu pop song about friendship...':'Enter your lyrics here'}
-function randomLyrics(){const a=["Dil ki baatein, raaton ki yaadein","Walking through the city lights tonight","Mohabbat ka safar, har pal naya hai","Dreams are calling, we will fly so high"];lyrics.value=a[Math.floor(Math.random()*a.length)]+"\n"+a[Math.floor(Math.random()*a.length)];lyrics.dispatchEvent(new Event('input'))}
+let tabMode='lyrics';function setTabMode(m){tabMode=m;document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(m==='lyrics')===(i===0)));document.getElementById('mainLabel').innerHTML=m=='text'?'<b>Describe your song</b>':'<b>Lyrics</b>';document.getElementById('lyrics').placeholder=m=='text'?'e.g. A happy Urdu pop song about friendship...':'Enter your lyrics here'}
+function setTab(e,m){setTabMode(m)}
+function randomLyrics(){const a=["Dil ki baatein, raaton ki yaadein","Walking through the city lights tonight","Mohabbat ka safar, har pal naya hai","Dreams are calling, we will fly so high","روہی دی وادی سوہنی لگدی اے","میڈا سجݨ روہی دا واسی اے"];lyrics.value=a[Math.floor(Math.random()*a.length)]+"\n"+a[Math.floor(Math.random()*a.length)];lyrics.dispatchEvent(new Event('input'))}
 const LYR_TEMPLATES={
 'Pop':[['Stars are shining over my town,','Every dream is turning around,','Sing it loud, sing it free,','This is our melody.'],['Heartbeat running like a radio song,','We have been waiting for this all along,','Hands up high, we belong,','Tonight we sing it strong.'],['Colors flying in the summer air,','Laughing loud without a care,','Every moment, everywhere,','Love is floating in the air.']],
 'Rock':[['Thunder rolling down the highway,','Breaking chains, doing it my way,','Raise your voice, let it stay,','We are the fire of today.'],['Steel hearts never surrender,','Storm and lightning, we remember,','Burning brighter than December,','We rise, we rise together.'],['Engines roaring, midnight rider,','Every scar makes the flame wider,','Stand your ground, never hide,','Rock will never die inside.']],
 'Hip-Hop':[['Started from the bottom, now the beat is mine,','Every single struggle turned into a rhyme,','City lights flashing, this is my time,','Bars so heavy, watch the ladder I climb.'],['Mic in my hand and a fire in my chest,','Put my story on the rhythm, forget the rest,','Dreams in my pocket, I am passing the test,','Hustle every day, I was born for the best.'],['Boom bap heartbeat, streets know my name,','Turned all the pain into fortune and fame,','No shortcuts taken, I stayed in the game,','Legends are made, never made the same.']],
 'Jazz':[['Blue notes floating in the midnight air,','Saxophone sighing without a care,','Every rhythm swaying here and there,','Jazz is a feeling beyond compare.'],['Candlelight dancing on a piano tune,','Whispers of music under the moon,','Every heartbeat humming a croon,','The night will be over too soon.'],['Swing it easy, slide it slow,','Let the warm brass gently glow,','Stories the old records know,','In every note, feelings flow.']],
 'Urdu':[['Dil ki baatein, raaton ki yaadein,','Teri khamoshi, meri faryaadein,','Chand sitare gawah hain saare,','Ishq mein doobe hum bechaare.'],['Mohabbat ka safar, har pal naya hai,','Tera mera saath, khuda ki ata hai,','Raahon mein phool khile hain hazaar,','Dil ne tujhe hi to chuna hai.'],['Yaadon ki gali se guzra hai dil,','Har ek manzil se bhatka hai dil,','Teri gali ka hai ye deewana,','Har shaam tera hi fasaana.']],
+'Saraiki':[['روہی دی وادی سوہنی لگدی اے،','میڈا سجݨ روہی دا واسی اے،','اساں توساں رل کے رہسوں،','دل دی گال سجݨ نال کہسوں۔'],['چولستان دی ریت سنہری اے،','دریا دی لہر وی گہری اے،','میڈا چندا سجݨ پردیسی،','تیڈی یاد وچ رات لنگھیسی۔'],['کچیاں دی مٹی مہکدی پئی اے،','سجݨ دی راہ تکدی پئی اے،','میڈا دل تیڈے نال جڑیا،','ہر دم تیڈا ناں وڑیا۔']],
 'Punjabi':[['Nach le sohneya, beat te nach le,','Dil di gall ajj sab nu das de,','Bhangra paa le zor laga ke,','Saari duniya nu ajj nacha de.'],['Pind di mitti, maa diyaan yaadan,','Yaar beli sab mere naal aa,','Dhol di thaap te dil dhadke,','Punjabi mauj, sab to wakhra.'],['Gabru jawan, full shaan naal,','Turda ae poori aan naal,','Yaarriyan nibhaaiyaan jaan naal,','Punjabi dil, sacha pyaar naal.']],
 'default':[['Walking through the city lights tonight,','Dreams are calling, we will fly so high,','Every heartbeat finds its way,','Tomorrow is a brand new day.'],['Under the sky so wide and blue,','Every story leads to you,','Sing the feeling, pure and true,','The world is waiting just for you.'],['Echoes rising, soft and clear,','Music brings the far ones near,','Hold this moment, keep it dear,','Melodies are all we hear.']]};
 let aiLyrCounter=0;
 function aiLyrics(){const raw=document.getElementById('styleInput').value||selStyle;const key=resolveStyle(raw);const arr=LYR_TEMPLATES[key]||LYR_TEMPLATES['default'];const idx=aiLyrCounter++%arr.length;lyrics.value='['+key+' Verse '+(idx+1)+']\n'+arr[idx].join('\n');lyrics.dispatchEvent(new Event('input'))}
+const AUDIO_EXT=/\.(mp3|wav|m4a|aac|ogg|oga|webm|flac|opus)$/i;
+function isAudioFile(f){if(!f)return false;return (f.type&&f.type.indexOf('audio/')===0)||AUDIO_EXT.test(f.name||'')}
 let UPLOAD=null; // {name, blob, stats, contour, median} — Cover isi ko use karta hai
 async function ensureUploadAnalysed(){if(!UPLOAD)throw new Error('No song uploaded yet');if(UPLOAD.stats)return UPLOAD;
  const ac=audioCtx();await ac.resume();const buf=await ac.decodeAudioData(await UPLOAD.blob.arrayBuffer());
  const mono=new Float32Array(buf.length);for(let ch=0;ch<buf.numberOfChannels;ch++){const d=buf.getChannelData(ch);for(let j=0;j<buf.length;j++)mono[j]+=d[j]/buf.numberOfChannels}
  UPLOAD.stats=analyseMono(mono,buf.sampleRate);const pc=pitchContour(mono,buf.sampleRate,24);UPLOAD.contour=pc.contour;UPLOAD.median=pc.median;return UPLOAD}
-async function uploadSong(e){const f=e.target.files&&e.target.files[0];if(!f)return;UPLOAD={name:f.name,blob:f,stats:null,contour:null,median:0};
+async function uploadSong(e){const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;if(!isAudioFile(f)){const wm='⚠ Ye audio file nahi hai: '+f.name+' — sirf audio file (mp3/wav/m4a) chunein.';genStatus.textContent=wm;const ciw=document.getElementById('coverInfo');if(ciw)ciw.textContent=wm;return}UPLOAD={name:f.name,blob:f,stats:null,contour:null,median:0};
  genStatus.textContent='Uploaded: '+f.name+' — analysing (pitch/tempo)…';player.innerHTML=`<audio controls src="${URL.createObjectURL(f)}"></audio>`;
  const ci=document.getElementById('coverInfo');if(ci)ci.textContent='Song: '+f.name+' — analysing…';
  try{await ensureUploadAnalysed();const msg='Uploaded & analysed: '+f.name+' — base pitch '+UPLOAD.stats.basePitch+' Hz • tempo ~'+UPLOAD.stats.tempo+' BPM • waveform '+UPLOAD.stats.waveType+'. Neeche Cover section mein isay select kiye hue model ki awaaz mein badlein.';
@@ -269,49 +293,64 @@ function mergeProfiles(list){ // average measured stats across samples (basePitc
 // ============ Samples: file uploads + microphone recording ============
 let pendingSamples=[]; // {name, blob}
 let actx;function audioCtx(){actx=actx||new (window.AudioContext||window.webkitAudioContext)();return actx}
-function showPending(){const el=document.getElementById('pendingList');el.textContent=pendingSamples.length?('Samples ready: '+pendingSamples.map(s=>s.name+' ('+(s.blob.size/1024).toFixed(0)+' KB)').join(', ')):'No samples added yet.'}
+function fmtDur(sec){if(sec==null||!isFinite(sec)||sec<=0)return'—';sec=Math.round(sec);return Math.floor(sec/60)+':'+('0'+(sec%60)).slice(-2)}
+function probeDur(s){if(s.dur!=null)return;try{const a=document.createElement('audio');a.preload='metadata';a.onloadedmetadata=()=>{s.dur=a.duration;try{URL.revokeObjectURL(a.src)}catch(e){}showPending()};a.onerror=()=>{s.dur=0;showPending()};a.src=URL.createObjectURL(s.blob)}catch(e){s.dur=0}}
+function showPending(){const el=document.getElementById('pendingList');if(!pendingSamples.length){el.textContent='No samples added yet.';return}
+ el.innerHTML=pendingSamples.map((s,i)=>`<div class="sample-row"><span>🎵 ${esc(s.name)} • ${(s.blob.size/1024).toFixed(0)} KB • ⏱ ${s.dur==null?'…':fmtDur(s.dur)}</span><button class="btn small" type="button" onclick="removeSample(${i})">✕ Remove</button></div>`).join('')+'<p class="stat" style="margin:4px 0 0">'+pendingSamples.length+' sample(s) ready — har sample 30–60 sec saaf awaaz ka ho to model behtar banta hai.</p>';
+ pendingSamples.forEach(probeDur)}
+function removeSample(i){pendingSamples.splice(i,1);showPending();if(pendingSamples.length)showTrainMsg('✓ '+pendingSamples.length+' sample(s) baqi hain.',true);else showTrainMsg('')}
 function showTrainMsg(msg,ok){const el=document.getElementById('trainMsg');if(!el)return;el.textContent=msg||'';el.className='train-msg'+(ok?' ok':'');el.style.display=msg?'block':'none';const st=document.getElementById('trainStatus');if(st&&msg)st.textContent=msg;if(msg&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'center'})}
-function addFiles(e){[...e.target.files].forEach(f=>pendingSamples.push({name:f.name,blob:f}));showPending();if(pendingSamples.length)showTrainMsg('✓ '+pendingSamples.length+' sample(s) ready — ab Start REAL Training dabayein.',true)}
+function addFiles(e){const files=[...e.target.files];e.target.value='';const bad=[];files.forEach(f=>{if(!f)return;if(isAudioFile(f))pendingSamples.push({name:f.name,blob:f,dur:null});else bad.push(f.name)});showPending();if(bad.length)showTrainMsg('⚠ Ye file(s) audio nahi hain, add nahi huin: '+bad.join(', ')+' — sirf audio file (mp3/wav/m4a) chunein.');else if(pendingSamples.length)showTrainMsg('✓ '+pendingSamples.length+' sample(s) ready — ab Start REAL Training dabayein.',true)}
 let mediaRec=null,recChunks=[],recStream=null,recOn=false;
 async function toggleRecord(){const btn=document.getElementById('recBtn'),st=document.getElementById('recStatus');
  if(recOn){mediaRec.stop();return}
- try{recStream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(err){st.textContent='Mic permission denied / unavailable: '+err.message;return}
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){st.textContent='⚠ Is browser mein mic support nahi hai.';showTrainMsg('⚠ Mic is browser mein available nahi hai — page ko Chrome mein https://surgeet-ai.github.io par kholein, ya phir audio files upload kar dein.');return}
+ try{recStream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(err){st.textContent='⚠ Mic ki ijazat nahi mili: '+err.message;showTrainMsg('⚠ Mic ki ijazat (permission) nahi mili — browser ke address bar ke paas mic wala icon dabakar "Allow" karein, phir dobara Record dabayein. Ya phir audio files upload kar dein.');return}
  recChunks=[];mediaRec=new MediaRecorder(recStream);mediaRec.ondataavailable=e=>{if(e.data.size)recChunks.push(e.data)};
  mediaRec.onstop=()=>{recOn=false;btn.textContent='⏺ Start Recording';btn.classList.remove('rec-on');recStream.getTracks().forEach(t=>t.stop());
-  const blob=new Blob(recChunks,{type:mediaRec.mimeType||'audio/webm'});pendingSamples.push({name:'mic-recording-'+new Date().toLocaleTimeString().replace(/[: ]/g,'')+'.webm',blob:blob});
-  st.textContent='Recording added ✓ ('+(blob.size/1024).toFixed(0)+' KB)';showPending();showTrainMsg('✓ Recording sample ready — ab Start REAL Training dabayein.',true)};
+  const blob=new Blob(recChunks,{type:mediaRec.mimeType||'audio/webm'});pendingSamples.push({name:'mic-recording-'+new Date().toLocaleTimeString().replace(/[: ]/g,'')+'.webm',blob:blob,dur:null});
+  st.textContent='Recording added ✓ ('+(blob.size/1024).toFixed(0)+' KB)';showPending();showTrainMsg('✓ Recording sample ready — pehle neeche preview mein sun lein, phir Start REAL Training dabayein.',true);
+  const pv=document.getElementById('recPreview');if(pv){pv.innerHTML='<p class="stat" style="margin:8px 0 2px">▶ Apni recording pehle sun lein — theek ho to Train karein, warna sample ke ✕ Remove se hata kar dobara record karein:</p>';const au=document.createElement('audio');au.controls=true;au.src=URL.createObjectURL(blob);pv.appendChild(au)}};
  mediaRec.start();recOn=true;btn.textContent='⏹ Stop Recording';btn.classList.add('rec-on');st.textContent='Recording… sing clearly, then Stop.'}
 
 // ============ REAL TRAINING FLOW (progress follows actual processing) ============
 const tick=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(r,10)));
 function setStep(i,frac,statusText){document.querySelectorAll('#trainSteps li').forEach(li=>{const s=+li.dataset.s;li.className=s<i?'done':(s===i?'on':'')});
  const bar=document.getElementById('prog');bar.style.display='block';bar.firstElementChild.style.width=Math.round(frac*100)+'%';
- if(statusText)document.getElementById('trainStatus').textContent=statusText}
+ if(statusText)document.getElementById('trainStatus').textContent=statusText+(frac>0&&frac<1?(' — '+Math.round(frac*100)+'%'):(frac>=1?' — 100%':''))}
 async function train(){
  const name=document.getElementById('modelName').value.trim();
  const errs=[];
  if(!name)errs.push('Model ka naam likhein — Please enter a model name.');
+ if(name&&(name==='Default Voice'||name.toLowerCase().indexOf('singer:')===0||name.toLowerCase().indexOf('model:')===0))errs.push('Ye naam system ka reserved naam hai — koi apna naam likhein (masalan: Meri Awaaz).');
+ if(name.length>60)errs.push('Model ka naam 60 characters se chhota rakhein.');
  if(!pendingSamples.length)errs.push('Pehle kam az kam 1 audio sample upload ya record karein — Please upload or record at least 1 audio sample first.');
  if(errs.length){showTrainMsg('⚠ '+errs.join(' '));if(!name){const mn=document.getElementById('modelName');if(mn.focus)mn.focus()}return}
  showTrainMsg('');
- const ac=audioCtx();await ac.resume();const profiles=[];
+ const ac=audioCtx();await ac.resume();const profiles=[];const warns=[];
  try{
   const total=pendingSamples.length;
   for(let i=0;i<total;i++){const s=pendingSamples[i];
    setStep(0,(i)/total*0.35,'1/5 Loading sample '+(i+1)+'/'+total+': '+s.name+' — decoding…');await tick();
    const buf=await ac.decodeAudioData(await s.blob.arrayBuffer());
+   if(buf.duration<2){warns.push(s.name+' — ye sample bohat chhota hai ('+buf.duration.toFixed(1)+' sec), skip kar diya. Kam az kam 10–30 sec ka sample dein.');setStep(2,0.85*(i+1)/total,'Skip: '+s.name+' bohat chhota hai');await tick();continue}
    setStep(1,0.35+(i)/total*0.3,'2/5 Analysing pitch of '+s.name+' ('+buf.duration.toFixed(1)+'s, '+buf.sampleRate+' Hz)…');await tick();
-   const mono=new Float32Array(buf.length);for(let ch=0;ch<buf.numberOfChannels;ch++){const d=buf.getChannelData(ch);for(let j=0;j<buf.length;j++)mono[j]+=d[j]/buf.numberOfChannels}
+   let mono=new Float32Array(buf.length);for(let ch=0;ch<buf.numberOfChannels;ch++){const d=buf.getChannelData(ch);for(let j=0;j<buf.length;j++)mono[j]+=d[j]/buf.numberOfChannels}
+   if(buf.duration>120)mono=mono.subarray(0,Math.floor(120*buf.sampleRate));
    setStep(2,0.65+(i)/total*0.2,'3/5 Extracting voice profile (FFT / tempo / energy) of '+s.name+'…');await tick();
-   profiles.push(analyseMono(mono,buf.sampleRate))}
+   const prof=analyseMono(mono,buf.sampleRate);
+   if(!prof.basePitch||prof.energy<0.005){warns.push(s.name+' — ye sample khaali/khaamosh lagta hai ya is mein saaf awaaz nahi mili, skip kar diya. Qareeb se, saaf awaaz mein gaya/bola hua sample dein.');await tick();continue}
+   profiles.push(prof)}
+  if(!profiles.length)throw new Error('Koi bhi sample theek nahi mila. '+(warns.join(' ')||'Saaf, qareeb se record ki hui awaaz ke samples try karein.'))
   setStep(3,0.9,'4/5 Building model from '+total+' measured profile(s)…');await tick();
   const stats=mergeProfiles(profiles);
   if(!stats.basePitch)throw new Error('Kisi sample mein clear voice pitch nahi mili — saaf, qareeb se gayi hui awaaz ke samples try karein.');
   const model=Object.assign({name:name,samples:total,date:new Date().toLocaleString(),status:'Trained ✓ (real analysis)'},stats);
   MODELS=MODELS.filter(m=>m.name!==name);MODELS.unshift(model);set('models',MODELS);await idbPut(model);
-  setStep(4,1,'5/5 Done ✓');showTrainMsg('✓ Model "'+name+'" trained & saved — ab Generate mein use karein.',true);document.querySelectorAll('#trainSteps li').forEach(li=>li.className='done');
-  document.getElementById('trainStatus').textContent='Model "'+name+'" trained & saved ✓ Base pitch '+stats.basePitch+' Hz • range '+stats.pitchMin+'–'+stats.pitchMax+' Hz • waveform '+stats.waveType+' • tempo ~'+stats.tempo+' BPM. Ab upar Generate mein is model ko select karke song banayein — pitch/waveform/vibrato/tempo isi profile se chalega.';
+  setStep(4,1,'5/5 Done ✓');showTrainMsg('🎉 MUBARAK! Model "'+name+'" tayyar hai — Base pitch '+stats.basePitch+' Hz • waveform '+stats.waveType+'. Model khud select ho gaya hai. AB STEP 5: upar Lyrics likh kar Generate dabayein — gana isi model ki awaaz mein banega.'+(warns.length?(' ⚠ Kuch samples skip hue: '+warns.join(' ')):''),true);document.querySelectorAll('#trainSteps li').forEach(li=>li.className='done');
+  document.getElementById('trainStatus').textContent='Model "'+name+'" trained & saved ✓ Base pitch '+stats.basePitch+' Hz • range '+stats.pitchMin+'–'+stats.pitchMax+' Hz • waveform '+stats.waveType+' • tempo ~'+stats.tempo+' BPM.'+(warns.length?(' Skip hue samples: '+warns.join(' ')):'')+' STEP 5: Upar Lyrics wale hisse mein gana ke alfaaz likh kar Generate dabayein.';
   pendingSamples=[];showPending();render();selectModel(name);
+  document.getElementById('genStatus').textContent='🎤 Model "'+name+'" select ho gaya hai (root '+foldRoot(stats.basePitch)+' Hz) — ab yahan apne gana ke Lyrics likh kar Generate dabayein.';
  }catch(err){setStep(0,0,'Training ruk gayi: '+err.message);showTrainMsg('⚠ Training ruk gayi: '+err.message);document.getElementById('trainStatus').textContent='Error: '+err.message}}
 
 // ============ Model usage in Generate + Test Voice ============
@@ -321,6 +360,9 @@ function onModelChange(){const m=selectedModel(),el=document.getElementById('usi
  else{el.style.display='none';el.textContent=''}}
 function selectModel(name){render();document.getElementById('modelSel').value=name;onModelChange();document.getElementById('create').scrollIntoView({behavior:'smooth'})}
 async function deleteModel(name){MODELS=MODELS.filter(m=>m.name!==name);set('models',MODELS);await idbDel(name);render();onModelChange()}
+function testModelByIdx(i){const m=MODELS[i];if(m)testVoiceOf(m)}
+function selectModelIdx(i){const m=MODELS[i];if(m)selectModel(m.name)}
+function deleteModelByIdx(i){const m=MODELS[i];if(m)deleteModel(m.name)}
 function playVoice(freq,type,vibRate,vibDepthCents,when,dur,vol){const ac=audioCtx();const o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.value=freq;
  if(vibRate>0&&vibDepthCents>0){const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=vibRate;lg.gain.value=freq*(Math.pow(2,vibDepthCents/1200)-1);lfo.connect(lg);lg.connect(o.frequency);lfo.start(when);lfo.stop(when+dur)}
  o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime((vol||.16)*waveGain(type),when);g.gain.exponentialRampToValueAtTime(.001,when+dur*.92);o.start(when);o.stop(when+dur)}
@@ -356,9 +398,10 @@ const STYLE_CFG={
  'Lo-Fi':{semis:[0,2,3,7,9],dur:.58,wave:'triangle'},
  'Urdu':{semis:[0,1,4,5,7,8,11],dur:.55,wave:'sine'},
  'Punjabi':{semis:[0,2,4,6,7,9],dur:.4,wave:'triangle'},
+ 'Saraiki':{semis:[0,2,3,5,7,9,10],dur:.36,wave:'triangle'},
  'Acoustic':{semis:[0,2,4,7,9],dur:.5,wave:'sine'}};
 function resolveStyle(style){style=(style||'Pop').trim();if(STYLE_CFG[style])return style;
- const l=style.toLowerCase(),kw=[['hip','Hip-Hop'],['rap','Hip-Hop'],['lo-fi','Lo-Fi'],['lofi','Lo-Fi'],['urdu','Urdu'],['punjabi','Punjabi'],['bhangra','Punjabi'],['classic','Classical'],['electro','Electronic'],['edm','Electronic'],['jazz','Jazz'],['rock','Rock'],['acoustic','Acoustic'],['pop','Pop']];
+ const l=style.toLowerCase(),kw=[['hip','Hip-Hop'],['rap','Hip-Hop'],['lo-fi','Lo-Fi'],['lofi','Lo-Fi'],['urdu','Urdu'],['punjabi','Punjabi'],['bhangra','Punjabi'],['saraiki','Saraiki'],['multani','Saraiki'],['rohi','Saraiki'],['classic','Classical'],['electro','Electronic'],['edm','Electronic'],['jazz','Jazz'],['rock','Rock'],['acoustic','Acoustic'],['pop','Pop']];
  for(const [k,v] of kw)if(l.includes(k))return v;
  const keys=Object.keys(STYLE_CFG);let h=0;for(const c of l)h=(h*31+c.charCodeAt(0))>>>0;return keys[h%keys.length]}
 function lyricsFromDescription(desc){ // PURE: description ke keywords/mood se asal lyrics lines
@@ -366,7 +409,7 @@ function lyricsFromDescription(desc){ // PURE: description ke keywords/mood se a
  const stop=new Set('the,a,an,about,for,of,and,to,in,on,my,me,song,songs,music,make,create,with,from,this,that,bana,banao,ek,ka,ki,ke,hai,ho,aur,mein'.split(','));
  const kw=d.replace(/[^a-z\s]/g,' ').split(/\s+/).filter(w=>w.length>3&&!stop.has(w));
  const topic=kw.slice(0,3).join(' ')||'beautiful dreams';
- let mood='hopeful';if(/sad|alone|miss|dard|udaas|lost/.test(d))mood='sad';else if(/love|mohabbat|pyaar|ishq|dil/.test(d))mood='love';else if(/party|dance|nach|khushi|beat/.test(d))mood='party';
+ let mood='hopeful';if(/sad|alone|miss|dard|udaas|lost|اداس|تنہا|یاد/.test(d))mood='sad';else if(/love|mohabbat|pyaar|ishq|dil|محبت|پیار|عشق/.test(d))mood='love';else if(/party|dance|nach|khushi|beat|رقص|خوشی|جشن/.test(d))mood='party';
  const T={hopeful:['Walking on with '+topic+' in my heart,','Every morning is a brand new start,','Sing it higher, let the worries depart,',topic+' — this is my melody.'],
  sad:['Raaton mein '+topic+' yaad aata hai,','Dil ka har kona kuch kehna chahta hai,','Aankhon se khamoshi ka geet behta hai,',topic+' — judai ka ye naghma hai.'],
  love:['Dil ne kaha, '+topic+' hi to hai,','Mohabbat ka har rang tujh hi se hai,','Saanson mein basi teri khushboo si hai,',topic+' — ishq ka ye taraana hai.'],
@@ -382,13 +425,14 @@ function buildSongParams(text,style,m,inst){ // deterministic: same lyrics+style
  if(m){const sm=sanitizeModel(m);rootUsed=sm.root;wave=sm.waveType;vibR=sm.vibratoRateHz;vibD=sm.vibratoDepthCents;
   scale=semis.map(semi=>rootUsed*Math.pow(2,semi/12)); // profile/style intervals, rooted on model's folded root
   if(sm.tempo>0)noteDur=cfg.dur*Math.max(.7,Math.min(1.4,120/sm.tempo))}
+ const lines=(text||'').split('\n').filter(l=>l.trim()).length;
  const words=(text||'').split(/\s+/).filter(Boolean).length;
- const nNotes=Math.max(16,Math.min(48,Math.round(words*1.25)||16)); // song length follows lyrics length (16-48 notes)
- const seed0=[...text].reduce((a,c)=>a+c.charCodeAt(0),0);let seed=seed0;const notes=[];
+ const nNotes=Math.max(16,Math.min(48,Math.round(words*1.1+lines*2)||16)); // song length follows lyrics words+lines (16-48 notes)
+ const seed0=[...text].reduce((a,c,ix)=>a+c.charCodeAt(0)*(ix+7),words*131+lines*1009);let seed=seed0;const notes=[]; // position-weighted seed: anagram lyrics bhi alag dhun
  for(let i=0;i<nNotes;i++){seed=(seed*9301+49297)%233280;const f=foldNote(scale[Math.floor(seed/233280*scale.length)]*(i%8==7?1.5:1));
   notes.push({f:f,t:+(i*noteDur).toFixed(3),d:+(noteDur*.92).toFixed(3),type:wave,vibR:vibR,vibD:vibD,vol:+(.18*waveGain(wave)).toFixed(3)});
   if(inst)notes.push({f:foldNote(f/2),t:+(i*noteDur).toFixed(3),d:+(noteDur*.92).toFixed(3),type:'triangle',vibR:0,vibD:0,vol:.10})}
- return{lyrics:text,style:cfgName,requestedStyle:style,model:m?m.name:'Default Voice',rootHz:rootUsed,modelProfile:modelSnapshot(m),instrumental:!!inst,seed:seed0,noteDur:+noteDur.toFixed(3),wave:wave,notes:notes,duration:+(nNotes*noteDur+0.4).toFixed(2)}}
+ return{lyrics:text,style:cfgName,requestedStyle:style,model:m?m.name:'Default Voice',rootHz:rootUsed,melodyCount:nNotes,modelProfile:modelSnapshot(m),instrumental:!!inst,seed:seed0,noteDur:+noteDur.toFixed(3),wave:wave,notes:notes,duration:+(nNotes*noteDur+0.4).toFixed(2)}}
 function playParamsLive(params,when0){const ac=audioCtx();ac.resume();const now=when0!=null?when0:ac.currentTime+.1;
  params.notes.forEach(n=>playVoice(n.f,n.type,n.vibR,n.vibD,now+n.t,n.d,n.vol));return now}
 // ============ WAV export (PURE encoder — works on any AudioBuffer-like object) ============
@@ -413,7 +457,9 @@ function songParamsFromEntry(x){if(!x)return null;
 function showSongMsg(msg){const el=document.getElementById('songMsg');if(el)el.textContent=msg||'';const gs=document.getElementById('genStatus');if(gs&&msg)gs.textContent=msg}
 async function playSong(idx){const s=get('songs',[]),x=s[idx];const p=songParamsFromEntry(x);
  if(!p){showSongMsg('⚠ Is purane song ka replay data nahi hai — lyrics dobara Generate karein, phir Play chalega.');return}
- playParamsLive(p);showSongMsg('▶ Playing: "'+(x.name||'Untitled')+'" ('+(x.style||'')+' • '+(x.model||'Default Voice')+')')}
+ try{playParamsLive(p)}catch(err){showSongMsg('⚠ Play nahi ho saka: '+err.message+' — page reload karke phir try karein.');return}
+ showSongMsg('▶ Playing: "'+(x.name||'Untitled')+'" ('+(x.style||'')+' • '+(x.model||'Default Voice')+')')}
+function deleteSong(i){const s=get('songs',[]);if(i<0||i>=s.length)return;s.splice(i,1);set('songs',s);render();showSongMsg('🗑 Song delete ho gaya.')}
 async function downloadSong(idx){const s=get('songs',[]),x=s[idx];const p=songParamsFromEntry(x);
  if(!p){showSongMsg('⚠ Is purane song ka download data nahi hai — dobara Generate karein.');return}
  try{showSongMsg('⏳ WAV bana raha hai: "'+(x.name||'Untitled')+'" …');const blob=await paramsToWavBlob(p);
@@ -423,25 +469,27 @@ async function downloadSong(idx){const s=get('songs',[]),x=s[idx];const p=songPa
 // Web Audio generation: melody from lyrics hash + style — NOW driven by selected trained model profile
 let ctx;function generate(){
  let text=(document.getElementById('lyrics').value||'').trim();let descNote='';
+ const hasWords=/[\p{L}\p{N}]/u.test(text);
  if(tabMode=='text'){
-  if(!text){document.getElementById('genStatus').textContent='⚠ Pehle apne song ki description likhein.';return}
+  if(!hasWords){document.getElementById('genStatus').textContent='⚠ Pehle apne song ki description likhein — khaali box se gana nahi banta.';return}
   text=lyricsFromDescription(text);document.getElementById('lyrics').value=text;document.getElementById('lyrics').dispatchEvent(new Event('input'));
-  descNote='📝 Lyrics generated from your description — phir un lyrics par music bana hai. '}
- text=text||'la la la';const inst=document.getElementById('inst').classList.contains('on');
+  descNote='📝 Lyrics generated from your description — phir un lyrics par music bana hai. ';setTabMode('lyrics')}
+ else if(!hasWords){document.getElementById('genStatus').textContent='⚠ Pehle Lyrics likhein — khaali lyrics se gana nahi banta. Box mein gana ke alfaaz likhein, ya Random Lyrics / AI Lyrics Generator dabayein.';const lyEl=document.getElementById('lyrics');if(lyEl.focus)lyEl.focus();return}
+ const inst=document.getElementById('inst').classList.contains('on');
  const rawStyle=document.getElementById('styleInput').value.trim()||selStyle;
  const m=selectedModel();ctx=audioCtx();ctx.resume();
  const params=buildSongParams(text,rawStyle,m,inst);
- playParamsLive(params);
- document.getElementById('genStatus').textContent=descNote+'Playing generated '+params.style+' song ('+params.notes.filter(n=>n.type===params.wave).length+' notes)'+(m?(' — 🎤 Using model: '+m.name+' (root '+(params.rootHz||foldRoot(m.basePitch))+' Hz, measured '+m.basePitch+' Hz, '+params.wave+', tempo step '+params.noteDur.toFixed(2)+'s)'):' (Default Voice)')+'… My Songs mein Play / WAV Download ke sath save ho gaya hai.';
+ let playErr='';try{playParamsLive(params)}catch(err){playErr=' (Audio play nahi ho saka: '+err.message+' — song save ho gaya hai, My Songs se Play try karein.)'}
+ document.getElementById('genStatus').textContent=descNote+'Playing generated '+params.style+' song ('+(params.melodyCount||params.notes.length)+' notes)'+(m?(' — 🎤 Using model: '+m.name+' (root '+(params.rootHz||foldRoot(m.basePitch))+' Hz, measured '+m.basePitch+' Hz, '+params.wave+', tempo step '+params.noteDur.toFixed(2)+'s)'):' (Default Voice)')+'… My Songs mein Play / WAV Download ke sath save ho gaya hai.'+playErr;
  saveSong(params)}
 function saveSong(params){let s=get('songs',[]);s.unshift({name:(params.lyrics.split('\n')[0]||'Untitled').slice(0,40),style:params.style,model:params.model,date:new Date().toLocaleString(),lyrics:params.lyrics,instrumental:params.instrumental,seed:params.seed,noteDur:params.noteDur,modelProfile:params.modelProfile,notes:params.notes,duration:params.duration});set('songs',s.slice(0,20));render()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function render(){const mlist=MODELS;const cur=document.getElementById('modelSel').value;
- document.getElementById('models').innerHTML=mlist.length?mlist.map(x=>`<div class="box"><b>${esc(x.name)}</b><p class="stat">${x.samples} sample(s) • ${esc(x.status||'Trained ✓')}<br>Base pitch: <b>${x.basePitch} Hz</b> • Range: ${x.pitchMin}–${x.pitchMax} Hz<br>Centroid: ${x.centroid} Hz • Dominant: ${x.dominantFreq} Hz<br>Waveform: ${esc(x.waveType)} • Vibrato: ${x.vibratoRateHz} Hz / ${x.vibratoDepthCents}¢<br>Tempo: ~${x.tempo} BPM • Energy: ${x.energy} • Audio: ${x.duration}s<br>${esc(x.date)}</p><button class="btn small" onclick="testModelByName('${esc(x.name)}')">🔊 Test Voice</button> <button class="btn small" onclick="selectModel('${esc(x.name)}')">✔ Use in Generate</button> <button class="btn small" onclick="deleteModel('${esc(x.name)}')">🗑 Delete</button></div>`).join(''):'<div class="box">No model yet — train one above, free.</div>';
+ document.getElementById('models').innerHTML=mlist.length?mlist.map((x,mi)=>`<div class="box"><b>${esc(x.name)}</b><p class="stat">${x.samples} sample(s) • ${esc(x.status||'Trained ✓')}<br>Base pitch: <b>${x.basePitch} Hz</b> • Range: ${x.pitchMin}–${x.pitchMax} Hz<br>Centroid: ${x.centroid} Hz • Dominant: ${x.dominantFreq} Hz<br>Waveform: ${esc(x.waveType)} • Vibrato: ${x.vibratoRateHz} Hz / ${x.vibratoDepthCents}¢<br>Tempo: ~${x.tempo} BPM • Energy: ${x.energy} • Audio: ${x.duration}s<br>${esc(x.date)}</p><button class="btn small" onclick="testModelByIdx(${mi})">🔊 Test Voice</button> <button class="btn small" onclick="selectModelByIdx(${mi})">✔ Use in Generate</button> <button class="btn small" onclick="deleteModelByIdx(${mi})">🗑 Delete</button></div>`).join(''):'<div class="box">No model yet — train one above, free.</div>';
  const sel=document.getElementById('modelSel');sel.innerHTML='<option value="Default Voice">Default Voice</option>'+(mlist.length?('<optgroup label="My Trained Models">'+mlist.map(x=>`<option value="${esc(x.name)}">${esc(x.name)}</option>`).join('')+'</optgroup>'):'')+'<optgroup label="Singer Style Profiles (in-browser)">'+SINGER_PROFILES.map(p=>`<option value="singer:${p.id}">${esc(p.name)} — Style Profile</option>`).join('')+'</optgroup>';
  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
  renderCoverVoices();
- let s=get('songs',[]);document.getElementById('songs').innerHTML=s.length?s.map((x,i)=>`<div class="box"><b>${esc(x.name)}</b><p>${esc(x.style)} • Model: ${esc(x.model||'Default Voice')}<br>${esc(x.date)}</p>${(x.notes&&x.notes.length)?`<button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button>`:`<p class="stat">Purana entry — replay data nahi. Dobara Generate karein.</p><button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button>`}</div>`).join(''):'<div class="box">No songs yet — Generate a song above, then Play / Download it here.</div>'}
+ let s=get('songs',[]);document.getElementById('songs').innerHTML=s.length?s.map((x,i)=>`<div class="box"><b>${esc(x.name)}</b><p>${esc(x.style)} • Model: ${esc(x.model||'Default Voice')}<br>${esc(x.date)}</p>${(x.notes&&x.notes.length)?`<button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button> <button class="btn small" onclick="deleteSong(${i})">🗑 Delete</button>`:`<p class="stat">Purana entry — replay data nahi. Dobara Generate karein.</p><button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button> <button class="btn small" onclick="deleteSong(${i})">🗑 Delete</button>`}</div>`).join(''):'<div class="box">No songs yet — Generate a song above, then Play / Download it here.</div>'}
 
 // ============ Singer Style Profiles (in-browser, REAL distinct profiles) ============
 // Honest label: ye asal singer ki clone awaaz NAHI — us playback style ka measured musical profile hai.
@@ -450,7 +498,7 @@ const SINGER_PROFILES=[
  {id:'classical-female',name:'Classical Female Playback (Shreya-style)',basePitch:294,wave:'triangle',vibR:5.8,vibD:45,tempo:92,semis:[0,2,4,5,7,9,11],scaleLabel:'Full major scale',feel:'Classical melody, tez gamak-jaisa vibrato'},
  {id:'legendary-female',name:'Legendary Female (Lata-style)',basePitch:330,wave:'sine',vibR:4.6,vibD:25,tempo:78,semis:[0,2,4,5,7,9],scaleLabel:'Major (no 7th)',feel:'Saaf unchi melody, halka vibrato, dheema tempo'},
  {id:'sufi-male',name:'Sufi Male Playback',basePitch:165,wave:'triangle',vibR:4.2,vibD:50,tempo:72,semis:[0,1,4,5,7,9,10],scaleLabel:'Ahir Bhairav touch',feel:'Gehra sufi rang, gehra vibrato, bohat dheema'},
- {id:'punjabi-folk-male',name:'Punjabi Folk Male',basePitch:220,wave:'triangle',vibR:3.8,vibD:20,tempo:138,semis:[0,2,4,6,7,9],scaleLabel:'Punjabi folk scale',feel:'Bhangra energy, tez tempo, seedhi awaaz'},
+ {id:'punjabi-folk-male',name:'Punjabi Folk Male',basePitch:220,wave:'triangle',vibR:3.8,vibD:20,tempo:138,semis:[0,2,4,6,7,9],scaleLabel:'Punjabi folk scale',feel:'Bhangra energy, tez tempo, seedhi awaaz — Saraiki/Rohi folk touch ke sath'},
  {id:'bollywood-rap',name:'Bollywood Rap / Hip-Hop Voice',basePitch:147,wave:'square',vibR:0,vibD:0,tempo:150,semis:[0,3,5,7,10],scaleLabel:'Minor pentatonic',feel:'Rap flow, koi vibrato nahi, punchy short notes'},
  {id:'melody-queen',name:'Melody Queen (Soft Female Playback)',basePitch:262,wave:'sine',vibR:5.4,vibD:40,tempo:88,semis:[0,2,4,5,7,9,10],scaleLabel:'Khamaj touch (major + flat 7th)',feel:'Naram melody, darmiyana vibrato'},
  {id:'folk-female',name:'Folk Female Voice',basePitch:247,wave:'sawtooth',vibR:4.8,vibD:30,tempo:112,semis:[0,1,4,5,7,8,11],scaleLabel:'Hijaz touch',feel:'Kachi folk awaaz, tez-darmiyana tempo'}];
@@ -468,11 +516,97 @@ function rvcMsg(t){const el=document.getElementById('rvcMsg');if(el)el.textConte
 function rvcValidate(name,url){if(!name)return 'Model ka naam likhein — Please enter a model name.';if(!url)return 'Model URL paste karein — Please paste a .pth model URL.';if(!/^https?:\/\//i.test(url))return 'URL http/https se shuru hona chahiye.';const lu=url.toLowerCase();if(lu.indexOf('.pth')<0&&lu.indexOf('huggingface.co')<0&&lu.indexOf('github.com')<0)return 'URL ek .pth file ka, ya HuggingFace/GitHub model repo ka link hona chahiye.';return null}
 function usePresetUrl(url,name){const u=document.getElementById('rvcUrl'),n=document.getElementById('rvcName');if(u)u.value=url;if(n)n.value=name;rvcMsg('Preset select ho gaya: "'+name+'" — ab "Save Model URL" dabakar isay My RVC Models mein save karein, phir notebook mein yehi model load karke asal cover banayein. (Repo/folder link ho to wahan se .pth + .index files lein.)');if(u)u.scrollIntoView({behavior:'smooth',block:'center'})}
 function saveRvcMeta(entry){RVC_MODELS=RVC_MODELS.filter(x=>x.name!==entry.name);RVC_MODELS.unshift(entry);set('rvcModels',RVC_MODELS);renderRvc()}
-function addRvcUrl(){const name=(document.getElementById('rvcName').value||'').trim();const url=(document.getElementById('rvcUrl').value||'').trim();const err=rvcValidate(name,url);if(err){rvcMsg('⚠ '+err);return}saveRvcMeta({name:name,kind:'url',url:url,date:new Date().toLocaleString()});rvcMsg('✓ RVC model URL save ho gaya: "'+name+'" — ab neeche notebook steps se isay Colab/Kaggle mein load karke asal singer-voice cover banayein.')}
-async function addRvcFile(e){const f=e.target.files&&e.target.files[0];if(!f)return;const low=f.name.toLowerCase();if(!(low.endsWith('.pth')||low.endsWith('.index'))){rvcMsg('⚠ Sirf .pth ya .index RVC file select karein.');return}const name=(document.getElementById('rvcName').value||'').trim()||f.name.replace(/\.(pth|index)$/i,'');await rvcPutFile(name,f);saveRvcMeta({name:name,kind:'file',fileName:f.name,size:f.size,date:new Date().toLocaleString()});rvcMsg('✓ RVC model file isi device par save ho gayi: "'+name+'" ('+f.name+', '+(f.size/1048576).toFixed(1)+' MB) — notebook chalate waqt yehi file wahan upload karni hai.')}
+function addRvcUrl(){const name=(document.getElementById('rvcName').value||'').trim().slice(0,60);const url=(document.getElementById('rvcUrl').value||'').trim();const err=rvcValidate(name,url);if(err){rvcMsg('⚠ '+err);return}saveRvcMeta({name:name,kind:'url',url:url,date:new Date().toLocaleString()});rvcMsg('✓ RVC model URL save ho gaya: "'+name+'" — ab neeche notebook steps se isay Colab/Kaggle mein load karke asal singer-voice cover banayein.')}
+async function addRvcFile(e){const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;const low=f.name.toLowerCase();if(!(low.endsWith('.pth')||low.endsWith('.index'))){rvcMsg('⚠ Sirf .pth ya .index RVC file select karein.');return}const name=(document.getElementById('rvcName').value||'').trim()||f.name.replace(/\.(pth|index)$/i,'');await rvcPutFile(name,f);saveRvcMeta({name:name,kind:'file',fileName:f.name,size:f.size,date:new Date().toLocaleString()});rvcMsg('✓ RVC model file isi device par save ho gayi: "'+name+'" ('+f.name+', '+(f.size/1048576).toFixed(1)+' MB) — notebook chalate waqt yehi file wahan upload karni hai.')}
 async function deleteRvc(name){RVC_MODELS=RVC_MODELS.filter(x=>x.name!==name);set('rvcModels',RVC_MODELS);await rvcDelFile(name);renderRvc();rvcMsg('🗑 RVC model hata diya: "'+name+'"')}
 function rvcNotebookHelp(name){rvcMsg('🧬 "'+name+'" ka asal cover: 1) Neeche wala free Colab/Kaggle notebook kholein. 2) Notebook mein ye model (URL/file) + apna song load karein. 3) Cells chala kar GPU inference se converted song download karein. Browser page mein .pth nahi chalta — yehi asal tareeqa hai.')}
-function renderRvc(){const el=document.getElementById('rvcList');if(!el)return;el.innerHTML=RVC_MODELS.length?RVC_MODELS.map(x=>`<div class="box"><b>${esc(x.name)}</b><p class="stat">${x.kind==='url'?('🔗 URL model<br>'+esc(x.url)):('💾 File (is device par): '+esc(x.fileName||'')+' • '+((x.size||0)/1048576).toFixed(1)+' MB')}<br>${esc(x.date||'')}</p><button class="btn small" onclick="rvcNotebookHelp('${esc(x.name)}')">🧬 Notebook se Asal Cover</button> <button class="btn small" onclick="deleteRvc('${esc(x.name)}')">🗑 Delete</button></div>`).join(''):'<div class="box">Abhi koi RVC model save nahi — upar URL paste karein ya .pth file upload karein, ya neeche presets se chunein.</div>'}
+function rvcHelpByIdx(i){const x=RVC_MODELS[i];if(x)rvcNotebookHelp(x.name)}
+function deleteRvcByIdx(i){const x=RVC_MODELS[i];if(x)deleteRvc(x.name)}
+function renderRvc(){const el=document.getElementById('rvcList');if(!el)return;el.innerHTML=RVC_MODELS.length?RVC_MODELS.map((x,ri)=>`<div class="box"><b>${esc(x.name)}</b><p class="stat">${x.kind==='url'?('🔗 URL model<br>'+esc(x.url)):('💾 File (is device par): '+esc(x.fileName||'')+' • '+((x.size||0)/1048576).toFixed(1)+' MB')}<br>${esc(x.date||'')}</p><button class="btn small" onclick="rvcHelpByIdx(${ri})">🧬 Notebook se Asal Cover</button> <button class="btn small" onclick="deleteRvcByIdx(${ri})">🗑 Delete</button></div>`).join(''):'<div class="box">Abhi koi RVC model save nahi — upar URL paste karein ya .pth file upload karein, ya neeche presets se chunein.</div>'}
+// ============ Audio Song se Lyrics — REAL Whisper transcription (Transformers.js, lazy CDN load) ============
+let TR_PIPE=null;
+async function audioTo16kMono(blob){const ac=audioCtx();await ac.resume();const buf=await ac.decodeAudioData(await blob.arrayBuffer());
+ const len=Math.max(1,Math.round(buf.duration*16000));const oc=new OfflineAudioContext(1,len,16000);
+ const src=oc.createBufferSource();src.buffer=buf;src.connect(oc.destination);src.start();
+ const rb=await oc.startRendering();return rb.getChannelData(0)}
+async function transcribeSong(){const st=document.getElementById('trStatus');const say=t=>{if(st)st.textContent=t};
+ if(!UPLOAD){say('⚠ Pehle koi audio song upload karein (upar ⬆ Upload Song wala button), phir Transcribe dabayein.');return}
+ const btn=document.getElementById('transcribeBtn');if(btn)btn.disabled=true;
+ try{
+  say('⏳ Audio tayyar ho raha hai (16kHz mein badal rahe hain)…');
+  const audio=await audioTo16kMono(UPLOAD.blob);
+  if(!TR_PIPE){say('⏳ Pehli dafa Whisper model download ho raha hai (~40–75 MB, internet zaroori) — thora intezaar karein…');
+   const mod=await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js');
+   if(!mod||typeof mod.pipeline!=='function')throw new Error('Whisper library load nahi hui');
+   if(mod.env)mod.env.allowLocalModels=false;
+   TR_PIPE=await mod.pipeline('automatic-speech-recognition','Xenova/whisper-tiny',{progress_callback:p=>{if(p&&p.status==='progress'&&p.total)say('⏳ Model download: '+Math.round(p.loaded/p.total*100)+'% — ye sirf pehli dafa hota hai…')}})}
+  say('⏳ Transcribe ho raha hai — lambay song mein kuch minute lag sakte hain, page band na karein…');
+  let out;try{out=await TR_PIPE(audio,{chunk_length_s:30,stride_length_s:5})}catch(e){out=await TR_PIPE(audio)}
+  const text=(out&&out.text||'').trim();
+  if(!text){say('⚠ Is audio mein saaf bol/lyrics samajh nahi aaye — saaf awaaz wala song try karein, ya lyrics khud likh lein.');return}
+  const box=document.getElementById('trResult');box.value=text;box.style.display='block';document.getElementById('trActions').style.display='flex';
+  say('✓ Lyrics tayyar hain — neeche box mein edit kar sakte hain, phir "Lyrics Box mein Daal dein" dabakar unhi lyrics par naya gana ya Cover banayein. (Gaaye hue song + tez music mein kuch alfaaz idhar udhar ho sakte hain.)')}
+ catch(err){say('⚠ Transcription nahi ho saki: '+((err&&err.message)||err)+' — internet check karein aur Chrome / taqatwar device mein phir try karein. Doosra free tareeqa: Google Colab mein openai-whisper chala kar lyrics yahan paste kar dein (upar steps diye hain).')}
+ finally{if(btn)btn.disabled=false}}
+function trToLyrics(){const t=(document.getElementById('trResult').value||'').trim();
+ if(!t){document.getElementById('trStatus').textContent='⚠ Result box khaali hai — pehle Transcribe karein, ya lyrics result box mein likh lein.';return}
+ setTabMode('lyrics');const ly=document.getElementById('lyrics');ly.value=t.slice(0,5000);ly.dispatchEvent(new Event('input'));
+ document.getElementById('trStatus').textContent='✓ Lyrics upar wale Lyrics box mein daal diye hain — ab Style/Model chun kar Generate dabayein, ya Cover banayein.';
+ document.getElementById('create').scrollIntoView({behavior:'smooth'})}
+async function trCopy(){const box=document.getElementById('trResult');const t=box.value||'';if(!t)return;
+ try{await navigator.clipboard.writeText(t);document.getElementById('trStatus').textContent='✓ Lyrics copy ho gaye.'}
+ catch(e){box.style.display='block';box.select();try{document.execCommand('copy')}catch(e2){}document.getElementById('trStatus').textContent='✓ Lyrics select kar liye hain — Ctrl+C / long-press se copy kar lein.'}}
+// ============ Vocal / Music Separation (PURE core + browser flow) ============
+function biquadRun(data,sr,type,freq){const w0=2*Math.PI*freq/sr,alpha=Math.sin(w0)/(2*0.7071),cs=Math.cos(w0);let b0,b1,b2,a0,a1,a2;
+ if(type==='lowpass'){b0=(1-cs)/2;b1=1-cs;b2=(1-cs)/2;a0=1+alpha;a1=-2*cs;a2=1-alpha}
+ else{b0=(1+cs)/2;b1=-(1+cs);b2=(1+cs)/2;a0=1+alpha;a1=-2*cs;a2=1-alpha}
+ b0/=a0;b1/=a0;b2/=a0;a1/=a0;a2/=a0;const out=new Float32Array(data.length);let x1=0,x2=0,y1=0,y2=0;
+ for(let i=0;i<data.length;i++){const x=data[i];const y=b0*x+b1*x1+b2*x2-a1*y1-a2*y2;out[i]=y;x2=x1;x1=x;y2=y1;y1=y}
+ return out}
+function separateStems(L,R,sr){ // PURE: music = side (L-R centre-cancel), vocal = mid + voice-band emphasis
+ const n=Math.min(L.length,R.length);const mL=new Float32Array(n),mR=new Float32Array(n);const mid=new Float32Array(n);
+ for(let i=0;i<n;i++){mL[i]=(L[i]-R[i])*0.85;mR[i]=(R[i]-L[i])*0.85;mid[i]=(L[i]+R[i])*0.5}
+ let voc=biquadRun(mid,sr,'highpass',180);voc=biquadRun(voc,sr,'lowpass',3800);
+ return{musicL:mL,musicR:mR,vocalL:voc,vocalR:voc}}
+function isEssentiallyMono(L,R){const n=Math.min(L.length,R.length);if(!n)return true;let sm=0,ss=0,c=0;
+ const step=Math.max(1,Math.floor(n/200000));for(let i=0;i<n;i+=step){const m=(L[i]+R[i])*0.5,d=(L[i]-R[i])*0.5;sm+=m*m;ss+=d*d;c++}
+ if(sm<=0)return true;return Math.sqrt(ss/c)/Math.sqrt(sm/c)<0.03}
+let STEMS=null;
+async function separateSong(){const st=document.getElementById('sepStatus');const say=t=>{if(st)st.textContent=t};
+ if(!UPLOAD){say('⚠ Pehle koi audio song upload karein (upar ⬆ Upload Song), phir ye button dabayein.');return}
+ const btn=document.getElementById('sepBtn');if(btn)btn.disabled=true;
+ try{
+  say('⏳ Song load ho raha hai…');
+  const ac=audioCtx();await ac.resume();const buf=await ac.decodeAudioData(await UPLOAD.blob.arrayBuffer());
+  if(buf.numberOfChannels<2){say('⚠ Ye file MONO hai — browser wala tareeqa (centre-cancel) mono par kaam nahi karta. Is song ke liye neeche wala AI (Demucs) free tareeqa use karein — woh mono par bhi vocals aur music alag kar deta hai.');return}
+  const sr=buf.sampleRate,total=Math.min(buf.length,Math.floor(sr*600));
+  const L=buf.getChannelData(0),R=buf.getChannelData(1);
+  if(isEssentiallyMono(L.subarray(0,total),R.subarray(0,total))){say('⚠ Ye song asal mein mono jaisa hai (dono channels takreeban ek jaise) — browser tareeqa is par kaam nahi karega. AI (Demucs) wala free tareeqa use karein, woh is ko bhi alag kar dega.');return}
+  const mL=new Float32Array(total),mR=new Float32Array(total),vL=new Float32Array(total),vR=new Float32Array(total);
+  const CH=Math.floor(sr*30);
+  for(let off=0;off<total;off+=CH){const end=Math.min(total,off+CH);const part=separateStems(L.subarray(off,end),R.subarray(off,end),sr);
+   mL.set(part.musicL,off);mR.set(part.musicR,off);vL.set(part.vocalL,off);vR.set(part.vocalR,off);
+   say('⏳ Alag ho raha hai… '+Math.round(end/total*100)+'%');await tick()}
+  const mk=(a,b)=>new Blob([encodeWAV({numberOfChannels:2,sampleRate:sr,length:total,getChannelData:c=>c===0?a:b})],{type:'audio/wav'});
+  const base=(UPLOAD.name||'song').replace(/\.[^.]+$/,'');
+  STEMS={musicBlob:mk(mL,mR),vocalBlob:mk(vL,vR),baseName:base};
+  const res=document.getElementById('sepResults');res.innerHTML='';
+  const mkBox=(title,blob,suffix)=>{const div=document.createElement('div');div.className='box';div.style.marginTop='10px';
+   const h=document.createElement('b');h.textContent=title;div.appendChild(h);
+   const au=document.createElement('audio');au.controls=true;au.src=URL.createObjectURL(blob);div.appendChild(au);
+   const a=document.createElement('a');a.className='btn small';a.textContent='⬇ Download WAV';a.href=URL.createObjectURL(blob);a.download=base+'-'+suffix+'.wav';a.style.display='inline-block';a.style.marginTop='8px';div.appendChild(a);return div};
+  res.appendChild(mkBox('🎵 SIRF MUSIC (karaoke / instrumental estimate)',STEMS.musicBlob,'music'));
+  const vb=mkBox('🎤 SIRF AWAAZ (vocal estimate)',STEMS.vocalBlob,'vocals');
+  const tb=document.createElement('button');tb.className='btn small';tb.type='button';tb.textContent='🎤 Is Awaaz ko Train Sample bana dein';tb.style.marginLeft='8px';tb.onclick=useVocalAsSample;vb.appendChild(tb);
+  res.appendChild(vb);
+  say('✓ Ho gaya! Upar SIRF MUSIC aur SIRF AWAAZ — dono sun bhi sakte hain, download bhi.'+(buf.duration>600?' (Bohat lambay song ka pehla 10 minute process hua hai.)':'')+' Awaaz theek lage to "Is Awaaz ko Train Sample bana dein" dabayein — phir Train section mein isi awaaz ka model banega.')}
+ catch(err){say('⚠ Separation nahi ho saki: '+((err&&err.message)||err)+' — doosra audio song try karein, ya AI (Demucs) tareeqa use karein.')}
+ finally{if(btn)btn.disabled=false}}
+function useVocalAsSample(){if(!STEMS||!STEMS.vocalBlob){document.getElementById('sepStatus').textContent='⚠ Pehle separation karein, phir ye button dabayein.';return}
+ pendingSamples.push({name:(STEMS.baseName||'song')+'-vocals.wav',blob:STEMS.vocalBlob,dur:null});showPending();
+ showTrainMsg('✓ Alag ki hui awaaz Train samples mein add ho gayi hai — ab Model ka naam likh kar Start REAL Training dabayein, model sirf isi awaaz ka banega.',true);
+ document.getElementById('sepStatus').textContent='✓ Awaaz Train samples mein chali gayi hai — page neeche Train section ki taraf ja raha hai.';
+ document.getElementById('train').scrollIntoView({behavior:'smooth'})}
 renderSingerProfiles();renderRvc();renderCoverVoices();
 loadModels();
 </script></body></html>
