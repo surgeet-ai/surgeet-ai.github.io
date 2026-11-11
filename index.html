@@ -64,12 +64,17 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <main class="card" id="create">
 <div class="tabs"><button class="tab active" onclick="setTab(this,'lyrics')">Lyrics to Song</button><button class="tab" onclick="setTab(this,'text')">Text to Song</button><span style="margin-left:auto"><label class="btn small">⬆ Upload Song <input type="file" accept="audio/*" hidden onchange="uploadSong(event)"></label></span></div>
 <div class="box" id="aiModeBox" style="border:2px solid #7c3aed;background:linear-gradient(135deg,rgba(124,58,237,.14),rgba(217,70,239,.08))">
-<h3 style="margin-top:0">🎤 ASAL AI SONG (Free Server) — asal gaayi hui awaaz</h3>
+<h3 style="margin-top:0">🎤 ASAL AI SONG (Free Server) — 30-second AI song, asal gaayi hui awaaz</h3>
 <div class="row" style="justify-content:flex-start;gap:8px;flex-wrap:wrap"><span>
-<button class="btn primary" type="button" id="modeAiBtn" onclick="setGenMode('ai')">🎤 Asal AI Song (Free Server) ✔</button>
+<button class="btn primary" type="button" id="modeAiBtn" onclick="setGenMode('ai')">🎤 Asal AI Song (Free Server • 30s) ✔</button>
 <button class="btn" type="button" id="modeBrBtn" onclick="setGenMode('browser')">🤖 Browser Voice (offline, foran)</button></span></div>
-<p class="stat" id="modeDesc">Is mode mein gana <b>FREE AI servers (ACE-Step, YuE2, DiffRhythm — Hugging Face)</b> par banta hai: <b>asal gaayi hui awaaz + pura music</b>, bilkul asal song ki tarah. Lyrics aur style upar likhein, phir neeche wala bara <b>Generate</b> button dabayein. <b>Saaf baat:</b> servers free hain, is liye kabhi queue lag sakti hai — ek server busy ho to page khud <b>agle server</b> par chala jata hai (status mein server ka naam aur waqt nazar aata rahe ga), aam tor par 1–5 minute lagte hain. Sab servers busy hon to direct bhi bana sakte hain: <a href="https://huggingface.co/spaces/ACE-Step/ACE-Step" target="_blank" rel="noopener">ACE-Step</a> · <a href="https://huggingface.co/spaces/mrfakename/yue2-3b" target="_blank" rel="noopener">YuE2</a> · <a href="https://huggingface.co/spaces/ASLP-lab/DiffRhythm2" target="_blank" rel="noopener">DiffRhythm 2</a>.</p>
+<p class="stat" id="modeDesc">Is mode mein gana <b>FREE AI servers (ACE-Step, YuE2, DiffRhythm — Hugging Face)</b> par banta hai: <b>asal gaayi hui awaaz + pura music</b>, bilkul asal song ki tarah. <b>Har gana ~30 second ka banta hai</b> — free server ki quota bachane ke liye; poora lamba gana chahiye to <b>dobara Generate karein</b> (har dafa naya 30s hissa). Lyrics aur style upar likhein, phir neeche wala bara <b>Generate</b> button dabayein. <b>Saaf baat:</b> servers free hain, is liye kabhi queue lag sakti hai — ek server busy ho to page khud <b>agle server</b> par chala jata hai (status mein server ka naam aur waqt nazar aata rahe ga), aam tor par 1–5 minute lagte hain. Sab servers busy hon to direct bhi bana sakte hain: <a href="https://huggingface.co/spaces/ACE-Step/ACE-Step" target="_blank" rel="noopener">ACE-Step</a> · <a href="https://huggingface.co/spaces/mrfakename/yue2-3b" target="_blank" rel="noopener">YuE2</a> · <a href="https://huggingface.co/spaces/ASLP-lab/DiffRhythm2" target="_blank" rel="noopener">DiffRhythm 2</a>.</p>
 <p class="stat">🤖 <b>Browser Voice</b> wala doosra mode internet ke baghair foran gana banata hai, lekin us ki awaaz <b>electronic / robotic (ton-ton jaisi)</b> hoti hai — asal insani awaaz NAHI hai. Asal awaaz ke liye hamesha <b>Asal AI Song</b> mode use karein.</p>
+<div class="box" style="margin-top:10px"><b>🔑 Apna FREE Hugging Face token lagayein (optional)</b>
+<p class="stat">Free servers ki quota khatam ho jaye ("quota exceeded" error aaye) to apna <b>FREE token</b> lagayein — token <b>sirf aap ke browser mein rehta hai (localStorage), kahin upload nahi hota</b>, aur sirf server ko request bhejte waqt istemal hota hai. Free account: <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noopener">huggingface.co/settings/tokens</a> par free account bana kar <b>Create new token</b> dabayein, token copy karke yahan paste karein. Token na ho to bhi site waise hi chalti hai — bas free servers ki shared quota par.</p>
+<input type="password" id="hfToken" placeholder="hf_... (optional)" autocomplete="off" style="width:100%">
+<div class="row" style="justify-content:flex-start;margin-top:8px"><span><button class="btn small" type="button" onclick="saveHfToken()">💾 Token Save karein</button> <button class="btn small" type="button" onclick="clearHfToken()">🗑 Token Hatayein</button></span></div>
+<p class="stat" id="hfTokenStatus"></p></div>
 </div>
 <div class="row"><b>Instrumental</b><div class="switch" id="inst" onclick="this.classList.toggle('on')"></div></div>
 <label id="mainLabel"><b>Lyrics</b></label>
@@ -81,8 +86,8 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <input type="text" id="styleInput" placeholder="Or type style e.g. Pop, Rock, Hip-Hop, Jazz, Urdu, Punjabi, Lo-Fi..." style="margin-top:10px">
 <div class="row"><label>Voice / Model <select id="modelSel" onchange="onModelSelChange()"><option>Default Voice</option></select></label><button class="btn" type="button" onclick="testSelectedVoice()">🔊 Test Voice (selected model)</button></div>
 <p id="usingModel"></p>
-<button class="btn primary" id="genBtn" onclick="generate()">🎤 Generate ASAL AI Song — Free Server</button>
-<p class="stat" id="modeNote">🎤 <b>Asal AI Song mode ON hai:</b> gana free AI server par bane ga — asal gaayi hui awaaz ke sath. Thora intezaar karna parega (queue ho sakti hai).</p>
+<button class="btn primary" id="genBtn" onclick="generate()">🎤 Generate 30s ASAL AI Song — Free Server</button>
+<p class="stat" id="modeNote">🎤 <b>Asal AI Song mode ON hai:</b> ~30 second ka gana free AI server par bane ga — asal gaayi hui awaaz ke sath. Thora intezaar karna parega (queue ho sakti hai). Poora lamba gana chahiye to dobara Generate karein.</p>
 <p id="genStatus"></p><div id="player"></div><div id="aiResult" style="margin-top:10px"></div>
 <div class="box" style="margin-top:14px"><h3 style="margin-top:0">📝 Audio Song se Lyrics</h3>
 <p class="stat">Koi audio song upload karein (upar <b>⬆ Upload Song</b> se), phir ye button dabayein — browser ke andar hi asal <b>Whisper AI</b> se song ke lyrics niklein ge. <b>Pehli dafa model download hoga — internet zaroori hai (lagbhag 40–75 MB, sirf ek dafa)</b>, phir ye isi device par chalta rahega. Bol-chaal, Urdu, English, Hindi — sab chalti hain. <b>Saaf baat:</b> tez background music ke sath gaaye hue song mein accuracy kam ho sakti hai, aur <b>Saraiki song aksar Urdu/Punjabi se qareeb text</b> mein transcribe hota hai.</p>
@@ -615,30 +620,41 @@ async function downloadSong(idx){const s=get('songs',[]),x=s[idx];if(x&&x.type==
 // engine sirf ek saaf-labelled offline option ke tor par baqi hai.
 let genMode='ai';
 function setGenMode(m){genMode=m;const ai=document.getElementById('modeAiBtn'),br=document.getElementById('modeBrBtn');
- if(ai){ai.className=m==='ai'?'btn primary':'btn';ai.textContent=m==='ai'?'🎤 Asal AI Song (Free Server) ✔':'🎤 Asal AI Song (Free Server)'}
+ if(ai){ai.className=m==='ai'?'btn primary':'btn';ai.textContent=m==='ai'?'🎤 Asal AI Song (Free Server • 30s) ✔':'🎤 Asal AI Song (Free Server • 30s)'}
  if(br){br.className=m==='browser'?'btn primary':'btn';br.textContent=m==='browser'?'🤖 Browser Voice (offline, foran) ✔':'🤖 Browser Voice (offline, foran)'}
- const gb=document.getElementById('genBtn');if(gb)gb.textContent=m==='ai'?'🎤 Generate ASAL AI Song — Free Server':'🤖 Generate — Browser Voice (robotic, offline)';
- const mn=document.getElementById('modeNote');if(mn)mn.innerHTML=m==='ai'?'🎤 <b>Asal AI Song mode ON hai:</b> gana free AI servers par bane ga — asal gaayi hui awaaz ke sath. Ek server busy ho to page khud agle server par chala jaye ga; status mein server ka naam aur guzra hua waqt nazar aata rahe ga.':'🤖 <b>Browser Voice mode ON hai:</b> gana isi device par foran bane ga, lekin awaaz <b>electronic/robotic</b> hogi — asal gaayi hui awaaz NAHI. Asal awaaz ke liye upar <b>Asal AI Song</b> mode chunein.';
+ const gb=document.getElementById('genBtn');if(gb)gb.textContent=m==='ai'?'🎤 Generate 30s ASAL AI Song — Free Server':'🤖 Generate — Browser Voice (robotic, offline)';
+ const mn=document.getElementById('modeNote');if(mn)mn.innerHTML=m==='ai'?'🎤 <b>Asal AI Song mode ON hai:</b> ~30 second ka gana free AI server par bane ga — asal gaayi hui awaaz ke sath. Ek server busy ho to page khud agle server par chala jaye ga; status mein server ka naam aur guzra hua waqt nazar aata rahe ga. Poora lamba gana chahiye to dobara Generate karein.':'🤖 <b>Browser Voice mode ON hai:</b> gana isi device par foran bane ga, lekin awaaz <b>electronic/robotic</b> hogi — asal gaayi hui awaaz NAHI. Asal awaaz ke liye upar <b>Asal AI Song</b> mode chunein.';
  const st=document.getElementById('genStatus');if(st)st.textContent=m==='ai'?'🎤 Asal AI Song mode — Lyrics likh kar Generate dabayein.':'🤖 Browser Voice mode — Generate dabane par robotic awaaz mein gana isi device par banega.'}
 const ACE_STYLE_TAGS={Pop:'pop, piano, guitar, drums, bass, melodic, catchy',Rock:'rock, electric guitar, drums, energetic', 'Hip-Hop':'hip hop, rap, beats, bass, rhythmic',Jazz:'jazz, piano, saxophone, smooth, swing',Classical:'classical, orchestra, piano, strings',Electronic:'electronic, synth, edm, dance beats', 'Lo-Fi':'lo-fi, chill, mellow, vinyl, relaxed',Urdu:'urdu pop, romantic ballad, harmonium, tabla, emotional male vocal',Punjabi:'punjabi folk pop, dhol, tumbi, energetic bhangra',Saraiki:'folk, saraiki folk style, dholak, harmonium, soulful male vocal',Acoustic:'acoustic, guitar, folk, warm, intimate'};
 function aceStylePrompt(styleRaw){const key=resolveStyle(styleRaw||'Pop');let tags=ACE_STYLE_TAGS[key]||ACE_STYLE_TAGS.Pop;
  const custom=(document.getElementById('styleInput')&&document.getElementById('styleInput').value||'').trim();
  if(custom&&custom.toLowerCase()!==key.toLowerCase())tags=custom+', '+tags;
  return tags}
+function lyricLines(text){ // PURE: lyrics -> saaf lines (CRLF/CR/LF sab chalte hain), khaali lines nikaal kar
+ return (''+(text||'')).split(/\r\n|\r|\n/).map(s=>s.trim()).filter(Boolean)}
+function shortLyrics(text){ // PURE: jin servers par duration param nahi (YuE2/DiffRhythm), un ko sirf pehli AI_MAX_LYRIC_LINES lines (~30s vocal)
+ return lyricLines(text).slice(0,AI_MAX_LYRIC_LINES).join('\n')}
 function aceLyricsFormat(text){ // PURE: hamare [Style Verse n] headers -> [verse]/[chorus] sections
- let lines=(''+(text||'')).split('\n').map(x=>x.trim()).filter(Boolean);
+ let lines=lyricLines(text);
  lines=lines.map(l=>{const m=l.match(/^\[([^\]]+)\]\s*(.*)$/);if(!m)return l;const tag=m[1].toLowerCase();
   if(tag.indexOf('chorus')>=0)return '[chorus]'+(m[2]?' '+m[2]:'');
   if(tag.indexOf('verse')>=0)return '[verse]'+(m[2]?' '+m[2]:'');
   if(tag.indexOf('intro')>=0||tag.indexOf('outro')>=0||tag.indexOf('bridge')>=0)return '['+tag+']'+(m[2]?' '+m[2]:'');
   return m[2]||''}).filter(Boolean);
  const hasTag=lines.some(l=>/^\[(verse|chorus|intro|bridge|outro)\]/.test(l));
- if(hasTag)return lines.join('\n');
- if(lines.length>=4){const half=Math.ceil(lines.length/2);return '[verse]\n'+lines.slice(0,half).join('\n')+'\n[chorus]\n'+lines.slice(half).join('\n')}
- return '[verse]\n'+lines.join('\n')}
-function buildAcePayload(prompt,lyricsText){ // PURE: ACE-Step __call__ ke 22 params (config order)
- return [60,prompt,lyricsText,40,15.0,'euler','apg',10.0,null,0.5,0.0,3.0,true,false,true,null,0.0,0.0,false,0.5,null,'none']}
+ // v9 line-break fix: lines ko ' \n' se joro — har line ke aakhir mein space rehta hai,
+ // taaki agar koi server/newline-stripper \n hata bhi de to alfaaz chipakte nahi ("brightmy" bug).
+ if(hasTag)return lines.join(' \n');
+ if(lines.length>=4){const half=Math.ceil(lines.length/2);return '[verse] \n'+lines.slice(0,half).join(' \n')+' \n[chorus] \n'+lines.slice(half).join(' \n')}
+ return '[verse] \n'+lines.join(' \n')}
+function buildAcePayload(prompt,lyricsText){ // PURE: ACE-Step __call__ ke 22 params (config order) — [0] Audio Duration = AI_SONG_SECS (v9: 30s, quota bachane ke liye)
+ return [AI_SONG_SECS,prompt,lyricsText,40,15.0,'euler','apg',10.0,null,0.5,0.0,3.0,true,false,true,null,0.0,0.0,false,0.5,null,'none']}
 // ---- v8: server list (sirf woh servers jo asal test mein gana wapas dein) ----
+// v9: har AI gana sirf ~30 second ka — free ZeroGPU quota bachane ke liye (60s ki request
+// "quota exceeded" par atki thi; 30s aadhi GPU-seconds mangta hai). Jin servers par duration
+// param nahi (YuE2/DiffRhythm), un ko sirf pehli 6 lines bhejte hain (~30s vocal).
+const AI_SONG_SECS=30;
+const AI_MAX_LYRIC_LINES=6;
 const AI_CFG={joinMs:75000,pollBudgetMs:5*60*1000,fnMs:25000};
 const AI_SERVERS=[
   {id:'ace',name:'ACE-Step',link:'https://huggingface.co/spaces/ACE-Step/ACE-Step',base:'https://ace-step-ace-step.hf.space',kind:'ace',fnName:'__call__',fnFallback:11},
@@ -649,18 +665,36 @@ const AI_SERVERS=[
  {id:'diffrhythm1',name:'DiffRhythm',link:'https://huggingface.co/spaces/ASLP-lab/DiffRhythm',base:'https://aslp-lab-diffrhythm.hf.space',kind:'diffrhythm',fnName:'infer_music',fnFallback:9},
 ];
 const ACECUSTOM_STYLE={Pop:'pop',Rock:'rock',Jazz:'jazz',Classical:'classical',Electronic:'electronic','Hip-Hop':'hip-hop'};
-function aiDataFor(srv,prompt,rawText,styleKey){ // PURE: har server ki apni data shape
- if(srv.kind==='ace')return buildAcePayload(prompt,aceLyricsFormat(rawText));
- if(srv.kind==='acecustom')return [prompt,aceLyricsFormat(rawText),60,0.7,0.9,-1,ACECUSTOM_STYLE[styleKey]||'auto',false,null];
- if(srv.kind==='yue2')return [prompt,aceLyricsFormat(rawText),'full',16,Math.floor(Math.random()*100000)];
- if(srv.kind==='diffrhythm2')return ['[start]\n'+aceLyricsFormat(rawText)+'\n[end]',null,null,prompt,0,true,16,1.3,'mp3','euler'];
- if(srv.kind==='diffrhythm')return [lrcFromLyrics(rawText),null,prompt,null,0,true,32,4.0,'mp3','euler','quality first',95];
+// ---- v9: OPTIONAL Hugging Face token (asli quota fix) ----
+// Token SIRF is browser ke localStorage mein rehta hai — kahin upload nahi hota, kabhi
+// log nahi hota, aur sirf queue/join request par Authorization header mein bheja jata hai.
+// Token na ho to behaviour bilkul v8 jaisa hai (shared free quota).
+const HF_TOKEN_KEY='surgeet_hf_token';
+function getHfToken(){try{return (localStorage.getItem(HF_TOKEN_KEY)||'').trim()}catch(e){return ''}}
+function saveHfToken(){const inp=document.getElementById('hfToken');const v=(inp&&inp.value||'').trim();const st=document.getElementById('hfTokenStatus');
+ if(!v){if(st)st.textContent='⚠ Pehle token paste karein — khaali hai.';return}
+ if(v.indexOf('hf_')!==0){if(st)st.textContent='⚠ Ye token theek nahi lagta — Hugging Face token hamesha "hf_" se shuru hota hai.';return}
+ try{localStorage.setItem(HF_TOKEN_KEY,v)}catch(e){if(st)st.textContent='⚠ Token save nahi ho saka (browser storage band hai).';return}
+ if(inp){inp.value='';inp.placeholder='Token laga hua hai — badalne ke liye naya paste karein'}
+ if(st)st.textContent='✓ Token save ho gaya — sirf is browser mein hai, kahin upload nahi hota. Server ab aap ki apni free quota use karega.'}
+function clearHfToken(){try{localStorage.removeItem(HF_TOKEN_KEY)}catch(e){}const inp=document.getElementById('hfToken');if(inp){inp.value='';inp.placeholder='hf_... (optional)'}const st=document.getElementById('hfTokenStatus');if(st)st.textContent='🗑 Token hata diya gaya — ab servers baghair token ke (shared free quota) chalenge.'}
+function aiJoinHeaders(deps){ // PURE-ish: join ke headers — token ho to Authorization, warna sirf Content-Type
+ const h={'Content-Type':'application/json'};
+ const tok=(deps&&deps.hfToken!==undefined)?deps.hfToken:getHfToken();
+ if(tok)h['Authorization']='Bearer '+tok;
+ return h}
+function aiDataFor(srv,prompt,rawText,styleKey){ // PURE: har server ki apni data shape (v9: sab ~30s)
+ if(srv.kind==='ace')return buildAcePayload(prompt,aceLyricsFormat(rawText)); // [0] Audio Duration = AI_SONG_SECS
+ if(srv.kind==='acecustom')return [prompt,aceLyricsFormat(rawText),AI_SONG_SECS,0.7,0.9,-1,ACECUSTOM_STYLE[styleKey]||'auto',false,null]; // [2] Duration (seconds) = 30
+ if(srv.kind==='yue2')return [prompt,aceLyricsFormat(shortLyrics(rawText)),'full',16,Math.floor(Math.random()*100000)]; // YuE2 par duration param nahi — pehli 6 lines (~30s)
+ if(srv.kind==='diffrhythm2')return ['[start]\n'+aceLyricsFormat(shortLyrics(rawText))+'\n[end]',null,null,prompt,0,true,16,1.3,'mp3','euler']; // DiffRhythm2 par duration param nahi — pehli 6 lines (~30s vocal)
+ if(srv.kind==='diffrhythm')return [lrcFromLyrics(rawText),null,prompt,null,0,true,32,4.0,'mp3','euler','quality first',95]; // v1: Music Duration ka minimum 95s hai (server config) — LRC se vocal hissa ~30s tak mehdood hai
  return []}
-function lrcFromLyrics(text,secPerLine){ // PURE: DiffRhythm v1 ke liye timestamped LRC (line ~ har 4.5s)
- const lines=(''+(text||'')).split('\n').map(s=>s.trim()).filter(s=>s&&!/^\[[^\]]+\]\s*$/.test(s)).map(s=>s.replace(/^\[[^\]]+\]\s*/,''));
+function lrcFromLyrics(text,secPerLine){ // PURE: DiffRhythm v1 ke liye timestamped LRC (line ~ har 4.5s) — sirf pehli 6 lines: aakhri timestamp ~29.5s (~30s vocal)
+ const lines=lyricLines(text).slice(0,AI_MAX_LYRIC_LINES).filter(s=>!/^\[[^\]]+\]\s*$/.test(s)).map(s=>s.replace(/^\[[^\]]+\]\s*/,''));
  const per=secPerLine||4.5;
  const fmt=t=>{const m=Math.floor(t/60),ss=(t-m*60).toFixed(3);return '['+String(m).padStart(2,'0')+':'+(ss.length<6?'0'+ss:ss)+'] '};
- return lines.map((l,i)=>fmt(2+i*per)+l).join('\n')}
+ return lines.map((l,i)=>fmt(2+i*per)+l).join(' \n')}
 function aiFileUrl(srv,d){if(!d)return null;if(d.url)return d.url;if(d.path)return srv.base+'/gradio_api/file='+d.path;return null}
 async function fetchTO(f,url,opts,ms){ // fetch with hard timeout (AbortController)
  if(typeof AbortController==='undefined')return f(url,opts);
@@ -716,7 +750,7 @@ async function aiTryServer(srv,prompt,rawText,styleKey,deps){ // ek server: join
  onPhase('join',srv,null);
  const fnIdx=await aiFnIndex(srv,f);
  const hash='sg'+now().toString(36)+Math.floor(Math.random()*1e6).toString(36);
- const jr=await fetchTO(f,srv.base+'/gradio_api/queue/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:aiDataFor(srv,prompt,rawText,styleKey),fn_index:fnIdx,session_hash:hash})},AI_CFG.joinMs);
+ const jr=await fetchTO(f,srv.base+'/gradio_api/queue/join',{method:'POST',headers:aiJoinHeaders(deps),body:JSON.stringify({data:aiDataFor(srv,prompt,rawText,styleKey),fn_index:fnIdx,session_hash:hash})},AI_CFG.joinMs);
  if(!jr.ok)throw new Error('server ne request accept nahi ki (HTTP '+jr.status+')');
  await jr.json();
  return aiPollStream(srv,hash,deps);
@@ -970,4 +1004,5 @@ function useVocalAsSample(){if(!STEMS||!STEMS.vocalBlob){document.getElementById
  document.getElementById('train').scrollIntoView({behavior:'smooth'})}
 renderVoiceGallery();renderRvc();renderCoverVoices();updateCoverModelField();
 loadModels();
+try{if(getHfToken()){const s=document.getElementById('hfTokenStatus');if(s)s.textContent='✓ Token laga hua hai (sirf is browser mein mehfooz hai).';const p=document.getElementById('hfToken');if(p)p.placeholder='Token laga hua hai — badalne ke liye naya paste karein'}}catch(e){}
 </script></body></html>
