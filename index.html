@@ -68,7 +68,7 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <div class="row" style="justify-content:flex-start;gap:8px;flex-wrap:wrap"><span>
 <button class="btn primary" type="button" id="modeAiBtn" onclick="setGenMode('ai')">🎤 Asal AI Song (Free Server) ✔</button>
 <button class="btn" type="button" id="modeBrBtn" onclick="setGenMode('browser')">🤖 Browser Voice (offline, foran)</button></span></div>
-<p class="stat" id="modeDesc">Is mode mein gana <b>FREE AI server (ACE-Step — Hugging Face)</b> par banta hai: <b>asal gaayi hui awaaz + pura music</b>, bilkul asal song ki tarah. Lyrics aur style upar likhein, phir neeche wala bara <b>Generate</b> button dabayein. <b>Saaf baat:</b> server free hai, is liye kabhi queue lag sakti hai ya slow ho sakta hai — aam tor par 1–5 minute lagte hain. Server busy ho to <a href="https://huggingface.co/spaces/ACE-Step/ACE-Step" target="_blank" rel="noopener">yahan direct bhi bana sakte hain</a>.</p>
+<p class="stat" id="modeDesc">Is mode mein gana <b>FREE AI servers (ACE-Step, YuE2, DiffRhythm — Hugging Face)</b> par banta hai: <b>asal gaayi hui awaaz + pura music</b>, bilkul asal song ki tarah. Lyrics aur style upar likhein, phir neeche wala bara <b>Generate</b> button dabayein. <b>Saaf baat:</b> servers free hain, is liye kabhi queue lag sakti hai — ek server busy ho to page khud <b>agle server</b> par chala jata hai (status mein server ka naam aur waqt nazar aata rahe ga), aam tor par 1–5 minute lagte hain. Sab servers busy hon to direct bhi bana sakte hain: <a href="https://huggingface.co/spaces/ACE-Step/ACE-Step" target="_blank" rel="noopener">ACE-Step</a> · <a href="https://huggingface.co/spaces/mrfakename/yue2-3b" target="_blank" rel="noopener">YuE2</a> · <a href="https://huggingface.co/spaces/ASLP-lab/DiffRhythm2" target="_blank" rel="noopener">DiffRhythm 2</a>.</p>
 <p class="stat">🤖 <b>Browser Voice</b> wala doosra mode internet ke baghair foran gana banata hai, lekin us ki awaaz <b>electronic / robotic (ton-ton jaisi)</b> hoti hai — asal insani awaaz NAHI hai. Asal awaaz ke liye hamesha <b>Asal AI Song</b> mode use karein.</p>
 </div>
 <div class="row"><b>Instrumental</b><div class="switch" id="inst" onclick="this.classList.toggle('on')"></div></div>
@@ -607,26 +607,25 @@ async function downloadSong(idx){const s=get('songs',[]),x=s[idx];if(x&&x.type==
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800);
   showSongMsg('⬇ WAV download ho gaya: '+a.download)}catch(err){showSongMsg('⚠ WAV export fail: '+err.message)}}
 
-// ============ v7: ASAL AI SONG (Free Server — ACE-Step on Hugging Face) ============
-// Asal gaayi hui awaaz browser ke andar NAHI ban sakti — is liye default Generate ab ek
-// FREE cloud AI (ACE-Step, Apache-2.0 open model) ko lyrics+style bhejta hai aur asal
-// sung song wapas laata hai. Browser formant engine sirf ek saaf-labelled offline
-// option ke tor par baqi hai (robotic/electronic awaaz).
+// ============ v8: ASAL AI SONG (Free Servers — multi-server fallback) ============
+// Asal gaayi hui awaaz browser ke andar NAHI ban sakti — is liye default Generate
+// FREE cloud AI servers ko bari bari azmata hai: pehla server busy/stall ho to
+// khud agle server par chala jata hai (join timeout 75s, har server ki kul limit
+// 5 minute, har second status + guzra hua waqt nazar aata hai). Browser formant
+// engine sirf ek saaf-labelled offline option ke tor par baqi hai.
 let genMode='ai';
-const ACE_BASE='https://ace-step-ace-step.hf.space';
-let aceFnIndexCache=null;
 function setGenMode(m){genMode=m;const ai=document.getElementById('modeAiBtn'),br=document.getElementById('modeBrBtn');
  if(ai){ai.className=m==='ai'?'btn primary':'btn';ai.textContent=m==='ai'?'🎤 Asal AI Song (Free Server) ✔':'🎤 Asal AI Song (Free Server)'}
  if(br){br.className=m==='browser'?'btn primary':'btn';br.textContent=m==='browser'?'🤖 Browser Voice (offline, foran) ✔':'🤖 Browser Voice (offline, foran)'}
  const gb=document.getElementById('genBtn');if(gb)gb.textContent=m==='ai'?'🎤 Generate ASAL AI Song — Free Server':'🤖 Generate — Browser Voice (robotic, offline)';
- const mn=document.getElementById('modeNote');if(mn)mn.innerHTML=m==='ai'?'🎤 <b>Asal AI Song mode ON hai:</b> gana free AI server par bane ga — asal gaayi hui awaaz ke sath. Thora intezaar karna parega (queue ho sakti hai).':'🤖 <b>Browser Voice mode ON hai:</b> gana isi device par foran bane ga, lekin awaaz <b>electronic/robotic</b> hogi — asal gaayi hui awaaz NAHI. Asal awaaz ke liye upar <b>Asal AI Song</b> mode chunein.';
+ const mn=document.getElementById('modeNote');if(mn)mn.innerHTML=m==='ai'?'🎤 <b>Asal AI Song mode ON hai:</b> gana free AI servers par bane ga — asal gaayi hui awaaz ke sath. Ek server busy ho to page khud agle server par chala jaye ga; status mein server ka naam aur guzra hua waqt nazar aata rahe ga.':'🤖 <b>Browser Voice mode ON hai:</b> gana isi device par foran bane ga, lekin awaaz <b>electronic/robotic</b> hogi — asal gaayi hui awaaz NAHI. Asal awaaz ke liye upar <b>Asal AI Song</b> mode chunein.';
  const st=document.getElementById('genStatus');if(st)st.textContent=m==='ai'?'🎤 Asal AI Song mode — Lyrics likh kar Generate dabayein.':'🤖 Browser Voice mode — Generate dabane par robotic awaaz mein gana isi device par banega.'}
 const ACE_STYLE_TAGS={Pop:'pop, piano, guitar, drums, bass, melodic, catchy',Rock:'rock, electric guitar, drums, energetic', 'Hip-Hop':'hip hop, rap, beats, bass, rhythmic',Jazz:'jazz, piano, saxophone, smooth, swing',Classical:'classical, orchestra, piano, strings',Electronic:'electronic, synth, edm, dance beats', 'Lo-Fi':'lo-fi, chill, mellow, vinyl, relaxed',Urdu:'urdu pop, romantic ballad, harmonium, tabla, emotional male vocal',Punjabi:'punjabi folk pop, dhol, tumbi, energetic bhangra',Saraiki:'folk, saraiki folk style, dholak, harmonium, soulful male vocal',Acoustic:'acoustic, guitar, folk, warm, intimate'};
 function aceStylePrompt(styleRaw){const key=resolveStyle(styleRaw||'Pop');let tags=ACE_STYLE_TAGS[key]||ACE_STYLE_TAGS.Pop;
  const custom=(document.getElementById('styleInput')&&document.getElementById('styleInput').value||'').trim();
  if(custom&&custom.toLowerCase()!==key.toLowerCase())tags=custom+', '+tags;
  return tags}
-function aceLyricsFormat(text){ // PURE: hamare [Style Verse n] headers -> ACE-Step ke [verse]/[chorus]
+function aceLyricsFormat(text){ // PURE: hamare [Style Verse n] headers -> [verse]/[chorus] sections
  let lines=(''+(text||'')).split('\n').map(x=>x.trim()).filter(Boolean);
  lines=lines.map(l=>{const m=l.match(/^\[([^\]]+)\]\s*(.*)$/);if(!m)return l;const tag=m[1].toLowerCase();
   if(tag.indexOf('chorus')>=0)return '[chorus]'+(m[2]?' '+m[2]:'');
@@ -639,53 +638,130 @@ function aceLyricsFormat(text){ // PURE: hamare [Style Verse n] headers -> ACE-S
  return '[verse]\n'+lines.join('\n')}
 function buildAcePayload(prompt,lyricsText){ // PURE: ACE-Step __call__ ke 22 params (config order)
  return [60,prompt,lyricsText,40,15.0,'euler','apg',10.0,null,0.5,0.0,3.0,true,false,true,null,0.0,0.0,false,0.5,null,'none']}
-function aceFileUrl(d){if(!d)return null;if(d.url)return d.url;if(d.path)return ACE_BASE+'/gradio_api/file='+d.path;return null}
-async function aceFnIndex(fetchFn){if(aceFnIndexCache!=null)return aceFnIndexCache;const f=fetchFn||fetch;
- try{const r=await f(ACE_BASE+'/config');const cfg=await r.json();const i=(cfg.dependencies||[]).findIndex(d=>d&&d.api_name==='__call__');aceFnIndexCache=i>=0?i:11}catch(e){aceFnIndexCache=11}
- return aceFnIndexCache}
+// ---- v8: server list (sirf woh servers jo asal test mein gana wapas dein) ----
+const AI_CFG={joinMs:75000,pollBudgetMs:5*60*1000,fnMs:25000};
+const AI_SERVERS=[
+  {id:'ace',name:'ACE-Step',link:'https://huggingface.co/spaces/ACE-Step/ACE-Step',base:'https://ace-step-ace-step.hf.space',kind:'ace',fnName:'__call__',fnFallback:11},
+ {id:'gamahea',name:'ACE-Step Custom (Gamahea)',link:'https://huggingface.co/spaces/Gamahea/ACE-Step-Custom',base:'https://gamahea-ace-step-custom.hf.space',kind:'acecustom',fnName:'standard_generate',fnFallback:0},
+ {id:'lubub',name:'ACE-Step Custom (Lubub)',link:'https://huggingface.co/spaces/LububMusicAi/ACE-Step-Custom',base:'https://lububmusicai-ace-step-custom.hf.space',kind:'acecustom',fnName:'standard_generate',fnFallback:0},
+ {id:'yue2',name:'YuE2',link:'https://huggingface.co/spaces/mrfakename/yue2-3b',base:'https://mrfakename-yue2-3b.hf.space',kind:'yue2',fnName:'generate_song',fnFallback:1},
+ {id:'diffrhythm2',name:'DiffRhythm 2',link:'https://huggingface.co/spaces/ASLP-lab/DiffRhythm2',base:'https://aslp-lab-diffrhythm2.hf.space',kind:'diffrhythm2',fnName:'infer_music',fnFallback:2},
+ {id:'diffrhythm1',name:'DiffRhythm',link:'https://huggingface.co/spaces/ASLP-lab/DiffRhythm',base:'https://aslp-lab-diffrhythm.hf.space',kind:'diffrhythm',fnName:'infer_music',fnFallback:9},
+];
+const ACECUSTOM_STYLE={Pop:'pop',Rock:'rock',Jazz:'jazz',Classical:'classical',Electronic:'electronic','Hip-Hop':'hip-hop'};
+function aiDataFor(srv,prompt,rawText,styleKey){ // PURE: har server ki apni data shape
+ if(srv.kind==='ace')return buildAcePayload(prompt,aceLyricsFormat(rawText));
+ if(srv.kind==='acecustom')return [prompt,aceLyricsFormat(rawText),60,0.7,0.9,-1,ACECUSTOM_STYLE[styleKey]||'auto',false,null];
+ if(srv.kind==='yue2')return [prompt,aceLyricsFormat(rawText),'full',16,Math.floor(Math.random()*100000)];
+ if(srv.kind==='diffrhythm2')return ['[start]\n'+aceLyricsFormat(rawText)+'\n[end]',null,null,prompt,0,true,16,1.3,'mp3','euler'];
+ if(srv.kind==='diffrhythm')return [lrcFromLyrics(rawText),null,prompt,null,0,true,32,4.0,'mp3','euler','quality first',95];
+ return []}
+function lrcFromLyrics(text,secPerLine){ // PURE: DiffRhythm v1 ke liye timestamped LRC (line ~ har 4.5s)
+ const lines=(''+(text||'')).split('\n').map(s=>s.trim()).filter(s=>s&&!/^\[[^\]]+\]\s*$/.test(s)).map(s=>s.replace(/^\[[^\]]+\]\s*/,''));
+ const per=secPerLine||4.5;
+ const fmt=t=>{const m=Math.floor(t/60),ss=(t-m*60).toFixed(3);return '['+String(m).padStart(2,'0')+':'+(ss.length<6?'0'+ss:ss)+'] '};
+ return lines.map((l,i)=>fmt(2+i*per)+l).join('\n')}
+function aiFileUrl(srv,d){if(!d)return null;if(d.url)return d.url;if(d.path)return srv.base+'/gradio_api/file='+d.path;return null}
+async function fetchTO(f,url,opts,ms){ // fetch with hard timeout (AbortController)
+ if(typeof AbortController==='undefined')return f(url,opts);
+ const c=new AbortController();const to=setTimeout(()=>{try{c.abort()}catch(e){}},ms);
+ try{return await f(url,Object.assign({},opts||{},{signal:c.signal}))}finally{clearTimeout(to)}}
+const aiFnCache={};
+async function aiFnIndex(srv,f){if(aiFnCache[srv.id]!=null)return aiFnCache[srv.id];
+ try{const r=await fetchTO(f,srv.base+'/config',{},AI_CFG.fnMs);const cfg=await r.json();const i=(cfg.dependencies||[]).findIndex(d=>d&&d.api_name===srv.fnName);aiFnCache[srv.id]=i>=0?i:srv.fnFallback}catch(e){aiFnCache[srv.id]=srv.fnFallback}
+ return aiFnCache[srv.id]}
+function aiHandleSseLine(srv,line,onPhase){ // PURE-ish: ek SSE line -> url (completed) | throw (fail) | null
+ let s=(''+line).trim();if(s.indexOf('data:')===0)s=s.slice(5).trim();
+ if(s.charAt(0)!=='{')return null;
+ let m;try{m=JSON.parse(s)}catch(e){return null}
+ if(m.msg==='estimation')onPhase('queue',srv,m);
+ else if(m.msg==='process_starts'||m.msg==='process_generating')onPhase('generating',srv,m);
+ else if(m.msg==='process_completed'){
+  if(m.success===false||(m.output&&m.output.error))throw new Error('server par error: '+((m.output&&m.output.error)||'generation fail'));
+  const d0=m.output&&m.output.data&&m.output.data[0];const url=aiFileUrl(srv,d0);
+  if(!url)throw new Error('server se audio file nahi mili');
+  return url}
+ else if(m.msg==='process_failed')throw new Error('server par gana fail ho gaya');
+ else if(m.msg==='queue_full')throw new Error('server ki queue full hai');
+ else if(m.msg==='unexpected_error')throw new Error('server error: '+(m.message||'session nahi mili'));
+ return null}
+async function aiPollStream(srv,hash,deps){ // queue/data ek SSE stream hai — reader se line-by-line parho (v7 ka asal bug yehi tha: fetch().text() stream band honay ka intezaar karta tha, is liye page atki nazar aati thi)
+ const f=deps.fetch,onPhase=deps.onPhase||function(){};
+ const ctrl=(typeof AbortController!=='undefined')?new AbortController():null;
+ let timedOut=false;const killer=ctrl?setTimeout(()=>{timedOut=true;try{ctrl.abort()}catch(e){}},AI_CFG.pollBudgetMs):null;
+ try{
+  const pr=await f(srv.base+'/gradio_api/queue/data?session_hash='+encodeURIComponent(hash),ctrl?{signal:ctrl.signal}:undefined);
+  if(pr&&pr.ok===false)throw new Error('server se rabta nahi hua (HTTP '+pr.status+')');
+  if(!pr.body||!pr.body.getReader){ // purana browser: poora text ek sath parho
+   const txt=await pr.text();const lines=txt.split('\n');
+   for(const line of lines){const url=aiHandleSseLine(srv,line,onPhase);if(url)return url}
+   throw new Error('stream band ho gaya, gana nahi aaya')}
+  const reader=pr.body.getReader();const dec=new TextDecoder();let buf='';
+  while(true){
+   const chunk=await reader.read();
+   if(chunk.done)break;
+   buf+=dec.decode(chunk.value,{stream:true});
+   let idx;
+   while((idx=buf.indexOf('\n'))>=0){const line=buf.slice(0,idx);buf=buf.slice(idx+1);const url=aiHandleSseLine(srv,line,onPhase);if(url){try{reader.cancel()}catch(e){}return url}}
+  }
+  if(buf.trim()){const url=aiHandleSseLine(srv,buf,onPhase);if(url)return url}
+  throw new Error(timedOut?'5 minute mein gana tayyar nahi hua (server bohat slow)':'stream band ho gaya, gana nahi aaya');
+ }catch(e){
+  if(timedOut)throw new Error('5 minute mein gana tayyar nahi hua (server bohat slow)');
+  throw e;
+ }finally{if(killer)clearTimeout(killer)}
+}
+async function aiTryServer(srv,prompt,rawText,styleKey,deps){ // ek server: join (75s hard timeout) -> SSE stream (kul 5 min budget)
+ const f=deps.fetch,now=deps.now,onPhase=deps.onPhase||function(){};
+ onPhase('join',srv,null);
+ const fnIdx=await aiFnIndex(srv,f);
+ const hash='sg'+now().toString(36)+Math.floor(Math.random()*1e6).toString(36);
+ const jr=await fetchTO(f,srv.base+'/gradio_api/queue/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:aiDataFor(srv,prompt,rawText,styleKey),fn_index:fnIdx,session_hash:hash})},AI_CFG.joinMs);
+ if(!jr.ok)throw new Error('server ne request accept nahi ki (HTTP '+jr.status+')');
+ await jr.json();
+ return aiPollStream(srv,hash,deps);
+}
+async function aiRunServers(prompt,rawText,styleKey,deps){ // bari bari har server — pehla jo gana de de
+ const errs=[];
+ for(let i=0;i<AI_SERVERS.length;i++){const srv=AI_SERVERS[i];
+  if(deps.onAttempt)deps.onAttempt(i,AI_SERVERS.length,srv);
+  try{const url=await aiTryServer(srv,prompt,rawText,styleKey,deps);return {url:url,srv:srv}}
+  catch(e){errs.push(srv.name+': '+(e&&e.message?e.message:(''+e)))}
+ }
+ const err=new Error('ALL_SERVERS_BUSY');err.details=errs;throw err}
 async function generateAISong(fetchFn){const f=fetchFn||fetch;const st=document.getElementById('genStatus'),res=document.getElementById('aiResult');
  let text=(document.getElementById('lyrics').value||'').trim();const hasWords=/[\p{L}\p{N}]/u.test(text);
  if(tabMode=='text'){if(!hasWords){st.textContent='⚠ Pehle apne song ki description likhein — khaali box se gana nahi banta.';return}
   text=lyricsFromDescription(text);document.getElementById('lyrics').value=text;document.getElementById('lyrics').dispatchEvent(new Event('input'));setTabMode('lyrics')}
  else if(!hasWords){st.textContent='⚠ Pehle Lyrics likhein — khaali lyrics se gana nahi banta. Box mein gana ke alfaaz likhein, ya Random Lyrics / AI Lyrics Generator dabayein.';return}
- const btn=document.getElementById('genBtn');const oldBtn=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='⏳ AI Server par gana ban raha hai…'}
+ const btn=document.getElementById('genBtn');const oldBtn=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='⏳ AI Servers par gana ban raha hai…'}
  if(res)res.innerHTML='';
+ const styleKey=resolveStyle(document.getElementById('styleInput').value.trim()||selStyle);
  const prompt=aceStylePrompt(document.getElementById('styleInput').value.trim()||selStyle);
- const lyr=aceLyricsFormat(text);
  const title=(text.split('\n').map(x=>x.trim()).filter(Boolean)[0]||'Untitled').replace(/^\[[^\]]+\]\s*/,'').slice(0,40)||'Untitled';
+ const run={srv:null,idx:0,total:AI_SERVERS.length,phase:'start',rank:null,t0:Date.now(),prevFail:false};
+ const renderStatus=()=>{if(!st)return;const sec=Math.round((Date.now()-run.t0)/1000);const nm=run.srv?run.srv.name:'AI Server';const pos=(run.idx+1)+'/'+run.total;
+  if(run.phase==='join')st.textContent='📤 Server '+pos+' — '+nm+' ko lyrics bhej rahe hain… ('+sec+'s)'+(run.prevFail?' — pichla server busy tha, ab is par koshish ho rahi hai.':'');
+  else if(run.phase==='queue')st.textContent='⏳ Server '+pos+' — '+nm+': queue mein hain'+(run.rank!=null?' — position andaza '+run.rank:'')+'… ('+sec+'s) Server busy raha to page khud agle server par chala jaye ga. Page band na karein.';
+  else if(run.phase==='generating')st.textContent='🎶 Server '+pos+' — '+nm+': AI gana bana raha hai — asal awaaz + music render ho raha hai… ('+sec+'s)';
+  else st.textContent='⏳ Tayyari ho rahi hai… ('+sec+'s)'};
+ const ticker=setInterval(renderStatus,1000);renderStatus();
+ const deps={fetch:f,now:()=>Date.now(),
+  onAttempt:(i,total,srv)=>{run.idx=i;run.total=total;run.srv=srv;run.phase='join';run.rank=null;if(i>0)run.prevFail=true;renderStatus()},
+  onPhase:(phase,srv,m)=>{run.phase=phase;if(m&&m.rank!=null)run.rank=m.rank+1;renderStatus()}};
  try{
-  st.textContent='📤 Lyrics free AI server (ACE-Step) ko bhej diye — queue mein lag gaya hai… Server free hai, kabhi 1–5 minute bhi lag sakte hain. Page band na karein.';
-  const fnIdx=await aceFnIndex(f);
-  const hash='surgeet'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36);
-  const jr=await f(ACE_BASE+'/gradio_api/queue/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildAcePayload(prompt,lyr),fn_index:fnIdx,session_hash:hash})});
-  if(!jr.ok)throw new Error('Server ne request accept nahi ki (HTTP '+jr.status+')');
-  await jr.json();
-  const t0=Date.now();let done=null,failed=false;
-  while(Date.now()-t0<10*60*1000){
-   await new Promise(r=>setTimeout(r,5000));
-   const pr=await f(ACE_BASE+'/gradio_api/queue/data?session_hash='+encodeURIComponent(hash));
-   const txt=await pr.text();
-   const msgs=txt.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('{')).map(l=>{try{return JSON.parse(l)}catch(e){return null}}).filter(Boolean);
-   for(const m of msgs){
-    if(m.msg==='estimation'){st.textContent='⏳ Queue mein hain — andaza position: '+((m.rank!=null?m.rank+1:'—'))+' … Server free hai, thora intezaar karein.'}
-    else if(m.msg==='process_starts'||m.msg==='process_generating'){st.textContent='🎶 AI gana bana raha hai — asal awaaz + music render ho raha hai… ('+Math.round((Date.now()-t0)/1000)+'s)'}
-    else if(m.msg==='process_completed'){if(m.success===false||(m.output&&m.output.error)){failed=true}else{done=m}}
-    else if(m.msg==='process_failed'){failed=true}
-   }
-   if(done||failed)break;
-  }
-  if(failed)throw new Error('Server par gana nahi ban saka (busy/error). Thori dair baad dobara try karein.');
-  if(!done)throw new Error('10 minute ho gaye, server abhi bhi busy hai — dobara try karein, ya neeche wale direct link se bana lein.');
-  const d0=done.output&&done.output.data&&done.output.data[0];
-  const url=aceFileUrl(d0);
-  if(!url)throw new Error('Server se audio file nahi mili — dobara try karein.');
-  if(res)res.innerHTML='<div class="box"><b>🎉 Asal AI Song tayyar hai!</b><audio controls src="'+esc(url)+'" style="width:100%;margin-top:8px"></audio><br><a class="btn" href="'+esc(url)+'" download target="_blank" rel="noopener">⬇ Download Song</a> <span class="stat">Ye link server par hota hai aur kabhi expire ho sakta hai — download karke rakh lein.</span></div>';
-  let songs=get('songs',[]);songs.unshift({type:'ai',audioUrl:url,name:title,style:prompt.split(',')[0],model:'ACE-Step AI (Free Server)',date:new Date().toLocaleString(),lyrics:text});set('songs',songs.slice(0,20));render();
+  const out=await aiRunServers(prompt,text,styleKey,deps);
+  const url=out.url,srv=out.srv;const totalSec=Math.round((Date.now()-run.t0)/1000);
+  if(res)res.innerHTML='<div class="box"><b>🎉 Asal AI Song tayyar hai!</b> <span class="stat">('+esc(srv.name)+' server, '+totalSec+'s mein)</span><audio controls src="'+esc(url)+'" style="width:100%;margin-top:8px"></audio><br><a class="btn" href="'+esc(url)+'" download target="_blank" rel="noopener">⬇ Download Song</a> <span class="stat">Ye link server par hota hai aur kabhi expire ho sakta hai — download karke rakh lein.</span></div>';
+  let songs=get('songs',[]);songs.unshift({type:'ai',audioUrl:url,name:title,style:prompt.split(',')[0],model:srv.name+' AI (Free Server)',date:new Date().toLocaleString(),lyrics:text});set('songs',songs.slice(0,20));render();
   st.textContent='🎉 Ho gaya! Asal AI Song upar player mein hai aur My Songs mein bhi save ho gaya hai (Download zaroor kar lein — server link expire ho sakta hai).';
  }catch(err){
-  st.textContent='⚠ AI Server se gana nahi ban saka: '+err.message+' Thori dair baad dobara try karein — ya isi page par neeche 🤖 Browser Voice mode hai (wo robotic awaaz hai), ya https://huggingface.co/spaces/ACE-Step/ACE-Step par direct bana lein.';
- }finally{if(btn){btn.disabled=false;btn.textContent=oldBtn}}}
+  const links=AI_SERVERS.map(s=>'<a href="'+esc(s.link)+'" target="_blank" rel="noopener">'+esc(s.name)+'</a>').join(' · ');
+  if(res)res.innerHTML='<div class="box"><b>⚠ Saare free server is waqt busy hain</b> — har server ko bari bari azma liya, kisi ne waqt par gana nahi diya. <b>Thori dair baad dobara koshish karein</b> — free servers par rush hota rehta hai.<br><span class="stat">Direct bana lein: '+links+'</span>'+(err.details?'<br><span class="stat">Tafseel: '+esc(err.details.join(' | '))+'</span>':'')+'</div>';
+  st.textContent='⚠ Saare free server is waqt busy hain — thori dair baad dobara koshish karein.';
+ }finally{clearInterval(ticker);if(btn){btn.disabled=false;btn.textContent=oldBtn}}}
 function generate(){if(genMode==='ai')return generateAISong();return generateBrowserVoice()}
+
 
 // Web Audio generation: melody from lyrics hash + style — NOW driven by selected trained model profile
 let ctx;function generateBrowserVoice(){
