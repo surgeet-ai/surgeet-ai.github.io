@@ -63,6 +63,14 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 
 <main class="card" id="create">
 <div class="tabs"><button class="tab active" onclick="setTab(this,'lyrics')">Lyrics to Song</button><button class="tab" onclick="setTab(this,'text')">Text to Song</button><span style="margin-left:auto"><label class="btn small">⬆ Upload Song <input type="file" accept="audio/*" hidden onchange="uploadSong(event)"></label></span></div>
+<div class="box" id="aiModeBox" style="border:2px solid #7c3aed;background:linear-gradient(135deg,rgba(124,58,237,.14),rgba(217,70,239,.08))">
+<h3 style="margin-top:0">🎤 ASAL AI SONG (Free Server) — asal gaayi hui awaaz</h3>
+<div class="row" style="justify-content:flex-start;gap:8px;flex-wrap:wrap"><span>
+<button class="btn primary" type="button" id="modeAiBtn" onclick="setGenMode('ai')">🎤 Asal AI Song (Free Server) ✔</button>
+<button class="btn" type="button" id="modeBrBtn" onclick="setGenMode('browser')">🤖 Browser Voice (offline, foran)</button></span></div>
+<p class="stat" id="modeDesc">Is mode mein gana <b>FREE AI server (ACE-Step — Hugging Face)</b> par banta hai: <b>asal gaayi hui awaaz + pura music</b>, bilkul asal song ki tarah. Lyrics aur style upar likhein, phir neeche wala bara <b>Generate</b> button dabayein. <b>Saaf baat:</b> server free hai, is liye kabhi queue lag sakti hai ya slow ho sakta hai — aam tor par 1–5 minute lagte hain. Server busy ho to <a href="https://huggingface.co/spaces/ACE-Step/ACE-Step" target="_blank" rel="noopener">yahan direct bhi bana sakte hain</a>.</p>
+<p class="stat">🤖 <b>Browser Voice</b> wala doosra mode internet ke baghair foran gana banata hai, lekin us ki awaaz <b>electronic / robotic (ton-ton jaisi)</b> hoti hai — asal insani awaaz NAHI hai. Asal awaaz ke liye hamesha <b>Asal AI Song</b> mode use karein.</p>
+</div>
 <div class="row"><b>Instrumental</b><div class="switch" id="inst" onclick="this.classList.toggle('on')"></div></div>
 <label id="mainLabel"><b>Lyrics</b></label>
 <textarea id="lyrics" dir="auto" rows="9" maxlength="5000" placeholder="Enter your lyrics here" oninput="document.getElementById('cnt').textContent=this.value.length+'/5000'"></textarea>
@@ -73,9 +81,9 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <input type="text" id="styleInput" placeholder="Or type style e.g. Pop, Rock, Hip-Hop, Jazz, Urdu, Punjabi, Lo-Fi..." style="margin-top:10px">
 <div class="row"><label>Voice / Model <select id="modelSel" onchange="onModelSelChange()"><option>Default Voice</option></select></label><button class="btn" type="button" onclick="testSelectedVoice()">🔊 Test Voice (selected model)</button></div>
 <p id="usingModel"></p>
-<button class="btn primary" onclick="generate()">🎵 Generate Song — Free</button>
-<p class="stat">🎙️ Browser ki bani hui singing voice hai; asal studio/AI awaaz ke liye notebook (RVC) wala rasta hai.</p>
-<p id="genStatus"></p><div id="player"></div>
+<button class="btn primary" id="genBtn" onclick="generate()">🎤 Generate ASAL AI Song — Free Server</button>
+<p class="stat" id="modeNote">🎤 <b>Asal AI Song mode ON hai:</b> gana free AI server par bane ga — asal gaayi hui awaaz ke sath. Thora intezaar karna parega (queue ho sakti hai).</p>
+<p id="genStatus"></p><div id="player"></div><div id="aiResult" style="margin-top:10px"></div>
 <div class="box" style="margin-top:14px"><h3 style="margin-top:0">📝 Audio Song se Lyrics</h3>
 <p class="stat">Koi audio song upload karein (upar <b>⬆ Upload Song</b> se), phir ye button dabayein — browser ke andar hi asal <b>Whisper AI</b> se song ke lyrics niklein ge. <b>Pehli dafa model download hoga — internet zaroori hai (lagbhag 40–75 MB, sirf ek dafa)</b>, phir ye isi device par chalta rahega. Bol-chaal, Urdu, English, Hindi — sab chalti hain. <b>Saaf baat:</b> tez background music ke sath gaaye hue song mein accuracy kam ho sakti hai, aur <b>Saraiki song aksar Urdu/Punjabi se qareeb text</b> mein transcribe hota hai.</p>
 <button class="btn" type="button" id="transcribeBtn" onclick="transcribeSong()">📝 Is Song ke Lyrics Nikalein (Transcribe)</button>
@@ -93,7 +101,7 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 
 <section id="train"><h2>🎤 Train Your Model — 100% FREE, Real In-Browser Training</h2><p>No payment, no subscription. Your samples are <b>really analysed on this device</b> with the Web Audio API — pitch detection (autocorrelation), FFT spectrum, tempo &amp; energy are measured from your audio, and the resulting Voice Model profile is saved in this browser (IndexedDB + localStorage). Your audio never leaves your device. When you select the model in Generate, the song's pitch, waveform, vibrato and tempo actually follow your measured profile.</p>
 <div class="box" style="margin-bottom:16px"><h3 style="margin-top:0">📋 Model Train Karne Ka Tareeqa — Step by Step (Asaan Urdu)</h3><ol class="uguide"><li><b>Step 1 — Naam likhein:</b> neeche <b>Model Name</b> mein apne model ka naam likhein (masalan: <i>Meri Awaaz</i>).</li><li><b>Step 2 — Samples dein:</b> apni awaaz ke <b>3–5 samples</b> upload karein ya mic se record karein — har sample <b>30–60 second</b> ka ho, saaf awaaz ho, aas paas shor na ho.</li><li><b>Step 3 — Train dabayein:</b> <b>Start REAL Training</b> wala button dabayein aur progress 100% hone ka intezaar karein (internet ki zaroorat nahi, sab isi phone/browser mein hota hai).</li><li><b>Step 4 — Model select karein:</b> model ban jaye to woh <b>khud select</b> ho jata hai — warna <b>My Models</b> mein ja kar <b>Use in Generate</b> dabayein.</li><li><b>Step 5 — Gana banayein:</b> upar <b>Lyrics</b> wale hisse mein apne gana ke alfaaz likh kar <b>Generate</b> dabayein — gana aap ke model ki awaaz/pitch mein banega.</li></ol></div>
-<div class="box"><h3 style="margin-top:0">🎤 Apna Model Khud Train Karein — Model ki Audio Upload Karke</h3><p class="stat"><b>Ye wala option aap ke liye hai:</b> jis awaaz ka model banana hai, us ki audio yahan <b>upload karein (ya mic se record karein)</b>, phir <b>Train</b> dabayein — model ban jayega. Us ke baad upar <b>Lyrics</b> likh kar Generate karein, gana usi model ki awaaz/pitch mein banega.</p><label>Model Name</label><input type="text" id="modelName" placeholder="e.g. My Voice 1">
+<div class="box"><h3 style="margin-top:0">🎤 Apna Model Khud Train Karein — Model ki Audio Upload Karke</h3><p class="stat"><b>Ye wala option aap ke liye hai:</b> jis awaaz ka model banana hai, us ki audio yahan <b>upload karein (ya mic se record karein)</b>, phir <b>Train</b> dabayein — model ban jayega. Us ke baad upar <b>Lyrics</b> likh kar Generate karein, gana usi model ki awaaz/pitch mein banega (Browser Voice mode mein — robotic awaaz; asal AI awaaz ke liye Asal AI Song mode hai).</p><label>Model Name</label><input type="text" id="modelName" placeholder="e.g. My Voice 1">
 <label style="display:block;margin-top:12px">1) Upload Audio Samples (mp3/wav, 3–10 clear singing/voice files best)</label>
 <input type="file" id="samples" accept="audio/*" multiple onchange="addFiles(event)">
 <p style="margin:12px 0 4px"><b>— OR —</b></p>
@@ -587,19 +595,100 @@ function songParamsFromEntry(x){if(!x)return null;
  if(x.notes&&x.notes.length)return{lyrics:x.lyrics||x.name||'',style:x.style,model:x.model,modelProfile:x.modelProfile||null,instrumental:!!x.instrumental,seed:x.seed,noteDur:x.noteDur,notes:x.notes,backing:x.backing||null,voice:x.voice||null,duration:x.duration};
  if(x.lyrics)return buildSongParams(x.lyrics,x.style||'Pop',x.modelProfile||null,x.instrumental);return null}
 function showSongMsg(msg){const el=document.getElementById('songMsg');if(el)el.textContent=msg||'';const gs=document.getElementById('genStatus');if(gs&&msg)gs.textContent=msg}
-async function playSong(idx){const s=get('songs',[]),x=s[idx];const p=songParamsFromEntry(x);
+async function playSong(idx){const s=get('songs',[]),x=s[idx];if(x&&x.type==='ai'){showSongMsg('🎧 Ye AI Server wala gana hai — usi entry ke andar wale player se sunein.');return}const p=songParamsFromEntry(x);
  if(!p){showSongMsg('⚠ Is purane song ka replay data nahi hai — lyrics dobara Generate karein, phir Play chalega.');return}
  try{playParamsLive(p)}catch(err){showSongMsg('⚠ Play nahi ho saka: '+err.message+' — page reload karke phir try karein.');return}
  showSongMsg('▶ Playing: "'+(x.name||'Untitled')+'" ('+(x.style||'')+' • '+(x.model||'Default Voice')+')')}
 function deleteSong(i){const s=get('songs',[]);if(i<0||i>=s.length)return;s.splice(i,1);set('songs',s);render();showSongMsg('🗑 Song delete ho gaya.')}
-async function downloadSong(idx){const s=get('songs',[]),x=s[idx];const p=songParamsFromEntry(x);
+async function downloadSong(idx){const s=get('songs',[]),x=s[idx];if(x&&x.type==='ai'&&x.audioUrl){const a=document.createElement('a');a.href=x.audioUrl;a.download=((x.name||'surgeet-ai-song').replace(/[^\w\- ]+/g,'').trim().slice(0,40)||'surgeet-ai-song')+'.mp3';a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);showSongMsg('⬇ AI song download shuru: '+a.download);return}const p=songParamsFromEntry(x);
  if(!p){showSongMsg('⚠ Is purane song ka download data nahi hai — dobara Generate karein.');return}
  try{showSongMsg('⏳ WAV bana raha hai: "'+(x.name||'Untitled')+'" …');const blob=await paramsToWavBlob(p);
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=((x.name||'surgeet-song').replace(/[^\w\- ]+/g,'').trim().slice(0,40)||'surgeet-song')+'.wav';
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800);
   showSongMsg('⬇ WAV download ho gaya: '+a.download)}catch(err){showSongMsg('⚠ WAV export fail: '+err.message)}}
+
+// ============ v7: ASAL AI SONG (Free Server — ACE-Step on Hugging Face) ============
+// Asal gaayi hui awaaz browser ke andar NAHI ban sakti — is liye default Generate ab ek
+// FREE cloud AI (ACE-Step, Apache-2.0 open model) ko lyrics+style bhejta hai aur asal
+// sung song wapas laata hai. Browser formant engine sirf ek saaf-labelled offline
+// option ke tor par baqi hai (robotic/electronic awaaz).
+let genMode='ai';
+const ACE_BASE='https://ace-step-ace-step.hf.space';
+let aceFnIndexCache=null;
+function setGenMode(m){genMode=m;const ai=document.getElementById('modeAiBtn'),br=document.getElementById('modeBrBtn');
+ if(ai){ai.className=m==='ai'?'btn primary':'btn';ai.textContent=m==='ai'?'🎤 Asal AI Song (Free Server) ✔':'🎤 Asal AI Song (Free Server)'}
+ if(br){br.className=m==='browser'?'btn primary':'btn';br.textContent=m==='browser'?'🤖 Browser Voice (offline, foran) ✔':'🤖 Browser Voice (offline, foran)'}
+ const gb=document.getElementById('genBtn');if(gb)gb.textContent=m==='ai'?'🎤 Generate ASAL AI Song — Free Server':'🤖 Generate — Browser Voice (robotic, offline)';
+ const mn=document.getElementById('modeNote');if(mn)mn.innerHTML=m==='ai'?'🎤 <b>Asal AI Song mode ON hai:</b> gana free AI server par bane ga — asal gaayi hui awaaz ke sath. Thora intezaar karna parega (queue ho sakti hai).':'🤖 <b>Browser Voice mode ON hai:</b> gana isi device par foran bane ga, lekin awaaz <b>electronic/robotic</b> hogi — asal gaayi hui awaaz NAHI. Asal awaaz ke liye upar <b>Asal AI Song</b> mode chunein.';
+ const st=document.getElementById('genStatus');if(st)st.textContent=m==='ai'?'🎤 Asal AI Song mode — Lyrics likh kar Generate dabayein.':'🤖 Browser Voice mode — Generate dabane par robotic awaaz mein gana isi device par banega.'}
+const ACE_STYLE_TAGS={Pop:'pop, piano, guitar, drums, bass, melodic, catchy',Rock:'rock, electric guitar, drums, energetic', 'Hip-Hop':'hip hop, rap, beats, bass, rhythmic',Jazz:'jazz, piano, saxophone, smooth, swing',Classical:'classical, orchestra, piano, strings',Electronic:'electronic, synth, edm, dance beats', 'Lo-Fi':'lo-fi, chill, mellow, vinyl, relaxed',Urdu:'urdu pop, romantic ballad, harmonium, tabla, emotional male vocal',Punjabi:'punjabi folk pop, dhol, tumbi, energetic bhangra',Saraiki:'folk, saraiki folk style, dholak, harmonium, soulful male vocal',Acoustic:'acoustic, guitar, folk, warm, intimate'};
+function aceStylePrompt(styleRaw){const key=resolveStyle(styleRaw||'Pop');let tags=ACE_STYLE_TAGS[key]||ACE_STYLE_TAGS.Pop;
+ const custom=(document.getElementById('styleInput')&&document.getElementById('styleInput').value||'').trim();
+ if(custom&&custom.toLowerCase()!==key.toLowerCase())tags=custom+', '+tags;
+ return tags}
+function aceLyricsFormat(text){ // PURE: hamare [Style Verse n] headers -> ACE-Step ke [verse]/[chorus]
+ let lines=(''+(text||'')).split('\n').map(x=>x.trim()).filter(Boolean);
+ lines=lines.map(l=>{const m=l.match(/^\[([^\]]+)\]\s*(.*)$/);if(!m)return l;const tag=m[1].toLowerCase();
+  if(tag.indexOf('chorus')>=0)return '[chorus]'+(m[2]?' '+m[2]:'');
+  if(tag.indexOf('verse')>=0)return '[verse]'+(m[2]?' '+m[2]:'');
+  if(tag.indexOf('intro')>=0||tag.indexOf('outro')>=0||tag.indexOf('bridge')>=0)return '['+tag+']'+(m[2]?' '+m[2]:'');
+  return m[2]||''}).filter(Boolean);
+ const hasTag=lines.some(l=>/^\[(verse|chorus|intro|bridge|outro)\]/.test(l));
+ if(hasTag)return lines.join('\n');
+ if(lines.length>=4){const half=Math.ceil(lines.length/2);return '[verse]\n'+lines.slice(0,half).join('\n')+'\n[chorus]\n'+lines.slice(half).join('\n')}
+ return '[verse]\n'+lines.join('\n')}
+function buildAcePayload(prompt,lyricsText){ // PURE: ACE-Step __call__ ke 22 params (config order)
+ return [60,prompt,lyricsText,40,15.0,'euler','apg',10.0,null,0.5,0.0,3.0,true,false,true,null,0.0,0.0,false,0.5,null,'none']}
+function aceFileUrl(d){if(!d)return null;if(d.url)return d.url;if(d.path)return ACE_BASE+'/gradio_api/file='+d.path;return null}
+async function aceFnIndex(fetchFn){if(aceFnIndexCache!=null)return aceFnIndexCache;const f=fetchFn||fetch;
+ try{const r=await f(ACE_BASE+'/config');const cfg=await r.json();const i=(cfg.dependencies||[]).findIndex(d=>d&&d.api_name==='__call__');aceFnIndexCache=i>=0?i:11}catch(e){aceFnIndexCache=11}
+ return aceFnIndexCache}
+async function generateAISong(fetchFn){const f=fetchFn||fetch;const st=document.getElementById('genStatus'),res=document.getElementById('aiResult');
+ let text=(document.getElementById('lyrics').value||'').trim();const hasWords=/[\p{L}\p{N}]/u.test(text);
+ if(tabMode=='text'){if(!hasWords){st.textContent='⚠ Pehle apne song ki description likhein — khaali box se gana nahi banta.';return}
+  text=lyricsFromDescription(text);document.getElementById('lyrics').value=text;document.getElementById('lyrics').dispatchEvent(new Event('input'));setTabMode('lyrics')}
+ else if(!hasWords){st.textContent='⚠ Pehle Lyrics likhein — khaali lyrics se gana nahi banta. Box mein gana ke alfaaz likhein, ya Random Lyrics / AI Lyrics Generator dabayein.';return}
+ const btn=document.getElementById('genBtn');const oldBtn=btn?btn.textContent:'';if(btn){btn.disabled=true;btn.textContent='⏳ AI Server par gana ban raha hai…'}
+ if(res)res.innerHTML='';
+ const prompt=aceStylePrompt(document.getElementById('styleInput').value.trim()||selStyle);
+ const lyr=aceLyricsFormat(text);
+ const title=(text.split('\n').map(x=>x.trim()).filter(Boolean)[0]||'Untitled').replace(/^\[[^\]]+\]\s*/,'').slice(0,40)||'Untitled';
+ try{
+  st.textContent='📤 Lyrics free AI server (ACE-Step) ko bhej diye — queue mein lag gaya hai… Server free hai, kabhi 1–5 minute bhi lag sakte hain. Page band na karein.';
+  const fnIdx=await aceFnIndex(f);
+  const hash='surgeet'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36);
+  const jr=await f(ACE_BASE+'/gradio_api/queue/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildAcePayload(prompt,lyr),fn_index:fnIdx,session_hash:hash})});
+  if(!jr.ok)throw new Error('Server ne request accept nahi ki (HTTP '+jr.status+')');
+  await jr.json();
+  const t0=Date.now();let done=null,failed=false;
+  while(Date.now()-t0<10*60*1000){
+   await new Promise(r=>setTimeout(r,5000));
+   const pr=await f(ACE_BASE+'/gradio_api/queue/data?session_hash='+encodeURIComponent(hash));
+   const txt=await pr.text();
+   const msgs=txt.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('{')).map(l=>{try{return JSON.parse(l)}catch(e){return null}}).filter(Boolean);
+   for(const m of msgs){
+    if(m.msg==='estimation'){st.textContent='⏳ Queue mein hain — andaza position: '+((m.rank!=null?m.rank+1:'—'))+' … Server free hai, thora intezaar karein.'}
+    else if(m.msg==='process_starts'||m.msg==='process_generating'){st.textContent='🎶 AI gana bana raha hai — asal awaaz + music render ho raha hai… ('+Math.round((Date.now()-t0)/1000)+'s)'}
+    else if(m.msg==='process_completed'){if(m.success===false||(m.output&&m.output.error)){failed=true}else{done=m}}
+    else if(m.msg==='process_failed'){failed=true}
+   }
+   if(done||failed)break;
+  }
+  if(failed)throw new Error('Server par gana nahi ban saka (busy/error). Thori dair baad dobara try karein.');
+  if(!done)throw new Error('10 minute ho gaye, server abhi bhi busy hai — dobara try karein, ya neeche wale direct link se bana lein.');
+  const d0=done.output&&done.output.data&&done.output.data[0];
+  const url=aceFileUrl(d0);
+  if(!url)throw new Error('Server se audio file nahi mili — dobara try karein.');
+  if(res)res.innerHTML='<div class="box"><b>🎉 Asal AI Song tayyar hai!</b><audio controls src="'+esc(url)+'" style="width:100%;margin-top:8px"></audio><br><a class="btn" href="'+esc(url)+'" download target="_blank" rel="noopener">⬇ Download Song</a> <span class="stat">Ye link server par hota hai aur kabhi expire ho sakta hai — download karke rakh lein.</span></div>';
+  let songs=get('songs',[]);songs.unshift({type:'ai',audioUrl:url,name:title,style:prompt.split(',')[0],model:'ACE-Step AI (Free Server)',date:new Date().toLocaleString(),lyrics:text});set('songs',songs.slice(0,20));render();
+  st.textContent='🎉 Ho gaya! Asal AI Song upar player mein hai aur My Songs mein bhi save ho gaya hai (Download zaroor kar lein — server link expire ho sakta hai).';
+ }catch(err){
+  st.textContent='⚠ AI Server se gana nahi ban saka: '+err.message+' Thori dair baad dobara try karein — ya isi page par neeche 🤖 Browser Voice mode hai (wo robotic awaaz hai), ya https://huggingface.co/spaces/ACE-Step/ACE-Step par direct bana lein.';
+ }finally{if(btn){btn.disabled=false;btn.textContent=oldBtn}}}
+function generate(){if(genMode==='ai')return generateAISong();return generateBrowserVoice()}
+
 // Web Audio generation: melody from lyrics hash + style — NOW driven by selected trained model profile
-let ctx;function generate(){
+let ctx;function generateBrowserVoice(){
  let text=(document.getElementById('lyrics').value||'').trim();let descNote='';
  const hasWords=/[\p{L}\p{N}]/u.test(text);
  if(tabMode=='text'){
@@ -622,7 +711,7 @@ function render(){const mlist=MODELS;const cur=document.getElementById('modelSel
  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
  if(pendingVoice){if(pendingVoice==='default')sel.value='Default Voice';else if([...sel.options].some(o=>o.value===pendingVoice))sel.value=pendingVoice;else if(pendingVoice.indexOf('model:')===0){const _mn=pendingVoice.slice(6);if([...sel.options].some(o=>o.value===_mn))sel.value=_mn}} // card selection renders ke baad bhi qaaim rehti hai
  renderCoverVoices();renderVoiceGallery();updateCoverModelField();
- let s=get('songs',[]);document.getElementById('songs').innerHTML=s.length?s.map((x,i)=>`<div class="box"><b>${esc(x.name)}</b><p>${esc(x.style)} • Model: ${esc(x.model||'Default Voice')}<br>${esc(x.date)}</p>${(x.notes&&x.notes.length)?`<button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button> <button class="btn small" onclick="deleteSong(${i})">🗑 Delete</button>`:`<p class="stat">Purana entry — replay data nahi. Dobara Generate karein.</p><button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button> <button class="btn small" onclick="deleteSong(${i})">🗑 Delete</button>`}</div>`).join(''):'<div class="box">No songs yet — Generate a song above, then Play / Download it here.</div>'}
+ let s=get('songs',[]);document.getElementById('songs').innerHTML=s.length?s.map((x,i)=>`<div class="box"><b>${esc(x.name)}</b><p>${esc(x.style)} • Model: ${esc(x.model||'Default Voice')}<br>${esc(x.date)}</p>${(x.type==='ai'&&x.audioUrl)?`<audio controls preload="none" src="${esc(x.audioUrl)}" style="width:100%"></audio><br><a class="btn small" href="${esc(x.audioUrl)}" download target="_blank" rel="noopener">⬇ Download</a> <button class="btn small" onclick="deleteSong(${i})">🗑 Delete</button><p class="stat">🎤 AI Server song — link kabhi expire ho sakta hai, download karke rakh lein.</p>`:(x.notes&&x.notes.length)?`<button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button> <button class="btn small" onclick="deleteSong(${i})">🗑 Delete</button>`:`<p class="stat">Purana entry — replay data nahi. Dobara Generate karein.</p><button class="btn small" onclick="playSong(${i})">▶ Play</button> <button class="btn small" onclick="downloadSong(${i})">⬇ Download WAV</button> <button class="btn small" onclick="deleteSong(${i})">🗑 Delete</button>`}</div>`).join(''):'<div class="box">No songs yet — Generate a song above, then Play / Download it here.</div>'}
 
 // ============ Voice Models Gallery (aisongmaker-style tabs + cards) ============
 // Honest label: ye profiles kisi asal singer ki clone awaaz NAHI — style ke measured musical
