@@ -57,6 +57,7 @@ footer{text-align:center;padding:28px;color:#94a3af;border-top:1px solid #26303a
 <div class="row"><label>Voice / Model <select id="modelSel" onchange="onModelChange()"><option>Default Voice</option></select></label><button class="btn" type="button" onclick="testSelectedVoice()">🔊 Test Voice (selected model)</button></div>
 <p id="usingModel"></p>
 <button class="btn primary" onclick="generate()">🎵 Generate Song — Free</button>
+<p class="stat">🎙️ Browser ki bani hui singing voice hai; asal studio/AI awaaz ke liye notebook (RVC) wala rasta hai.</p>
 <p id="genStatus"></p><div id="player"></div>
 <div class="box" style="margin-top:14px"><h3 style="margin-top:0">📝 Audio Song se Lyrics</h3>
 <p class="stat">Koi audio song upload karein (upar <b>⬆ Upload Song</b> se), phir ye button dabayein — browser ke andar hi asal <b>Whisper AI</b> se song ke lyrics niklein ge. <b>Pehli dafa model download hoga — internet zaroori hai (lagbhag 40–75 MB, sirf ek dafa)</b>, phir ye isi device par chalta rahega. Bol-chaal, Urdu, English, Hindi — sab chalti hain. <b>Saaf baat:</b> tez background music ke sath gaaye hue song mein accuracy kam ho sakti hai, aur <b>Saraiki song aksar Urdu/Punjabi se qareeb text</b> mein transcribe hota hai.</p>
@@ -363,12 +364,11 @@ async function deleteModel(name){MODELS=MODELS.filter(m=>m.name!==name);set('mod
 function testModelByIdx(i){const m=MODELS[i];if(m)testVoiceOf(m)}
 function selectModelIdx(i){const m=MODELS[i];if(m)selectModel(m.name)}
 function deleteModelByIdx(i){const m=MODELS[i];if(m)deleteModel(m.name)}
-function playVoice(freq,type,vibRate,vibDepthCents,when,dur,vol){const ac=audioCtx();const o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.value=freq;
- if(vibRate>0&&vibDepthCents>0){const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=vibRate;lg.gain.value=freq*(Math.pow(2,vibDepthCents/1200)-1);lfo.connect(lg);lg.connect(o.frequency);lfo.start(when);lfo.stop(when+dur)}
- o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime((vol||.16)*waveGain(type),when);g.gain.exponentialRampToValueAtTime(.001,when+dur*.92);o.start(when);o.stop(when+dur)}
+function playVoice(freq,vowel,vibRate,vibDepthCents,when,dur,vol,prof){ // backward-compatible wrapper -> FORMANT voice
+ scheduleVoiceNote(audioCtx(),audioCtx().destination,{f:freq,syl:vowel||'a',d:dur,vol:vol!=null?vol:.9,vibR:vibRate||0,vibD:vibDepthCents||0},when,prof||{root:freq,female:freq>=235,vibR:vibRate||0,vibD:vibDepthCents||0})}
 function testVoiceOf(m){if(!m)return alert('Pehle ek model train karke select karein');const sm=sanitizeModel(m);audioCtx().resume();const t=audioCtx().currentTime+.08;
- [1,1.25,1.5,2].forEach((r,i)=>playVoice(sm.root*r,sm.waveType,sm.vibratoRateHz,sm.vibratoDepthCents,t+i*.45,.42,.18));
- document.getElementById('genStatus').textContent='🔊 Test Voice: "'+m.name+'" profile baj raha hai (root '+sm.root+' Hz, measured base '+m.basePitch+' Hz, '+sm.waveType+').'}
+ const prof={root:sm.root,female:sm.root>=235,vibR:sm.vibratoRateHz,vibD:sm.vibratoDepthCents};['a','e','i','o'].forEach((v,i)=>scheduleVoiceNote(audioCtx(),audioCtx().destination,{f:foldNote(sm.root*[1,1.25,1.5,2][i]),syl:v,d:.42,vol:.9,vibR:sm.vibratoRateHz,vibD:sm.vibratoDepthCents},t+i*.45,prof));
+ document.getElementById('genStatus').textContent='🔊 Test Voice: "'+m.name+'" profile baj raha hai (root '+sm.root+' Hz, measured base '+m.basePitch+' Hz, formant singing voice).'}
 function testSelectedVoice(){testVoiceOf(selectedModel())}
 function testModelByName(n){testVoiceOf(MODELS.find(m=>m.name===n))}
 async function createCover(){const st=document.getElementById('coverStatus');const say=t=>{if(st)st.textContent=t;const gs=document.getElementById('genStatus');if(gs)gs.textContent=t};
@@ -376,10 +376,11 @@ async function createCover(){const st=document.getElementById('coverStatus');con
  say('⏳ Song analyse ho raha hai…');try{await ensureUploadAnalysed()}catch(err){say('⚠ Analysis fail: '+err.message);return}
  if(!UPLOAD.contour||!UPLOAD.contour.length||!UPLOAD.median){say('⚠ Is song mein saaf melody/pitch nahi mili — clear gaana/awaaz wala doosra song try karein.');return}
  const m=coverVoice();const sm=m?sanitizeModel(m):null;const root=sm?sm.root:foldRoot(UPLOAD.median);const wave=sm?sm.waveType:'sine';const vibR=sm?sm.vibratoRateHz:0,vibD=sm?sm.vibratoDepthCents:0,noteDur=.4;
- const notes=UPLOAD.contour.map((f,i)=>({f:foldNote(root*(f/UPLOAD.median)),t:+(i*noteDur).toFixed(3),d:.37,type:wave,vibR:vibR,vibD:vibD,vol:+(.18*waveGain(wave)).toFixed(3)}));
- const params={lyrics:'Cover of '+UPLOAD.name,style:'Cover',requestedStyle:'Cover',model:m?m.name:'Original Voice',modelProfile:modelSnapshot(m),instrumental:false,seed:0,noteDur:noteDur,rootHz:root,wave:wave,notes:notes,duration:+(notes.length*noteDur+0.4).toFixed(2)};
+ const csyls=syllabify((UPLOAD.name||'cover song').replace(/\.[^.]+$/,'').replace(/[-_]+/g,' '));const cprof=songVoiceProfile(m,'Pop');
+ const notes=UPLOAD.contour.map((f,i)=>({f:foldNote(root*(f/UPLOAD.median)),t:+(i*noteDur).toFixed(3),d:.37,syl:csyls.length?csyls[i%csyls.length]:'la',vibR:vibR,vibD:vibD,vol:.9}));
+ const params={lyrics:'Cover of '+UPLOAD.name,style:'Cover',requestedStyle:'Cover',model:m?m.name:'Original Voice',modelProfile:modelSnapshot(m),instrumental:false,seed:0,noteDur:noteDur,rootHz:root,wave:wave,notes:notes,backing:buildBacking(notes.length,noteDur,root),voice:cprof,duration:+(notes.length*noteDur+0.4).toFixed(2)};
  playParamsLive(params);saveSong(params);
- say('✓ Cover tayyar — Voice used: '+(m?((m.singerProfile?'Singer Style Profile (in-browser): ':'Trained Model: ')+m.name):'Original Voice')+' | melody \''+UPLOAD.name+'\' (base '+UPLOAD.median+' Hz) se li, root '+root+' Hz'+(m?(' par model \''+m.name+'\' ki waveform ('+wave+')'):(' par original voice profile ('+wave+')'))+' mein baj rahi hai. My Songs mein Cover entry save ho gayi — wahan se Play / Download WAV kar sakte hain.')}
+ say('✓ Cover tayyar — Voice used: '+(m?((m.singerProfile?'Singer Style Profile (in-browser): ':'Trained Model: ')+m.name):'Original Voice')+' | melody \''+UPLOAD.name+'\' (base '+UPLOAD.median+' Hz) se li, root '+root+' Hz'+(m?(' par model \''+m.name+'\' ki formant singing voice'):(' par original formant singing voice'))+' mein baj rahi hai. My Songs mein Cover entry save ho gayi — wahan se Play / Download WAV kar sakte hain.')}
 
 function waveGain(type){return type==='square'?0.5:(type==='sawtooth'?0.6:(type==='triangle'?0.85:1))} // soften harsh waveforms -> no clipping/screech
 function sanitizeModel(m){if(!m)return null;let vibR=+m.vibratoRateHz||0,vibD=+m.vibratoDepthCents||0;
@@ -387,6 +388,81 @@ function sanitizeModel(m){if(!m)return null;let vibR=+m.vibratoRateHz||0,vibD=+m
  if(vibD<8){vibR=0;vibD=0}else if(vibR<3.5||vibR>7.5)vibR=5.5;
  return{name:m.name,basePitch:+m.basePitch||0,root:foldRoot(m.basePitch),pitchMin:m.pitchMin,pitchMax:m.pitchMax,centroid:m.centroid,waveType:['sine','triangle','square','sawtooth'].includes(m.waveType)?m.waveType:'sine',vibratoRateHz:vibR,vibratoDepthCents:vibD,tempo:+m.tempo||0}}
 function foldNote(f){f=+f||220;while(f>700)f/=2;while(f<80)f*=2;return +f.toFixed(2)} // keep every note audible & comfortable 80-700 Hz
+
+// ============ FORMANT SINGING VOICE (source-filter) — oscillator beep/"ton" NAHI ============
+// Rich harmonic pulse source -> teen parallel bandpass FORMANT filters (har vowel ke F1/F2/F3)
+// -> har note apne syllable ke vowel par banta hai, is liye awaaz INSAAN ke gaane jaisi lagti hai.
+const VOWEL_FORMANTS={a:[730,1090,2440],e:[530,1840,2480],i:[270,2290,3010],o:[570,840,2410],u:[300,870,2240]}; // male Hz; female x1.17
+const FORMANT_GAINS=[0.95,0.55,0.30],FORMANT_Q=[5,5,7];
+function vowelOfSyllable(s){s=(''+(s||'a')).toLowerCase();const m=s.match(/[aeiou]/);if(m)return m[0];
+ if(/ا|آ/.test(s))return'a';if(/ی|ے|ي/.test(s))return'i';if(/و/.test(s))return'u';if(/ہ|ھ|ة/.test(s))return'e';return'a'}
+function syllabify(text){ // PURE: words -> syllables (Latin CV chunks; Urdu-script words vowel-char chunks)
+ const out=[];const words=(''+(text||'')).split(/[\s,.\-!?;:'"()\[\]{}<>|/\\_+=*&%$#@~`^]+/).filter(Boolean);
+ for(const w0 of words){const w=w0.toLowerCase();
+  if(/[^\x00-\x7F]/.test(w)){for(let i=0;i<w.length;i+=3)out.push(w.slice(i,i+3));continue}
+  const parts=w.match(/[^aeiouy]*[aeiouy]+(?:[^aeiouy]+(?![aeiouy]))?/g);
+  if(parts)out.push(...parts);else out.push(w)}
+ return out.length?out:['la']}
+function songVoiceProfile(m,styleName){let root=261.63,vibR=5.2,vibD=28;
+ if(m){const sm=sanitizeModel(m);root=sm.root;vibR=sm.vibratoRateHz||vibR;vibD=sm.vibratoDepthCents||vibD}
+ return{root:root,female:root>=235,vibR:vibR,vibD:vibD}} // root >=235 Hz -> female formant set
+function formantSet(vowel,female){const f=VOWEL_FORMANTS[vowel]||VOWEL_FORMANTS.a;const k=female?1.17:1;return[f[0]*k,f[1]*k,f[2]*k]}
+const _pwCache=new WeakMap(),_nbCache=new WeakMap();
+function pulseWave(ctx,female){let c=_pwCache.get(ctx);if(c&&c[female?'f':'m'])return c[female?'f':'m'];
+ const N=64,re=new Float32Array(N+1),im=new Float32Array(N+1);
+ for(let n=1;n<=N;n++){im[n]=-1/Math.pow(n,0.85)} // sawtooth-jaisi rich harmonic series (sine ki 1 peak NAHI)
+ const w=ctx.createPeriodicWave(re,im);c=c||{};c[female?'f':'m']=w;_pwCache.set(ctx,c);return w}
+function noiseBuf(ctx){let b=_nbCache.get(ctx);if(b)return b;const len=ctx.sampleRate|0;b=ctx.createBuffer(1,len,ctx.sampleRate);const d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;_nbCache.set(ctx,b);return b}
+function scheduleConsonant(ctx,dest,startAt){const nb=ctx.createBufferSource();nb.buffer=noiseBuf(ctx);nb.loop=true;
+ const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=1800;const g=ctx.createGain();
+ g.gain.setValueAtTime(.06,startAt);g.gain.exponentialRampToValueAtTime(.001,startAt+.05);
+ nb.connect(hp);hp.connect(g);g.connect(dest);nb.start(startAt);nb.stop(startAt+.06)}
+function scheduleVoiceNote(ctx,dest,note,startAt,prof){ // ek syllable, formant voice mein
+ prof=prof||{};const f=note.f||220,dur=Math.max(.14,note.d||.4);
+ const vowel=vowelOfSyllable(note.syl);const F=formantSet(vowel,prof.female);
+ const src=ctx.createOscillator();src.setPeriodicWave(pulseWave(ctx,prof.female));
+ if(note.glideFrom&&note.glideFrom!==f){src.frequency.setValueAtTime(note.glideFrom,startAt);src.frequency.exponentialRampToValueAtTime(f,startAt+.06)} // legato portamento
+ else src.frequency.setValueAtTime(f,startAt);
+ const vibR=note.vibR!=null?note.vibR:(prof.vibR||0),vibD=note.vibD!=null?note.vibD:(prof.vibD||0);
+ if(vibR>0&&vibD>0){const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=vibR;lg.gain.value=f*(Math.pow(2,vibD/1200)-1);lfo.connect(lg);lg.connect(src.frequency);lfo.start(startAt);lfo.stop(startAt+dur)}
+ const vg=ctx.createGain();const vol=(note.vol!=null?note.vol:.9)*.5; // syllable envelope: soft attack, sustain, release
+ vg.gain.setValueAtTime(0,startAt);vg.gain.linearRampToValueAtTime(vol,startAt+.05);
+ vg.gain.setValueAtTime(vol,startAt+Math.max(.06,dur-.09));vg.gain.linearRampToValueAtTime(0,startAt+dur);
+ for(let i=0;i<3;i++){const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=F[i];bp.Q.value=FORMANT_Q[i];
+  const g=ctx.createGain();g.gain.value=FORMANT_GAINS[i];src.connect(bp);bp.connect(g);g.connect(vg)}
+ const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;vg.connect(lp);lp.connect(dest); // fizz khatam
+ const nb=ctx.createBufferSource();nb.buffer=noiseBuf(ctx);nb.loop=true; // halki breath noise
+ const nf=ctx.createBiquadFilter();nf.type='bandpass';nf.frequency.value=F[0];nf.Q.value=.8;
+ const ng=ctx.createGain();ng.gain.value=.010;nb.connect(nf);nf.connect(ng);ng.connect(dest);nb.start(startAt);nb.stop(startAt+dur);
+ const syl=''+(note.syl||'');
+ if(syl&&/[a-z\u0600-\u06FF]/i.test(syl)&&!/^[aeiou\u0627\u0622]/i.test(syl))scheduleConsonant(ctx,dest,startAt); // consonant burst 50ms
+ src.start(startAt);src.stop(startAt+dur+.05)}
+function buildBacking(nNotes,noteDur,root){ // PURE data: chord pad bars + bass line (song ki key/root par)
+ const chords=[[0,4,7],[9,0,4],[5,9,12],[7,11,14]];const barNotes=4,pad=[],bass=[];
+ for(let b=0;b*barNotes<nNotes;b++){const ch=chords[b%chords.length],t0=b*barNotes*noteDur;
+  ch.forEach(semi=>pad.push({f:foldNote(root*Math.pow(2,semi/12)),t:+t0.toFixed(3),d:+(barNotes*noteDur*.98).toFixed(3)}));
+  for(let k=0;k<barNotes;k++)bass.push({f:foldNote(root/2*Math.pow(2,ch[0]/12)),t:+((b*barNotes+k)*noteDur).toFixed(3),d:+(noteDur*.9).toFixed(3)})}
+ return{pad:pad,bass:bass}}
+function schedulePad(ctx,dest,note,startAt){const o=ctx.createOscillator();o.type='triangle';o.frequency.value=note.f;
+ const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=900;const g=ctx.createGain();const t=startAt+note.t;
+ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045,t+.25);g.gain.setValueAtTime(.045,t+Math.max(.3,note.d-.3));g.gain.linearRampToValueAtTime(0,t+note.d);
+ o.connect(lp);lp.connect(g);g.connect(dest);o.start(t);o.stop(t+note.d+.05)}
+function scheduleBass(ctx,dest,note,startAt){const o=ctx.createOscillator();o.type='sine';o.frequency.value=note.f;
+ const g=ctx.createGain();const t=startAt+note.t;g.gain.setValueAtTime(.085,t);g.gain.exponentialRampToValueAtTime(.001,t+note.d*.95);
+ o.connect(g);g.connect(dest);o.start(t);o.stop(t+note.d+.02)}
+function renderSongInto(ctx,dest,params,startAt){ // live + offline (WAV) DONO ka ek hi vocal engine
+ const prof=params.voice||songVoiceProfile(params.modelProfile||null,params.style);
+ const comp=ctx.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=6;comp.attack.value=.004;comp.release.value=.18;comp.connect(dest);
+ const master=ctx.createGain();master.gain.value=.92;master.connect(comp);
+ const syls=syllabify(params.lyrics||'');let prev=0;
+ (params.notes||[]).forEach((n,i)=>{const nn=Object.assign({},n);
+  if(nn.syl==null)nn.syl=syls.length?syls[i%syls.length]:'la'; // purane saved songs: notes par syllable yahin banta hai
+  if(prev)nn.glideFrom=prev;prev=n.f;scheduleVoiceNote(ctx,master,nn,startAt+(n.t||0),prof)});
+ const bk=params.backing||(params.notes&&params.notes.length?buildBacking(params.notes.length,params.noteDur||.42,params.rootHz||prof.root):null);
+ if(bk){(bk.pad||[]).forEach(p=>schedulePad(ctx,master,p,startAt)); // soft pad har gana mein (quiet, voice ke neeche)
+  if(params.instrumental)(bk.bass||[]).forEach(p=>scheduleBass(ctx,master,p,startAt))} // Instrumental ON = full backing (bass bhi)
+ return master}
+
 // ============ Style config: har style ki apni scale / tempo feel / waveform ============
 const STYLE_CFG={
  'Pop':{semis:[0,2,4,7,9],dur:.42,wave:'sine'},
@@ -428,13 +504,15 @@ function buildSongParams(text,style,m,inst){ // deterministic: same lyrics+style
  const lines=(text||'').split('\n').filter(l=>l.trim()).length;
  const words=(text||'').split(/\s+/).filter(Boolean).length;
  const nNotes=Math.max(16,Math.min(48,Math.round(words*1.1+lines*2)||16)); // song length follows lyrics words+lines (16-48 notes)
+ const syls=syllabify(text);
  const seed0=[...text].reduce((a,c,ix)=>a+c.charCodeAt(0)*(ix+7),words*131+lines*1009);let seed=seed0;const notes=[]; // position-weighted seed: anagram lyrics bhi alag dhun
  for(let i=0;i<nNotes;i++){seed=(seed*9301+49297)%233280;const f=foldNote(scale[Math.floor(seed/233280*scale.length)]*(i%8==7?1.5:1));
-  notes.push({f:f,t:+(i*noteDur).toFixed(3),d:+(noteDur*.92).toFixed(3),type:wave,vibR:vibR,vibD:vibD,vol:+(.18*waveGain(wave)).toFixed(3)});
-  if(inst)notes.push({f:foldNote(f/2),t:+(i*noteDur).toFixed(3),d:+(noteDur*.92).toFixed(3),type:'triangle',vibR:0,vibD:0,vol:.10})}
- return{lyrics:text,style:cfgName,requestedStyle:style,model:m?m.name:'Default Voice',rootHz:rootUsed,melodyCount:nNotes,modelProfile:modelSnapshot(m),instrumental:!!inst,seed:seed0,noteDur:+noteDur.toFixed(3),wave:wave,notes:notes,duration:+(nNotes*noteDur+0.4).toFixed(2)}}
+  notes.push({f:f,t:+(i*noteDur).toFixed(3),d:+(noteDur*.92).toFixed(3),syl:syls.length?syls[i%syls.length]:'la',vibR:vibR,vibD:vibD,vol:.9})}
+ const voiceProf=songVoiceProfile(m,cfgName);
+ const backing=buildBacking(nNotes,noteDur,rootUsed);
+ return{lyrics:text,style:cfgName,requestedStyle:style,model:m?m.name:'Default Voice',rootHz:rootUsed,melodyCount:nNotes,modelProfile:modelSnapshot(m),instrumental:!!inst,seed:seed0,noteDur:+noteDur.toFixed(3),wave:wave,notes:notes,backing:backing,voice:voiceProf,duration:+(nNotes*noteDur+0.4).toFixed(2)}}
 function playParamsLive(params,when0){const ac=audioCtx();ac.resume();const now=when0!=null?when0:ac.currentTime+.1;
- params.notes.forEach(n=>playVoice(n.f,n.type,n.vibR,n.vibD,now+n.t,n.d,n.vol));return now}
+ renderSongInto(ac,ac.destination,params,now);return now}
 // ============ WAV export (PURE encoder — works on any AudioBuffer-like object) ============
 function encodeWAV(buffer){const numCh=Math.min(2,buffer.numberOfChannels||1),sr=buffer.sampleRate,len=buffer.length;
  const bytes=44+len*numCh*2,ab=new ArrayBuffer(bytes),v=new DataView(ab);
@@ -445,14 +523,11 @@ function encodeWAV(buffer){const numCh=Math.min(2,buffer.numberOfChannels||1),sr
  const chans=[];for(let c=0;c<numCh;c++)chans.push(buffer.getChannelData(c));
  let o=44;for(let i=0;i<len;i++)for(let c=0;c<numCh;c++){let s=Math.max(-1,Math.min(1,chans[c][i]));v.setInt16(o,s<0?s*32768:s*32767,true);o+=2}
  return ab}
-function renderNoteOffline(oc,dest,n,startAt){const o=oc.createOscillator(),g=oc.createGain();o.type=n.type||'sine';o.frequency.value=n.f;
- if(n.vibR>0&&n.vibD>0){const lfo=oc.createOscillator(),lg=oc.createGain();lfo.frequency.value=n.vibR;lg.gain.value=n.f*(Math.pow(2,n.vibD/1200)-1);lfo.connect(lg);lg.connect(o.frequency);lfo.start(startAt+n.t);lfo.stop(startAt+n.t+n.d)}
- o.connect(g);g.connect(dest);g.gain.setValueAtTime((n.vol||.16)*waveGain(n.type),startAt+n.t);g.gain.exponentialRampToValueAtTime(.001,startAt+n.t+n.d*.92);o.start(startAt+n.t);o.stop(startAt+n.t+n.d)}
 async function paramsToWavBlob(params){const sr=44100,dur=params.duration||((params.notes.reduce((a,n)=>Math.max(a,n.t+n.d),0))+0.4);
- const oc=new OfflineAudioContext(1,Math.ceil(sr*dur),sr);params.notes.forEach(n=>renderNoteOffline(oc,oc.destination,n,0));
+ const oc=new OfflineAudioContext(2,Math.ceil(sr*(dur+.15)),sr);renderSongInto(oc,oc.destination,params,.05); // WAHI formant voice jo live bajti hai
  const buf=await oc.startRendering();return new Blob([encodeWAV(buf)],{type:'audio/wav'})}
 function songParamsFromEntry(x){if(!x)return null;
- if(x.notes&&x.notes.length)return{lyrics:x.lyrics||x.name||'',style:x.style,model:x.model,modelProfile:x.modelProfile||null,instrumental:!!x.instrumental,seed:x.seed,noteDur:x.noteDur,notes:x.notes,duration:x.duration};
+ if(x.notes&&x.notes.length)return{lyrics:x.lyrics||x.name||'',style:x.style,model:x.model,modelProfile:x.modelProfile||null,instrumental:!!x.instrumental,seed:x.seed,noteDur:x.noteDur,notes:x.notes,backing:x.backing||null,voice:x.voice||null,duration:x.duration};
  if(x.lyrics)return buildSongParams(x.lyrics,x.style||'Pop',x.modelProfile||null,x.instrumental);return null}
 function showSongMsg(msg){const el=document.getElementById('songMsg');if(el)el.textContent=msg||'';const gs=document.getElementById('genStatus');if(gs&&msg)gs.textContent=msg}
 async function playSong(idx){const s=get('songs',[]),x=s[idx];const p=songParamsFromEntry(x);
@@ -482,7 +557,7 @@ let ctx;function generate(){
  let playErr='';try{playParamsLive(params)}catch(err){playErr=' (Audio play nahi ho saka: '+err.message+' — song save ho gaya hai, My Songs se Play try karein.)'}
  document.getElementById('genStatus').textContent=descNote+'Playing generated '+params.style+' song ('+(params.melodyCount||params.notes.length)+' notes)'+(m?(' — 🎤 Using model: '+m.name+' (root '+(params.rootHz||foldRoot(m.basePitch))+' Hz, measured '+m.basePitch+' Hz, '+params.wave+', tempo step '+params.noteDur.toFixed(2)+'s)'):' (Default Voice)')+'… My Songs mein Play / WAV Download ke sath save ho gaya hai.'+playErr;
  saveSong(params)}
-function saveSong(params){let s=get('songs',[]);s.unshift({name:(params.lyrics.split('\n')[0]||'Untitled').slice(0,40),style:params.style,model:params.model,date:new Date().toLocaleString(),lyrics:params.lyrics,instrumental:params.instrumental,seed:params.seed,noteDur:params.noteDur,modelProfile:params.modelProfile,notes:params.notes,duration:params.duration});set('songs',s.slice(0,20));render()}
+function saveSong(params){let s=get('songs',[]);s.unshift({name:(params.lyrics.split('\n')[0]||'Untitled').slice(0,40),style:params.style,model:params.model,date:new Date().toLocaleString(),lyrics:params.lyrics,instrumental:params.instrumental,seed:params.seed,noteDur:params.noteDur,modelProfile:params.modelProfile,notes:params.notes,backing:params.backing||null,voice:params.voice||null,duration:params.duration});set('songs',s.slice(0,20));render()}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function render(){const mlist=MODELS;const cur=document.getElementById('modelSel').value;
  document.getElementById('models').innerHTML=mlist.length?mlist.map((x,mi)=>`<div class="box"><b>${esc(x.name)}</b><p class="stat">${x.samples} sample(s) • ${esc(x.status||'Trained ✓')}<br>Base pitch: <b>${x.basePitch} Hz</b> • Range: ${x.pitchMin}–${x.pitchMax} Hz<br>Centroid: ${x.centroid} Hz • Dominant: ${x.dominantFreq} Hz<br>Waveform: ${esc(x.waveType)} • Vibrato: ${x.vibratoRateHz} Hz / ${x.vibratoDepthCents}¢<br>Tempo: ~${x.tempo} BPM • Energy: ${x.energy} • Audio: ${x.duration}s<br>${esc(x.date)}</p><button class="btn small" onclick="testModelByIdx(${mi})">🔊 Test Voice</button> <button class="btn small" onclick="selectModelByIdx(${mi})">✔ Use in Generate</button> <button class="btn small" onclick="deleteModelByIdx(${mi})">🗑 Delete</button></div>`).join(''):'<div class="box">No model yet — train one above, free.</div>';
