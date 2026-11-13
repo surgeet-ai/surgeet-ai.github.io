@@ -3,838 +3,1151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SurGeet AI — Audio Song to Lyrics (Free)</title>
-<meta name="description" content="Free audio song to lyrics tool. Upload any song (mp3, wav, m4a) and get its lyrics. Urdu, Hindi, English, Punjabi, Saraiki and more.">
+<title>KEPS Paper Generator — Free Test Paper Maker (English / Urdu)</title>
+<meta name="description" content="Free online test paper generator for teachers: build MCQ, short and long question papers with paper code, live A4 preview, answer key and PDF download. English, Urdu and Bilingual.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js" defer></script>
 <style>
-:root{
-  --bg:#0d0f14; --card:#161922; --card2:#1c202e; --line:#2a2f42;
-  --txt:#eef0f6; --mut:#9aa3b8; --acc:#7c4dff; --acc2:#b388ff;
-  --grad:linear-gradient(90deg,#ff5f6d,#7c4dff);
-  --ok:#37d67a; --warn:#ffb84d; --err:#ff6b6b;
+:root{--ink:#1c2733;--mut:#5b6b7a;--line:#d7dee5;--brand:#0b5fa5;--brand2:#084a82;--bg:#eef2f5;--card:#ffffff;--ok:#177245;--warn:#b3261e;--chip:#e7f1f8}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+header.appbar{background:linear-gradient(90deg,var(--brand2),var(--brand));color:#fff;padding:14px 16px;position:sticky;top:0;z-index:30;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+header.appbar h1{margin:0;font-size:20px;font-weight:700}
+header.appbar p{margin:2px 0 0;font-size:12.5px;opacity:.92}
+.wrap{max-width:1240px;margin:0 auto;padding:14px;display:grid;grid-template-columns:minmax(340px,470px) 1fr;gap:14px;align-items:start}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px;box-shadow:0 1px 3px rgba(20,40,60,.05)}
+.card h2{margin:0 0 10px;font-size:16px;color:var(--brand2)}
+.card h3{margin:12px 0 6px;font-size:14px}
+label.fl{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin:8px 0 3px}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:7px;font:inherit;font-size:14px;background:#fff;color:var(--ink)}
+textarea{resize:vertical;min-height:38px}
+input:focus,select:focus,textarea:focus{outline:2px solid #9ec7e8;border-color:var(--brand)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:520px){.row2,.row3{grid-template-columns:1fr}}
+.btn{display:inline-block;border:1px solid var(--brand);background:var(--brand);color:#fff;padding:8px 13px;border-radius:7px;font-size:13.5px;font-weight:600;cursor:pointer;margin:3px 4px 3px 0}
+.btn:hover{background:var(--brand2)}
+.btn.ghost{background:#fff;color:var(--brand)}
+.btn.ghost:hover{background:var(--chip)}
+.btn.small{padding:4px 9px;font-size:12.5px}
+.btn.danger{border-color:var(--warn);color:var(--warn);background:#fff}
+.btn.danger:hover{background:#fdeceb}
+.btn.big{width:100%;text-align:center;padding:12px;font-size:15.5px;margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{background:var(--chip);border:1px solid #c4dcee;color:var(--brand2);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600}
+.hint{font-size:12px;color:var(--mut);margin-top:4px}
+.sec-card{border:1.5px solid #b9cdd9;border-radius:10px;padding:12px;margin-bottom:14px;background:#fbfdff}
+.sec-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sec-head .t{font-weight:700;color:var(--brand2);font-size:15px}
+.qrow{display:flex;gap:6px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:7px 8px;margin:6px 0;background:#fff}
+.qrow .qn{font-weight:700;color:var(--brand2);min-width:26px}
+.qrow .qt{flex:1;word-break:break-word}
+.qrow .qb{display:flex;gap:3px;flex-wrap:wrap}
+.qrow .mini{border:1px solid var(--line);background:#fff;border-radius:6px;padding:2px 7px;font-size:13px;cursor:pointer}
+.qrow .mini:hover{background:var(--chip)}
+.ansbadge{display:inline-block;background:var(--ok);color:#fff;border-radius:5px;padding:0 6px;font-size:11.5px;font-weight:700;margin-left:6px}
+.optgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media(max-width:520px){.optgrid{grid-template-columns:1fr}}
+.editing-note{background:#fff7e0;border:1px solid #e3c766;border-radius:7px;padding:6px 9px;font-size:13px;margin:8px 0}
+.sticky{position:sticky;top:86px}
+@media(max-width:900px){.sticky{position:static}}
+/* ===== A4 PAPER PREVIEW ===== */
+.paper{background:#fff;color:#000;border:1px solid #bbb;box-shadow:0 2px 10px rgba(0,0,0,.12);padding:16mm 13mm;font-family:"Times New Roman",Times,serif;font-size:13.5px;line-height:1.5;min-height:200px}
+.paper.ur{font-family:"Noto Nastaliq Urdu","Times New Roman",serif;line-height:2.1}
+.p-head{border-top:4px double #000;border-bottom:4px double #000;padding:7px 4px 9px;text-align:center}
+.p-school{font-size:21px;font-weight:700;letter-spacing:.3px}
+.paper.ur .p-school{font-size:19px}
+.p-band{margin-top:6px;border:1.5px solid #000;padding:3px 6px;font-weight:700;font-size:15px;background:#f2f2f2}
+.p-info{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+.p-info td{border:1px solid #000;padding:3px 7px;text-align:left}
+.paper[dir=rtl] .p-info td{text-align:right}
+.p-sec{margin-top:14px}
+.p-sec-head{display:flex;justify-content:space-between;gap:8px;border-bottom:1.5px solid #000;padding-bottom:2px;font-weight:700;font-size:14.5px}
+.p-note{font-style:italic;font-size:12.5px;margin:4px 0 2px}
+.paper.ur .p-note{font-style:normal}
+.p-q{margin:7px 0 2px}
+.p-opts{display:grid;grid-template-columns:1fr 1fr;gap:1px 18px;margin:1px 0 5px 20px;font-size:13px}
+.paper[dir=rtl] .p-opts{margin:1px 20px 5px 0}
+.p-lines{border-bottom:1px dotted #999;height:20px;margin:2px 0}
+.keytable{border-collapse:collapse;margin:8px 0}
+.keytable td{border:1px solid #000;padding:4px 10px;text-align:center;font-weight:600}
+.empty-note{color:#888;text-align:center;padding:26px 10px;font-family:"Segoe UI",sans-serif;font-size:13.5px}
+footer.appfoot{max-width:1240px;margin:0 auto;padding:6px 14px 22px;color:var(--mut);font-size:12.5px;text-align:center}
+/* ===== PRINT ===== */
+#printRoot{display:none}
+@page{size:A4;margin:11mm}
+@media print{
+  body>*:not(#printRoot){display:none !important}
+  #printRoot{display:block !important}
+  #printRoot .paper{border:none;box-shadow:none;padding:0;min-height:0}
+  .p-sec{page-break-inside:avoid}
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%}
-a{color:var(--acc2)}
-.wrap{max-width:760px;margin:0 auto;padding:16px 14px 48px}
-header.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 2px 4px}
-.logo{font-size:24px;font-weight:800;letter-spacing:.3px}
-.logo span{color:var(--acc2)}
-.badge{background:var(--grad);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap}
-.hero{text-align:center;padding:18px 6px 8px}
-.hero h1{font-size:30px;line-height:1.25;font-weight:850}
-.hero h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--mut);margin-top:8px;font-size:15px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;margin-top:16px}
-.card h2{font-size:19px;margin-bottom:10px}
-.methodGrid{display:grid;gap:10px}
-.methodOpt{display:flex;gap:12px;align-items:flex-start;background:var(--card2);border:2px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;text-align:left;width:100%;color:var(--txt)}
-.methodOpt.sel{border-color:var(--acc2);background:#222642}
-.methodOpt .ic{font-size:26px;line-height:1}
-.methodOpt .mt{font-size:16.5px;font-weight:800}
-.methodOpt .md{font-size:13.5px;color:var(--mut);margin-top:2px}
-#dropZone{border:2px dashed #4a5170;border-radius:14px;background:var(--card2);padding:30px 14px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
-#dropZone.drag{border-color:var(--acc2);background:#232842}
-#dropZone .big{font-size:42px}
-#dropZone .t1{font-size:19px;font-weight:700;margin-top:6px}
-#dropZone .t2{color:var(--mut);font-size:13.5px;margin-top:4px}
-#fileInfo{display:none;margin-top:14px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
-#fileName{font-weight:700;word-break:break-all}
-#fileMeta{color:var(--mut);font-size:13px;margin-top:2px}
-#audioPlayer{width:100%;margin-top:10px}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-.row>*{flex:1 1 150px}
-label.fl{display:block;font-size:13.5px;color:var(--mut);margin:12px 0 6px;font-weight:600}
-select{width:100%;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:13px 12px;font-size:16px}
-select:disabled{opacity:.45}
-.chk{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:15px;cursor:pointer}
-.chk input{width:22px;height:22px;accent-color:var(--acc)}
-.btn{display:block;width:100%;border:none;border-radius:12px;padding:16px 14px;font-size:17px;font-weight:800;cursor:pointer;min-height:56px}
-.btn-main{background:var(--grad);color:#fff;margin-top:16px}
-.btn-main:disabled{opacity:.55;cursor:wait}
-.btn-ghost{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
-.btn-small{padding:12px;font-size:15px;min-height:48px}
-.btn:disabled{opacity:.5}
-.note{background:#141a2e;border:1px solid #2c3a63;border-radius:12px;padding:12px 14px;margin-top:16px;font-size:14px;color:#cdd6f4}
-.note b{color:#fff}
-.note ul{margin:6px 0 0 18px}
-.note li{margin:3px 0}
-#progWrap{display:none;margin-top:16px}
-#progBarOuter{background:#23263a;border-radius:999px;height:14px;overflow:hidden}
-#progBar{height:100%;width:0%;background:var(--grad);border-radius:999px;transition:width .25s}
-#progText,#statusText{font-size:14px;color:var(--mut);margin-top:8px;min-height:20px;white-space:pre-wrap;word-break:break-word}
-#statusText.err{color:var(--err)}
-#statusText.ok{color:var(--ok)}
-#switchHint{display:none;margin-top:10px}
-#lyricsBox{width:100%;min-height:220px;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:16.5px;line-height:1.7;resize:vertical}
-.counts{color:var(--mut);font-size:13.5px;margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
-.steps{display:grid;gap:10px}
-.step{display:flex;gap:12px;align-items:flex-start;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
-.step .n{background:var(--grad);color:#fff;font-weight:800;border-radius:50%;width:30px;height:30px;flex:0 0 30px;display:flex;align-items:center;justify-content:center}
-.step p{font-size:14.5px;color:#d6dae6}
-.faq details{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px}
-.faq summary{font-weight:700;cursor:pointer;font-size:15.5px}
-.faq p{color:#d6dae6;font-size:14.5px;margin-top:8px}
-footer{text-align:center;color:var(--mut);font-size:13px;margin-top:26px}
-.hidden{display:none!important}
-#micStatus{font-size:13.5px;color:var(--warn);margin-top:8px;min-height:18px}
-@media (max-width:480px){ .hero h1{font-size:25px} .logo{font-size:21px} }
 </style>
 </head>
 <body>
-<div class="wrap">
-
-<header class="top">
-  <div class="logo">Sur<span>Geet</span> AI</div>
-  <div class="badge">100% FREE — NO SIGN-UP</div>
+<header class="appbar">
+  <h1>📄 KEPS Paper Generator</h1>
+  <p>Free test paper maker for teachers — MCQs, Short &amp; Long Questions • English / اردو / Bilingual • Live A4 preview • PDF download • 100% Free, no sign-up</p>
 </header>
 
-<section class="hero">
-  <h1>Audio Song to <span class="g">Lyrics</span> — Free</h1>
-  <p>Koi bhi gana upload karein — lyrics khud-ba-khud likh kar mil jayenge.<br>
-  Upload any song and get its lyrics automatically.</p>
-</section>
-
-<div class="card">
-  <h2>🛠️ Tareeqa Chunein (Method)</h2>
-  <div class="methodGrid">
-    <button type="button" class="methodOpt sel" id="methodServer">
-      <div class="ic">🌐</div>
-      <div>
-        <div class="mt">(A) Server Wala Free AI — tez</div>
-        <div class="md">Gana free AI server (Hugging Face) par banta hai — model download nahi karna parta, bas internet chahiye. Server busy ho to page khud dusre server par chala jata hai.</div>
+<div class="wrap">
+  <!-- ============ LEFT: BUILDER ============ -->
+  <div>
+    <div class="card" id="setupCard">
+      <h2>1️⃣ Paper Setup</h2>
+      <label class="fl" for="inSchool">School / Institute Name</label>
+      <input type="text" id="inSchool" placeholder="e.g. KEPS Science Academy, Ahmad Pur Sial, Jhang">
+      <div class="row2">
+        <div><label class="fl" for="inClass">Class</label><input type="text" id="inClass" placeholder="e.g. 9th"></div>
+        <div><label class="fl" for="inSubject">Subject</label><input type="text" id="inSubject" placeholder="e.g. Mathematics"></div>
       </div>
-    </button>
-    <button type="button" class="methodOpt" id="methodBrowser">
-      <div class="ic">📱</div>
-      <div>
-        <div class="mt">(B) Browser Mein — bina server</div>
-        <div class="md">Saara kaam aap ke phone/browser ke andar hota hai, audio kahin nahi jati. Pehli dafa chhota AI model download hoga.</div>
+      <div class="row3">
+        <div><label class="fl" for="inCode">Paper Code *</label><input type="text" id="inCode" placeholder="M9-01"></div>
+        <div><label class="fl" for="inDate">Date</label><input type="date" id="inDate"></div>
+        <div><label class="fl" for="inTime">Time Allowed</label><input type="text" id="inTime" placeholder="e.g. 2 Hours"></div>
       </div>
-    </button>
-  </div>
-  <div id="methodStatus" style="font-size:13.5px;color:var(--mut);margin-top:10px">Selected: Server Wala Free AI</div>
-</div>
-
-<div class="card">
-  <h2>🎵 Apna Song Upload Karein</h2>
-  <div id="dropZone" role="button" tabindex="0" aria-label="Upload song">
-    <div class="big">🎧</div>
-    <div class="t1">Yahan click karein ya song file gira dein (drag &amp; drop)</div>
-    <div class="t2">MP3, WAV, M4A, OGG, WebM — gana jitna saaf hoga, lyrics utne saaf aayenge</div>
-  </div>
-  <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.m4a,.ogg,.webm,.opus" class="hidden">
-  <div id="fileInfo">
-    <div id="fileName"></div>
-    <div id="fileMeta"></div>
-    <audio id="audioPlayer" controls preload="metadata"></audio>
-  </div>
-  <div style="margin-top:14px">
-    <button id="micBtn" class="btn btn-ghost btn-small" type="button">🎤 Mic se Record karein (paas baj raha gana)</button>
-    <div id="micStatus"></div>
-  </div>
-</div>
-
-<div class="card">
-  <h2>⚙️ Options</h2>
-  <div class="row">
-    <div>
-      <label class="fl" for="langSel">Ganay ki Zaban (Language)</label>
-      <select id="langSel">
-        <option value="auto" selected>Auto-detect (khud pehchane)</option>
-        <option value="urdu">Urdu — اردو</option>
-        <option value="hindi">Hindi — हिन्दी</option>
-        <option value="english">English</option>
-        <option value="punjabi">Punjabi — ਪੰਜਾਬੀ</option>
-        <option value="saraiki">Saraiki — سرائیکی</option>
-        <option value="bengali">Bengali — বাংলা</option>
-        <option value="arabic">Arabic — العربية</option>
+      <div class="hint">* Har paper par code zaroor hota hai — Subject + Class se khud ban jata hai, chahein to badal lein. <button type="button" class="btn small ghost" id="btnAutoCode">↻ Auto Code</button></div>
+      <label class="fl" for="inMedium">Medium</label>
+      <select id="inMedium">
+        <option value="en">English</option>
+        <option value="ur">Urdu (اردو)</option>
+        <option value="bi">Bilingual</option>
       </select>
+      <div class="chips">
+        <span class="chip">Questions: <span id="sumQuestions">0</span></span>
+        <span class="chip">Total Marks: <span id="sumMarks">0</span></span>
+      </div>
     </div>
-    <div>
-      <label class="fl" for="modelSel">Quality / Model <span id="modelForNote">(sirf Browser tareeqay ke liye)</span></label>
-      <select id="modelSel" disabled>
-        <option value="fast" selected>Fast — Whisper Tiny (~40–75 MB)</option>
-        <option value="better">Better — Whisper Base (~75–145 MB)</option>
-        <option value="best">Best — Whisper Small (~250–480 MB)</option>
-      </select>
+
+    <div class="card">
+      <h2>2️⃣ Questions</h2>
+      <div id="sectionsWrap"></div>
+      <div>
+        <button type="button" class="btn ghost" id="btnAddMcq">＋ MCQ Section</button>
+        <button type="button" class="btn ghost" id="btnAddShort">＋ Short Section</button>
+        <button type="button" class="btn ghost" id="btnAddLong">＋ Long Section</button>
+      </div>
+    </div>
+
+    <div class="card" id="photoCard">
+      <h2>3️⃣ 📷 Photo se Sawal Banayein</h2>
+      <p class="hint" style="margin-top:0">Kitab ke safhe ki photo lagayein — sawal nikal kar pehle <b>Review</b> mein aayenge, theek karke paper mein shamil karein. Urdu photo OCR ki quality photo ki safai par depend karti hai — review karke hi shamil karein.</p>
+      <label class="fl" for="photoFiles">Page Photos (jpg / png — ek ya zyada)</label>
+      <input type="file" id="photoFiles" accept="image/*" multiple>
+      <div id="photoPreviews" style="margin-top:8px"></div>
+      <button type="button" class="btn big" id="btnFreeAi" style="margin-top:10px">🤖 Free AI se Photo Parhein — Bina Key (Moondream AI)</button>
+      <div class="hint">Ye free online AI hai — <b>koi API key nahi chahiye</b>. Photo internet par free AI server (Hugging Face) ko jati hai, sawal parh kar wapas bhejti hai. English / mixed safhon par sab se acha chalta hai; Urdu safhon ke liye neeche wala OCR (urd) behtar rahe ga.</div>
+      <div class="hint" id="aiStatus"></div>
+      <div class="row2">
+        <div><label class="fl" for="ocrLang">Photo ki Zaban</label>
+          <select id="ocrLang">
+            <option value="eng+urd">Both (English + Urdu)</option>
+            <option value="eng">English</option>
+            <option value="urd">Urdu</option>
+          </select></div>
+        <div><label class="fl">&nbsp;</label>
+          <button type="button" class="btn" id="btnOcr" style="width:100%">🔍 OCR se Sawal Nikalein</button></div>
+      </div>
+      <div class="hint" id="ocrStatus"></div>
+      <h3 style="font-size:13px;color:var(--mut)">🔑 Gemini Key (optional — sirf agar upar walay dono tareeqay na chalein; key dena zaroori nahi)</h3>
+      <label class="fl" for="geminiKey">Gemini API Key (sirf aap ke browser mein rehta hai)</label>
+      <input type="password" id="geminiKey" placeholder="Apni Gemini API key yahan lagayein" autocomplete="off">
+      <div style="margin-top:6px">
+        <button type="button" class="btn ghost" id="btnGemini">✨ Gemini se Photo Parhein</button>
+        <button type="button" class="btn danger" id="btnGeminiForget">Key Hatayein</button>
+      </div>
+      <div class="hint" id="geminiKeyState"></div>
+      <div class="hint">Key kahin upload nahi hoti aur code mein nahi hai — sirf is browser ke localStorage mein save hoti hai, aur photo seedha Google Gemini ko jati hai. Key na ho to upar walay Free AI / OCR tareeqay istemal karein.</div>
+      <div class="hint" id="geminiStatus" style="color:var(--warn)"></div>
+      <h3>📝 Review — Sawal Check Karein</h3>
+      <div id="candList"><div class="hint">Abhi koi sawal nahi. Photo par OCR ya Gemini chalayein to sawal yahan aayenge.</div></div>
+      <div style="margin-top:8px">
+        <button type="button" class="btn" id="btnAddSelected">✔ Select kiye hue Paper mein Shamil Karein</button>
+        <button type="button" class="btn ghost" id="btnCandAll">Sab Select</button>
+        <button type="button" class="btn ghost" id="btnCandNone">Sab Unselect</button>
+      </div>
+      <div class="hint" id="candMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>4️⃣ Finish</h2>
+      <button type="button" class="btn big" id="btnDownloadPdf">⬇ Download Paper PDF</button>
+      <button type="button" class="btn big" id="btnDownloadKey" style="background:var(--ok);border-color:var(--ok)">🔑 Download Answer Key PDF</button>
+      <div style="margin-top:10px">
+        <button type="button" class="btn ghost" id="btnSample">📝 Load Sample Paper</button>
+        <button type="button" class="btn ghost" id="btnShuffle">🔀 Shuffle MCQ Options</button>
+        <button type="button" class="btn danger" id="btnNew">🗑 New Paper (Clear)</button>
+      </div>
+      <h3>💾 Saved Drafts (is browser mein)</h3>
+      <div class="row2">
+        <input type="text" id="draftName" placeholder="Draft ka naam, e.g. M9 Unit 1 Test">
+        <button type="button" class="btn" id="btnSaveDraft">Save Draft</button>
+      </div>
+      <div class="row3" style="margin-top:8px">
+        <select id="draftsList"><option value="">— saved drafts —</option></select>
+        <button type="button" class="btn ghost" id="btnLoadDraft">Load</button>
+        <button type="button" class="btn danger" id="btnDeleteDraft">Delete</button>
+      </div>
+      <div class="hint" id="draftMsg"></div>
     </div>
   </div>
-  <label class="chk"><input type="checkbox" id="tsCheck"> ⏱️ Time ke sath lyrics (timestamps har hisse ke sath)</label>
 
-  <div class="note">
-    <b>Transcribe se pehle ye jaan lein:</b>
-    <ul>
-      <li id="privacyLine">🌐 <b>Server walay tareeqay mein</b> aap ki audio free Hugging Face server par bheji jati hai aur wahin process hoti hai — gana tez banta hai, lekin server par rush ho to intezaar ya error aa sakta hai.</li>
-      <li>Tez music ya shor wale ganon par kuch alfaaz mein <b>ghaltiyan ho sakti hain</b> — sirf awaaz wale saaf ganon par sab se saaf lyrics aate hain.</li>
-      <li>Saraiki ki lyrics aksar <b>Urdu/Punjabi script</b> mein aayengi.</li>
-      <li>Lamba gana = zyada waqt. Browser tareeqay mein lyrics hisso-hisso (chunks) mein bantay jayenge.</li>
-      <li>Browser walay tareeqay mein pehli dafa <b>model download</b> hoga (internet zaroori); dusri dafa model browser mein mehfooz milega.</li>
-    </ul>
-  </div>
-
-  <button id="transcribeBtn" class="btn btn-main" type="button">📝 Lyrics Nikalein (Transcribe)</button>
-  <button id="stopBtn" class="btn btn-ghost btn-small hidden" type="button" style="margin-top:10px">⏹️ Rokein (Stop)</button>
-  <button id="switchHint" class="btn btn-ghost btn-small" type="button">📱 Browser tareeqay par switch karein</button>
-  <div id="progWrap">
-    <div id="progBarOuter"><div id="progBar"></div></div>
-    <div id="progText"></div>
-  </div>
-  <div id="statusText"></div>
-</div>
-
-<div class="card">
-  <h2>📄 Lyrics</h2>
-  <textarea id="lyricsBox" dir="auto" placeholder="Lyrics yahan aayenge… pehle song upload karke 'Lyrics Nikalein' dabayein. (Aap yahan likh kar edit bhi kar sakte hain.)"></textarea>
-  <div class="counts"><span id="wordCount">Words: 0</span><span id="charCount">Characters: 0</span></div>
-  <div class="row" style="margin-top:12px">
-    <button id="copyBtn" class="btn btn-ghost btn-small" type="button">📋 Copy</button>
-    <button id="dlTxtBtn" class="btn btn-ghost btn-small" type="button">⬇️ Download .txt</button>
-  </div>
-  <div class="row" style="margin-top:10px">
-    <button id="dlSrtBtn" class="btn btn-ghost btn-small" type="button">⬇️ Download .srt (subtitles)</button>
-    <button id="clearBtn" class="btn btn-ghost btn-small" type="button">🗑️ Clear / Naya Song</button>
+  <!-- ============ RIGHT: PREVIEW ============ -->
+  <div class="sticky">
+    <div class="card">
+      <h2>📃 Paper Preview (A4)</h2>
+      <div id="paperPreview"></div>
+    </div>
+    <div class="card">
+      <h2>🔑 Answer Key Preview</h2>
+      <div id="keyPreview"></div>
+    </div>
   </div>
 </div>
 
-<div class="card">
-  <h2>💡 Bare ganay ke liye tips</h2>
-  <div class="steps">
-    <div class="step"><div class="n">1</div><p><b>Sirf awaaz (vocals) wali audio par sab se saaf lyrics aate hain</b> — peeche tez music ho to alfaaz dab jate hain.</p></div>
-    <div class="step"><div class="n">2</div><p>Shor (noise) kam rakhein — khamosh kamre mein record kiya hua ya original file, dono behtar hain.</p></div>
-    <div class="step"><div class="n">3</div><p>Server busy ho to <b>Browser wala tareeqa</b> azmayein — us mein pehle Fast model download hoga, phir baghair server ke lyrics bantay jayenge.</p></div>
-  </div>
-</div>
+<footer class="appfoot">KEPS Paper Generator — free for teachers. Papers aur drafts sirf aap ke browser mein save hote hain, kahin upload nahi hote.<br>Photo → sawal ka tareeqa open-source projects se mutasir hai: QuillQuiz (browser mein Tesseract.js OCR) aur Exameow (Apache-2.0, local-first photo se sawal). Free AI photo route: Moondream2 demo (Hugging Face, vikhyatk) — koi key nahi.</footer>
 
-<div class="card">
-  <h2>❓ Kaise kaam karta hai?</h2>
-  <div class="steps">
-    <div class="step"><div class="n">1</div><p><b>Tareeqa aur song chunein</b> — Server (tez) ya Browser (bina server); phir gana upload karein ya mic se record kar lein.</p></div>
-    <div class="step"><div class="n">2</div><p><b>Zaban chunein</b> — phir "Lyrics Nikalein" dabayein.</p></div>
-    <div class="step"><div class="n">3</div><p><b>Lyrics hasil karein</b> — edit karein, copy karein, ya .txt / .srt file download kar lein.</p></div>
-  </div>
-</div>
-
-<div class="card faq">
-  <h2>❔ Aam Sawalat (FAQ)</h2>
-  <details>
-    <summary>Kya meri audio kahin upload hoti hai?</summary>
-    <p>Browser walay tareeqay mein bilkul nahi — gana aap ke device se bahar nahi jata. Server walay tareeqay mein audio sirf Hugging Face ke free server ko bheji jati hai taake wahan lyrics ban saken; hamari website par kuch save nahi hota.</p>
-  </details>
-  <details>
-    <summary>Urdu / Saraiki ganon ke lyrics milenge?</summary>
-    <p>Ji, Urdu, Hindi, Punjabi, Bengali, Arabic aur English samait bohat si zabanon ke lyrics milte hain. Saraiki aksar Urdu ya Punjabi script mein likhi aati hai, kyunke models unhi scripton par zyada trained hain.</p>
-  </details>
-  <details>
-    <summary>Lyrics mein ghaltiyan kyun aati hain?</summary>
-    <p>Tez music, echo ya shor awaaz ko daba deta hai. Sirf awaaz wali saaf recording par sab se acha result aata hai — vocals alag karne ke liye hamara free Demucs notebook bhi hai: <a href="SurGeet-Demucs-Separation.ipynb" download>SurGeet-Demucs-Separation.ipynb</a></p>
-  </details>
-  <details>
-    <summary>Server busy / error aaye to kya karoon?</summary>
-    <p>Free servers par rush hota rehta hai. Thori dair baad dobara koshish karein, ya upar se <b>Browser wala tareeqa</b> chunein — wo kisi server ka mohtaj nahi.</p>
-  </details>
-  <details>
-    <summary>Bara (lamba) gana ho to?</summary>
-    <p>Chalega — Browser tareeqay mein gana 30-second ke hisson mein bant kar aik ke baad aik likha jata hai. Server tareeqay mein lamba gana zyada waqt lega.</p>
-  </details>
-</div>
-
-<footer>SurGeet AI — Audio Song to Lyrics, bilkul free.<br>Browser method: your audio stays on your device. Server method: audio is processed on a free Hugging Face server.</footer>
-
-</div>
+<div id="printRoot"></div>
 
 <script>
-/* ============ SurGeet AI — Audio Song to Lyrics ============ */
-'use strict';
+"use strict";
+/* ================= STATE ================= */
+var LS_CUR = "kpg_current_v1", LS_DRAFTS = "kpg_drafts_v1";
+var LETTERS = ["A", "B", "C", "D"];
+var _uid = 1;
+function uid() { return "s" + (_uid++) + "_" + Date.now().toString(36); }
 
-/* ---------- Language maps ---------- */
-/* Browser (Transformers.js / Whisper) language codes. Saraiki has no Whisper code -> Urdu. */
-var LANG_MAP = { auto:null, urdu:'ur', hindi:'hi', english:'en', punjabi:'pa', saraiki:'ur', bengali:'bn', arabic:'ar' };
-/* Server spaces use full language names. */
-var LANG_NAME_CAP = { auto:'Automatic Detection', urdu:'Urdu', hindi:'Hindi', english:'English', punjabi:'Punjabi', saraiki:'Urdu', bengali:'Bengali', arabic:'Arabic' };
-var LANG_NAME_LOW = { auto:null, urdu:'urdu', hindi:'hindi', english:'english', punjabi:'punjabi', saraiki:'urdu', bengali:'bengali', arabic:'arabic' };
-
-/* ---------- Browser Whisper models (Transformers.js) ---------- */
-var MODEL_MAP = {
-  fast:   { id:'Xenova/whisper-tiny',  mb:'~40-75 MB' },
-  better: { id:'Xenova/whisper-base',  mb:'~75-145 MB' },
-  best:   { id:'Xenova/whisper-small', mb:'~250-480 MB' }
+var DEFAULT_NOTES = {
+  mcq: "Choose the correct option. Each question carries equal marks.",
+  short: "",
+  long: ""
 };
-var TRANSFORMERS_CDN = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+var SECTION_NAMES = { mcq: "MCQs (Objective)", short: "Short Questions", long: "Long Questions" };
 
-/* ---------- Free server spaces (verified RUNNING via /config, 12 Nov 2026) ---------- */
-/* Payload shapes below come from each space's live /config — see build notes. */
-function fileDataOf(path, name, size, mime){
-  return { path:path, orig_name:name || 'audio', size:size || 0, mime_type:mime || 'audio/mpeg', meta:{ _type:'gradio.FileData' } };
+function makeSection(type) {
+  return {
+    id: uid(), type: type,
+    title: SECTION_NAMES[type],
+    marksEach: type === "mcq" ? 1 : (type === "short" ? 2 : 8),
+    attempt: "",
+    note: DEFAULT_NOTES[type] || "",
+    questions: []
+  };
 }
-var SERVERS = [
-  {
-    id:'gobeldan', name:'Server 1 — Insanely Fast Whisper (CPU)',
-    base:'https://gobeldan-insanely-fast-whisper-webui.hf.space',
-    apiName:'transcribe_webui', hw:'cpu-basic', textIndex:1, segIndex:2,
-    /* config inputs: [Model, Language, URL, UploadFiles(multiple), Audio, Task, FlashAttn, ChunkLen, Batch] */
-    buildData:function(fd, langKey){
-      return ['openai/whisper-small', LANG_NAME_CAP[langKey] || 'Automatic Detection', null, [fd], null, 'transcribe', false, 30, 24];
-    }
-  },
-  {
-    id:'avans06', name:'Server 2 — Whisper WebUI (CPU)',
-    base:'https://avans06-whisper-webui-translate.hf.space',
-    apiName:'transcribe_entry_progress', hw:'cpu-basic', textIndex:1, segIndex:2,
-    /* config inputs (43): defaults verified from /config; files at [19], model [2], language [3] */
-    buildData:function(fd, langKey){
-      return [null, null, 'medium', LANG_NAME_LOW[langKey] || null,
-        null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-        null, [fd], null, 'transcribe', 'silero-vad', 5, 90, 1800, true, false, false,
-        'avg_logprob < -0.9',
-        '(durationLen < 1.5 || segment_last), textLen > 5, avg_logprob < -0.4, no_speech_prob > 0.5',
-        '(durationLen < 1.5 || segment_last), textLen > 5, avg_logprob < -0.4, no_speech_prob > 0.07, compression_ratio < 0.9',
-        '(durationLen < 1.5 || segment_last), compression_ratio < 0.9, no_speech_prob > 0.1',
-        false, 2, 1, 8, 'speaker-diarization-3.1', 2, 4, 3, true, null];
-    }
-  },
-  {
-    id:'openai-whisper', name:'Server 3 — OpenAI Whisper Demo (GPU, akhri koshish)',
-    base:'https://openai-whisper.hf.space',
-    apiName:'predict', hw:'zero-gpu', textIndex:0, segIndex:-1,
-    /* config inputs: [Audio(single), Task radio]. Language: auto-detect only on this space. */
-    buildData:function(fd, langKey){
-      return [fd, 'transcribe'];
-    }
-  }
-];
-var JOIN_TIMEOUT_MS = 75000;      /* 75s join timeout (v8 lesson) */
-var SERVER_BUDGET_MS = 8 * 60 * 1000; /* per-server total budget */
+function defaultState() {
+  return {
+    setup: {
+      school: "KEPS Science Academy, Ahmad Pur Sial, Jhang",
+      clazz: "", subject: "", code: "", date: "", time: "2 Hours", medium: "en"
+    },
+    sections: [makeSection("mcq"), makeSection("short"), makeSection("long")]
+  };
+}
+var state = defaultState();
+var _lastAutoCode = ""; // last auto-suggested paper code (manual edits are never overridden)
+var formBuf = {};   // transient per-section add-form values {secId:{q,o0..o3,ans}}
+var bulkBuf = {};   // transient per-section bulk paste text
+var editCtx = null; // {secId, idx}
 
-/* ---------- Pure helpers (unit-tested) ---------- */
-var CHUNK_SEC = 30;
-function fmtTime(sec){
-  sec = Math.max(0, Math.floor(sec || 0));
-  var m = Math.floor(sec / 60), s = sec % 60;
-  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-}
-function fmtSrtTime(sec){
-  sec = Math.max(0, Number(sec) || 0);
-  var ms = Math.floor((sec - Math.floor(sec)) * 1000);
-  var t = Math.floor(sec), h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
-  function p(n, l){ var x = String(n); while (x.length < (l || 2)) x = '0' + x; return x; }
-  return p(h) + ':' + p(m) + ':' + p(s) + ',' + p(ms, 3);
-}
-function planChunks(durationSec, chunkSec){
-  chunkSec = chunkSec || CHUNK_SEC;
-  var total = Math.max(0, Math.floor(Number(durationSec) || 0));
-  var n = Math.max(1, Math.ceil(total / chunkSec));
-  var out = [];
-  for (var i = 0; i < n; i++){
-    var start = i * chunkSec, end = Math.min(total, start + chunkSec);
-    out.push({ index:i, start:start, end:end, tag:'[' + fmtTime(start) + ']' });
-  }
-  return out;
-}
-function chunkProgressText(i, n){ return 'hissa ' + i + '/' + n; }
-/* results: [{start, end, text}] */
-function resultsToText(results, withTs){
-  var lines = [];
-  for (var i = 0; i < results.length; i++){
-    var r = results[i], t = (r.text || '').trim();
-    if (!t) continue;
-    lines.push(withTs ? ('[' + fmtTime(r.start) + '] ' + t) : t);
-  }
-  return lines.join('\n');
-}
-function buildSrt(results){
-  var blocks = [], n = 0;
-  for (var i = 0; i < results.length; i++){
-    var r = results[i], t = (r.text || '').trim();
-    if (!t) continue;
-    n++;
-    blocks.push(n + '\n' + fmtSrtTime(r.start) + ' --> ' + fmtSrtTime(Math.max(r.end, r.start + 1)) + '\n' + t);
-  }
-  return blocks.join('\n\n') + (blocks.length ? '\n' : '');
-}
-function countWords(text){
-  var t = (text || '').trim();
-  return t ? t.split(/\s+/).length : 0;
-}
-/* Parse a segments textbox like "[00:00.000 --> 00:05.200] text" or "0:05 - 0:10 text". Returns [] if unparseable. */
-function parseSegments(segText){
-  if (!segText || typeof segText !== 'string') return [];
-  var out = [];
-  var re = /(\d{1,2}):(\d{2})(?:[.,](\d{1,3}))?\s*(?:-->|->|-|–|to)\s*(\d{1,2}):(\d{2})(?:[.,](\d{1,3}))?\s*[\]\):\-]?\s*([^\n]+)/g;
-  var m;
-  while ((m = re.exec(segText)) !== null){
-    var start = (+m[1]) * 60 + (+m[2]) + (m[3] ? (+('0.' + m[3])) : 0);
-    var end = (+m[4]) * 60 + (+m[5]) + (m[6] ? (+('0.' + m[6])) : 0);
-    var text = (m[7] || '').replace(/^\[/, '').trim();
-    if (text) out.push({ start:start, end:Math.max(end, start + 1), text:text });
-  }
-  return out;
-}
-function isQuotaError(msg){
-  return /quota|zerogpu|zero-gpu|gpu duration|subscribe to hugging face pro/i.test(String(msg || ''));
-}
-function serverFailMessage(detail){
-  return '⚠ Server se lyrics nahi ban sake. ' + (detail || '') +
-    '\nThori dair baad dobara koshish karein, ya neeche wala button dabakar Browser tareeqay par switch kar lein — wo kisi server ka mohtaj nahi.';
-}
-</script>
-
-<script>
-/* ---------- Gradio client (queue/join + streaming SSE, v8 lessons applied) ---------- */
-function randHash(){
-  var s = '';
-  var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  for (var i = 0; i < 12; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
-  return s;
-}
-/* One SSE message -> action. Returns {done:outputData} | {error:msg} | {progress:text} | null */
-function handleSSEMessage(obj, eventType){
-  if (!obj || typeof obj !== 'object'){
-    if (eventType === 'complete' && Array.isArray(obj)) return { done: obj };
-    return null;
-  }
-  if (Array.isArray(obj)) return { done: obj };
-  if (eventType === 'complete' && obj.msg === undefined) return { done: obj };
-  var msg = obj.msg;
-  if (msg === 'process_completed'){
-    if (obj.success === false) return { error: (obj.output && obj.output.error) || 'server par error aaya' };
-    return { done: (obj.output && obj.output.data) || [] };
-  }
-  if (msg === 'process_error' || obj.error){
-    return { error: (typeof obj.error === 'string' ? obj.error : (obj.error && obj.error.message)) || 'server par error aaya' };
-  }
-  if (msg === 'estimation'){
-    var rank = (obj.rank != null ? obj.rank : '?'), size = (obj.queue_size != null ? obj.queue_size : '?');
-    return { progress: 'queue mein hain — number ' + rank + '/' + size };
-  }
-  if (msg === 'process_starts') return { progress: 'server gana sun raha hai (transcribe ho raha hai)…' };
-  if (msg === 'process_generating') return { progress: 'lyrics ban rahe hain…' };
-  if (msg === 'heartbeat' || msg === 'queue_full') return null;
+function getSection(id) {
+  for (var i = 0; i < state.sections.length; i++) if (state.sections[i].id === id) return state.sections[i];
   return null;
 }
-/* Read an SSE response stream line-by-line (data: prefixed lines) until done/error. */
-async function readSSEStream(response, hooks, deadline){
-  if (!response.body || !response.body.getReader) throw new Error('stream support nahi hai');
-  var reader = response.body.getReader();
-  var decoder = new TextDecoder('utf-8');
-  var buf = '', eventType = null;
-  while (true){
-    if (deadline && Date.now() > deadline) throw new Error('server ne waqt par jawab nahi diya (budget khatam)');
-    var read = await reader.read();
-    if (read.done) break;
-    buf += decoder.decode(read.value, { stream:true });
-    var lines = buf.split('\n');
-    buf = lines.pop();
-    for (var i = 0; i < lines.length; i++){
-      var line = lines[i].trim();
-      if (line.indexOf('event:') === 0){ eventType = line.slice(6).trim(); continue; }
-      if (line.indexOf('data:') !== 0) continue;
-      var payload = line.slice(5).trim();
-      if (!payload || payload === 'null') { if (eventType === 'error') throw new Error('server par error aaya'); continue; }
-      var obj;
-      try { obj = JSON.parse(payload); } catch (e) { continue; }
-      var act = handleSSEMessage(obj, eventType);
-      eventType = null;
-      if (!act) continue;
-      if (act.error) throw new Error(act.error);
-      if (act.done) return act.done;
-      if (act.progress && hooks && hooks.onProgress) hooks.onProgress(act.progress);
-    }
+
+/* ================= HELPERS ================= */
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function hasUrdu(s) { return /[\u0600-\u06FF]/.test(String(s || "")); }
+function dirAttr(s) { return hasUrdu(s) ? ' dir="rtl"' : ' dir="auto"'; }
+
+function autoCode(subject, clazz) {
+  var subj = String(subject || "").trim();
+  var cls = String(clazz || "").trim();
+  var initial = subj ? subj.replace(/[^A-Za-z]/g, "").charAt(0).toUpperCase() : "X";
+  var digits = cls.replace(/[^0-9]/g, "");
+  var clsPart = digits || cls.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase() || "0";
+  return initial + clsPart + "-01";
+}
+
+function sectionCountedMarks(sec) {
+  var n = sec.questions.length;
+  var att = parseInt(sec.attempt, 10);
+  var eff = (!isNaN(att) && att > 0 && att < n) ? att : n;
+  return { given: n, counted: eff, marks: eff * (Number(sec.marksEach) || 0) };
+}
+function computeTotals(st) {
+  var q = 0, m = 0, per = [];
+  st.sections.forEach(function (sec) {
+    var c = sectionCountedMarks(sec);
+    q += sec.questions.length;
+    m += c.marks;
+    per.push({ id: sec.id, type: sec.type, given: c.given, marks: c.marks });
+  });
+  return { questions: q, marks: m, per: per };
+}
+
+function shuffleMcqOptions(q, rng) {
+  rng = rng || Math.random;
+  var idx = [0, 1, 2, 3];
+  for (var i = idx.length - 1; i > 0; i--) {
+    var j = Math.floor(rng() * (i + 1));
+    var t = idx[i]; idx[i] = idx[j]; idx[j] = t;
   }
-  throw new Error('server ka jawab darmiyan mein band ho gaya');
+  var opts = idx.map(function (k) { return q.opts[k]; });
+  return { q: q.q, opts: opts, ans: idx.indexOf(q.ans) };
 }
-async function gradioUpload(server, file, signal){
-  var fd = new FormData();
-  fd.append('files', file, file.name || 'audio');
-  var res = await fetch(server.base + '/gradio_api/upload', { method:'POST', body:fd, signal:signal });
-  if (!res.ok) throw new Error('file server par upload nahi hui (HTTP ' + res.status + ')');
-  var paths = await res.json();
-  if (!paths || !paths.length) throw new Error('file server par upload nahi hui');
-  return paths[0];
+
+/* ---- Bulk paste parsers ---- */
+function parseBulkMcq(text) {
+  var out = [], cur = null;
+  function flush() { if (cur && cur.q) { while (cur.opts.length < 4) cur.opts.push(""); out.push(cur); } cur = null; }
+  String(text || "").split(/\r?\n/).forEach(function (raw) {
+    var line = raw.trim();
+    if (!line) { return; }
+    var ansM = line.match(/^(?:answer|ans|correct)\s*[:\-]?\s*[(]?([A-Da-d])[).]?/i);
+    if (ansM && cur) { cur.ans = LETTERS.indexOf(ansM[1].toUpperCase()); return; }
+    var optM = line.match(/^[(]?([A-Da-d])[).:\-]\s*(.+)$/);
+    if (optM && cur && cur.opts.length < 4) {
+      var txt = optM[2].trim(), star = false;
+      if (/\*\s*$/.test(txt)) { star = true; txt = txt.replace(/\*\s*$/, "").trim(); }
+      cur.opts.push(txt);
+      if (star) cur.ans = cur.opts.length - 1;
+      return;
+    }
+    var qM = line.match(/^(?:q\s*)?(?:\d+\s*[).:\-]\s*)?(.+)$/i);
+    if (cur && cur.opts.length >= 1) flush();
+    if (!cur) cur = { q: "", opts: [], ans: 0 };
+    cur.q = cur.q ? cur.q + " " + qM[1].trim() : qM[1].trim();
+  });
+  flush();
+  return out;
 }
-async function gradioCall(server, data, hooks){
-  var deadline = Date.now() + SERVER_BUDGET_MS;
-  var joinCtl = new AbortController();
-  var joinTimer = setTimeout(function(){ joinCtl.abort(); }, JOIN_TIMEOUT_MS);
-  var eventId = null, sessionHash = randHash();
-  try {
-    var res = await fetch(server.base + '/gradio_api/call/' + server.apiName, {
-      method:'POST', headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ data: data, session_hash: sessionHash }), signal: joinCtl.signal
+function parseBulkPlain(text) {
+  return String(text || "").split(/\r?\n/).map(function (l) { return l.trim(); })
+    .filter(function (l) { return !!l; })
+    .map(function (l) { return { q: l.replace(/^\d+\s*[).:\-]\s*/, "") }; });
+}
+
+/* ---- Answer key ---- */
+function buildKey(st) {
+  var res = [];
+  st.sections.forEach(function (sec, si) {
+    if (sec.type !== "mcq" || !sec.questions.length) return;
+    res.push({
+      section: si, title: sec.title,
+      items: sec.questions.map(function (q, i) {
+        var known = typeof q.ans === "number" && q.ans >= 0 && q.ans < 4;
+        return { n: i + 1, letter: known ? LETTERS[q.ans] : "—", text: known ? (q.opts[q.ans] || "") : "" };
+      })
     });
-    if (res.status === 404) throw new Error('__TRY_JOIN__');
-    if (!res.ok) throw new Error('server join nahi hua (HTTP ' + res.status + ')');
-    var j = await res.json();
-    eventId = j.event_id;
-    if (!eventId) throw new Error('server ne event id nahi di');
-  } catch (e) {
-    if (e && e.message === '__TRY_JOIN__') {
-      /* Older Gradio 5 style: /queue/join then /queue/data */
-      var r2 = await fetch(server.base + '/gradio_api/queue/join', {
-        method:'POST', headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ data: data, fn_index: 0, session_hash: sessionHash }), signal: joinCtl.signal
-      });
-      if (!r2.ok) throw new Error('server join nahi hua (HTTP ' + r2.status + ')');
-      var j2 = await r2.json();
-      eventId = j2.event_id;
-      if (!eventId) throw new Error('server ne event id nahi di');
-      clearTimeout(joinTimer);
-      var rs = await fetch(server.base + '/gradio_api/queue/data?session_hash=' + sessionHash, { method:'GET' });
-      if (!rs.ok) throw new Error('server stream nahi khula (HTTP ' + rs.status + ')');
-      return await readSSEStream(rs, hooks, deadline);
-    }
-    if (e && e.name === 'AbortError') throw new Error('server join timeout (75s) — server bohat busy hai');
-    throw e;
-  }
-  clearTimeout(joinTimer);
-  var rs2 = await fetch(server.base + '/gradio_api/call/' + server.apiName + '/' + eventId, { method:'GET' });
-  if (!rs2.ok) throw new Error('server stream nahi khula (HTTP ' + rs2.status + ')');
-  return await readSSEStream(rs2, hooks, deadline);
+  });
+  return res;
 }
-/* Try each server in order. Returns {results, serverName} or throws with combined detail. */
-async function transcribeViaServers(file, langKey, durationSec, hooks){
-  var errors = [];
-  for (var i = 0; i < SERVERS.length; i++){
-    var server = SERVERS[i];
-    if (hooks.shouldStop && hooks.shouldStop()) throw new Error('__STOPPED__');
+
+/* ================= PERSISTENCE ================= */
+function persist() {
+  try { localStorage.setItem(LS_CUR, JSON.stringify(state)); } catch (e) {}
+}
+function loadPersisted() {
+  try {
+    var raw = localStorage.getItem(LS_CUR);
+    if (!raw) return false;
+    var s = JSON.parse(raw);
+    if (s && s.setup && Array.isArray(s.sections)) { state = s; return true; }
+  } catch (e) {}
+  return false;
+}
+function getDrafts() {
+  try { var d = JSON.parse(localStorage.getItem(LS_DRAFTS) || "{}"); return (d && typeof d === "object") ? d : {}; }
+  catch (e) { return {}; }
+}
+function saveDraft(name) {
+  var drafts = getDrafts();
+  drafts[name] = JSON.parse(JSON.stringify(state));
+  try { localStorage.setItem(LS_DRAFTS, JSON.stringify(drafts)); } catch (e) {}
+}
+function loadDraft(name) {
+  var drafts = getDrafts();
+  if (!drafts[name]) return false;
+  state = JSON.parse(JSON.stringify(drafts[name]));
+  editCtx = null; formBuf = {}; bulkBuf = {};
+  persist();
+  return true;
+}
+function deleteDraft(name) {
+  var drafts = getDrafts();
+  if (drafts[name]) { delete drafts[name]; try { localStorage.setItem(LS_DRAFTS, JSON.stringify(drafts)); } catch (e) {} }
+}
+
+/* ================= SAMPLE ================= */
+function sampleState() {
+  var st = defaultState();
+  st.setup.clazz = "9th"; st.setup.subject = "Mathematics"; st.setup.code = "M9-01"; st.setup.time = "1 Hour";
+  var m = st.sections[0];
+  m.questions = [
+    { q: "The additive inverse of 5 is:", opts: ["5", "-5", "0", "1/5"], ans: 1 },
+    { q: "Which of the following is a rational number?", opts: ["√2", "π", "3/4", "√3"], ans: 2 },
+    { q: "log 100 = ?", opts: ["0", "1", "2", "10"], ans: 2 },
+    { q: "If A = {1, 2, 3}, then n(A) = ?", opts: ["1", "2", "3", "0"], ans: 2 },
+    { q: "(a + b)² = ?", opts: ["a² + b²", "a² + 2ab + b²", "a² − 2ab + b²", "(a − b)²"], ans: 1 }
+  ];
+  var s = st.sections[1];
+  s.attempt = "3";
+  s.questions = [
+    { q: "Define a rational number with one example." },
+    { q: "Simplify: (3x + 2) + (5x − 4)." },
+    { q: "Find the value of log₂ 32." },
+    { q: "Write the set {x : x is an even number less than 10} in tabular form." }
+  ];
+  var l = st.sections[2];
+  l.attempt = "1"; l.marksEach = 8;
+  l.questions = [
+    { q: "Prove that: (a + b)² − (a − b)² = 4ab. Also verify it for a = 3, b = 2." },
+    { q: "The sum of two numbers is 25 and their difference is 7. Find the numbers by forming linear equations." }
+  ];
+  return st;
+}
+/* ================= PAPER / KEY HTML ================= */
+function paperHTML(st) {
+  var t = computeTotals(st);
+  var su = st.setup;
+  var dir = su.medium === "ur" ? "rtl" : "ltr";
+  var cls = "paper" + (su.medium === "ur" ? " ur" : "");
+  var shown = st.sections.filter(function (s) { return s.questions.length > 0; });
+  var h = '<div class="' + cls + '" dir="' + dir + '">';
+  h += '<div class="p-head"><div class="p-school" dir="auto">' + esc(su.school || "School Name") + "</div>";
+  h += '<div class="p-band" dir="auto">Subject: ' + esc(su.subject || "—") + (su.clazz ? " &nbsp;|&nbsp; Class: " + esc(su.clazz) : "") + "</div>";
+  h += '<table class="p-info"><tr>' +
+    "<td><b>Paper Code:</b> " + esc(su.code || "—") + "</td>" +
+    "<td><b>Date:</b> " + esc(su.date || "—") + "</td>" +
+    "<td><b>Time:</b> " + esc(su.time || "—") + "</td>" +
+    "<td><b>Total Marks:</b> " + t.marks + "</td></tr>" +
+    '<tr><td colspan="2"><b>Student Name:</b> ______________________________</td>' +
+    '<td colspan="2"><b>Roll No:</b> ____________________</td></tr></table></div>';
+  if (!shown.length) {
+    h += '<div class="empty-note">Abhi koi sawal nahi — pehle sawal shamil karein, preview yahan banta jayega.</div>';
+  }
+  shown.forEach(function (sec, i) {
+    var c = sectionCountedMarks(sec);
+    h += '<div class="p-sec"><div class="p-sec-head"><span>Q.' + (i + 1) + " " + esc(sec.title) + "</span><span>(" + c.marks + ")</span></div>";
+    var instr = [];
+    if (sec.attempt && parseInt(sec.attempt, 10) > 0 && parseInt(sec.attempt, 10) < sec.questions.length)
+      instr.push("Attempt any " + sec.attempt + " of " + sec.questions.length + " questions.");
+    if (sec.note) instr.push(sec.note);
+    if (instr.length) h += '<div class="p-note" dir="auto">' + esc(instr.join(" ")) + "</div>";
+    sec.questions.forEach(function (q, qi) {
+      h += '<div class="p-q"><b>' + (qi + 1) + ".</b> <span" + dirAttr(q.q) + ">" + esc(q.q) + "</span></div>";
+      if (sec.type === "mcq") {
+        h += '<div class="p-opts">';
+        q.opts.forEach(function (o, oi) {
+          h += "<span" + dirAttr(o) + ">(" + LETTERS[oi] + ") " + esc(o) + "</span>";
+        });
+        h += "</div>";
+      } else if (sec.type === "long") {
+        h += '<div class="p-lines"></div><div class="p-lines"></div>';
+      }
+    });
+    h += "</div>";
+  });
+  h += "</div>";
+  return h;
+}
+function keyHTML(st) {
+  var keys = buildKey(st);
+  var su = st.setup;
+  var dir = su.medium === "ur" ? "rtl" : "ltr";
+  var cls = "paper" + (su.medium === "ur" ? " ur" : "");
+  var h = '<div class="' + cls + '" dir="' + dir + '">';
+  h += '<div class="p-head"><div class="p-school" dir="auto">' + esc(su.school || "School Name") + "</div>";
+  h += '<div class="p-band">ANSWER KEY — ' + esc(su.subject || "—") + (su.code ? " &nbsp;|&nbsp; Code: " + esc(su.code) : "") + "</div></div>";
+  if (!keys.length) {
+    h += '<div class="empty-note">Answer key ke liye pehle MCQ sawal shamil karein aur un ka sahi jawab mark karein.</div>';
+  }
+  keys.forEach(function (k) {
+    h += '<div class="p-sec"><div class="p-sec-head"><span>' + esc(k.title) + "</span></div>";
+    h += '<table class="keytable"><tr>';
+    k.items.forEach(function (it, i) {
+      h += "<td>" + it.n + ". " + it.letter + "</td>";
+      if ((i + 1) % 5 === 0 && i < k.items.length - 1) h += "</tr><tr>";
+    });
+    h += "</tr></table>";
+    h += "<div>" + k.items.map(function (it) {
+      return "<div>" + it.n + ". (" + it.letter + ") <span" + dirAttr(it.text) + ">" + esc(it.text || "— teacher mark karein") + "</span></div>";
+    }).join("") + "</div></div>";
+  });
+  h += "</div>";
+  return h;
+}
+
+/* ================= SECTIONS BUILDER UI ================= */
+function bufFor(id) {
+  if (!formBuf[id]) formBuf[id] = { q: "", o0: "", o1: "", o2: "", o3: "", ans: "0" };
+  return formBuf[id];
+}
+function renderSections() {
+  var wrap = document.getElementById("sectionsWrap");
+  var html = "";
+  state.sections.forEach(function (sec, si) {
+    var c = sectionCountedMarks(sec);
+    var buf = bufFor(sec.id);
+    var editing = editCtx && editCtx.secId === sec.id;
+    html += '<div class="sec-card" data-sec="' + sec.id + '">';
+    html += '<div class="sec-head"><span class="t">' + (si + 1) + ". " + esc(sec.title) +
+      ' <small style="color:var(--mut)">(' + sec.questions.length + " sawal, " + c.marks + " marks)</small></span>" +
+      '<span><button type="button" class="mini" data-act="sec-up" title="Upar">↑</button> ' +
+      '<button type="button" class="mini" data-act="sec-down" title="Neeche">↓</button> ' +
+      '<button type="button" class="mini" data-act="sec-del" title="Section delete">🗑</button></span></div>';
+    html += '<label class="fl">Section Title</label><input type="text" data-field="title" value="' + esc(sec.title) + '">';
+    html += '<div class="row3">' +
+      '<div><label class="fl">Marks per Question</label><input type="number" min="0" step="0.5" data-field="marksEach" value="' + sec.marksEach + '"></div>' +
+      '<div><label class="fl">Attempt any (khaali = sab)</label><input type="number" min="0" data-field="attempt" value="' + esc(sec.attempt) + '"></div>' +
+      '<div><label class="fl">Type</label><input type="text" value="' + sec.type.toUpperCase() + '" disabled></div></div>';
+    html += '<label class="fl">Instruction / Note (paper par chhape ga)</label><input type="text" data-field="note" value="' + esc(sec.note) + '">';
+    /* questions list */
+    sec.questions.forEach(function (q, qi) {
+      html += '<div class="qrow"><span class="qn">' + (qi + 1) + '.</span><span class="qt" dir="auto">' + esc(q.q);
+      if (sec.type === "mcq") {
+        html += '<span class="ansbadge">Key: ' + (q.ans >= 0 ? LETTERS[q.ans] : "?") + "</span><br><small>" +
+          q.opts.map(function (o, oi) { return "(" + LETTERS[oi] + ") " + esc(o); }).join(" &nbsp; ") + "</small>";
+      }
+      html += '</span><span class="qb">' +
+        '<button type="button" class="mini" data-act="q-up" data-q="' + qi + '">↑</button>' +
+        '<button type="button" class="mini" data-act="q-down" data-q="' + qi + '">↓</button>' +
+        '<button type="button" class="mini" data-act="q-edit" data-q="' + qi + '">✎</button>' +
+        '<button type="button" class="mini" data-act="q-del" data-q="' + qi + '">🗑</button></span></div>';
+    });
+    if (!sec.questions.length) html += '<div class="hint">Is section mein abhi koi sawal nahi.</div>';
+    /* add / edit form */
+    if (editing) html += '<div class="editing-note">✎ Question #' + (editCtx.idx + 1) + ' edit ho raha hai — neeche badal kar "Save Edit" dabayein.</div>';
+    html += '<label class="fl">' + (editing ? "Edit Question" : "Naya Sawal") + '</label>' +
+      '<textarea data-form="q" rows="2" placeholder="Sawal yahan likhein (Urdu ya English)">' + esc(buf.q) + "</textarea>";
+    if (sec.type === "mcq") {
+      html += '<div class="optgrid">' +
+        [0, 1, 2, 3].map(function (oi) {
+          return '<input type="text" data-form="o' + oi + '" placeholder="Option ' + LETTERS[oi] + '" value="' + esc(buf["o" + oi]) + '">';
+        }).join("") + "</div>";
+      html += '<label class="fl">Sahi Jawab (Correct Answer)</label><select data-form="ans">' +
+        '<option value="-1"' + (buf.ans === "-1" ? " selected" : "") + '>? — abhi mark nahi</option>' +
+        [0, 1, 2, 3].map(function (oi) {
+          return '<option value="' + oi + '"' + (buf.ans === String(oi) ? " selected" : "") + ">" + LETTERS[oi] + "</option>";
+        }).join("") + "</select>";
+    }
+    html += '<div style="margin-top:8px">' +
+      (editing
+        ? '<button type="button" class="btn small" data-act="q-save-edit">💾 Save Edit</button> <button type="button" class="btn small ghost" data-act="q-cancel-edit">Cancel</button>'
+        : '<button type="button" class="btn small" data-act="q-add">＋ Add Question</button>') +
+      "</div>";
+    /* bulk paste */
+    html += "<h3>📋 Bulk Paste</h3>";
+    if (sec.type === "mcq") {
+      html += '<textarea data-bulk rows="4" placeholder="Har MCQ is tarah:\n1. Sawal ka text\nA. option one\nB. option two\nC. option three\nD. option four\nAnswer: B">' + esc(bulkBuf[sec.id] || "") + "</textarea>" +
+        '<div><button type="button" class="btn small ghost" data-act="bulk-add">Bulk se MCQs Shamil Karein</button></div>' +
+        '<div class="hint">Option ke aakhir mein * lagane se bhi wo sahi jawab ban jata hai (e.g. B. Lahore *).</div>';
+    } else {
+      html += '<textarea data-bulk rows="4" placeholder="Har line = ek sawal">' + esc(bulkBuf[sec.id] || "") + "</textarea>" +
+        '<div><button type="button" class="btn small ghost" data-act="bulk-add">Bulk se Sawal Shamil Karein</button></div>';
+    }
+    html += "</div>";
+  });
+  wrap.innerHTML = html;
+}
+
+function renderPreview() {
+  document.getElementById("paperPreview").innerHTML = paperHTML(state);
+  document.getElementById("keyPreview").innerHTML = keyHTML(state);
+  var t = computeTotals(state);
+  document.getElementById("sumQuestions").textContent = t.questions;
+  document.getElementById("sumMarks").textContent = t.marks;
+}
+function renderSetup() {
+  var su = state.setup;
+  document.getElementById("inSchool").value = su.school || "";
+  document.getElementById("inClass").value = su.clazz || "";
+  document.getElementById("inSubject").value = su.subject || "";
+  document.getElementById("inCode").value = su.code || "";
+  document.getElementById("inDate").value = su.date || "";
+  document.getElementById("inTime").value = su.time || "";
+  document.getElementById("inMedium").value = su.medium || "en";
+}
+function renderDrafts() {
+  var drafts = getDrafts();
+  var sel = document.getElementById("draftsList");
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">— saved drafts —</option>' + Object.keys(drafts).map(function (n) {
+    return '<option value="' + esc(n) + '"' + (n === cur ? " selected" : "") + ">" + esc(n) + "</option>";
+  }).join("");
+}
+function renderAll() { renderSetup(); renderSections(); renderPreview(); renderDrafts(); }
+function refreshLight() { renderPreview(); persist(); }
+
+/* ================= EVENTS: SETUP ================= */
+function bindSetup() {
+  var map = { inSchool: "school", inClass: "clazz", inSubject: "subject", inCode: "code", inDate: "date", inTime: "time", inMedium: "medium" };
+  Object.keys(map).forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener("input", function () {
+      state.setup[map[id]] = el.value;
+      if ((id === "inSubject" || id === "inClass")) {
+        var auto = autoCode(state.setup.subject, state.setup.clazz);
+        if (!state.setup.code || state.setup.code === _lastAutoCode) {
+          state.setup.code = auto;
+          document.getElementById("inCode").value = auto;
+        }
+        _lastAutoCode = auto;
+      }
+      refreshLight();
+    });
+  });
+  document.getElementById("btnAutoCode").addEventListener("click", function () {
+    state.setup.code = autoCode(state.setup.subject, state.setup.clazz);
+    _lastAutoCode = state.setup.code;
+    document.getElementById("inCode").value = state.setup.code;
+    refreshLight();
+  });
+}
+
+/* ================= EVENTS: SECTIONS (delegated) ================= */
+function swap(arr, i, j) { var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+function bindSections() {
+  var wrap = document.getElementById("sectionsWrap");
+  wrap.addEventListener("input", function (e) {
+    var card = e.target.closest("[data-sec]"); if (!card) return;
+    var sec = getSection(card.getAttribute("data-sec")); if (!sec) return;
+    var f = e.target.getAttribute("data-field");
+    if (f) {
+      if (f === "marksEach") sec.marksEach = Number(e.target.value) || 0;
+      else sec[f] = e.target.value;
+      refreshLight();
+      var t = document.querySelector('.sec-card[data-sec="' + sec.id + '"] .sec-head .t small');
+      if (t) { var c = sectionCountedMarks(sec); t.textContent = "(" + sec.questions.length + " sawal, " + c.marks + " marks)"; }
+      return;
+    }
+    var fm = e.target.getAttribute("data-form");
+    if (fm) { bufFor(sec.id)[fm] = e.target.value; return; }
+    if (e.target.hasAttribute("data-bulk")) { bulkBuf[sec.id] = e.target.value; }
+  });
+  wrap.addEventListener("change", function (e) {
+    var card = e.target.closest("[data-sec]"); if (!card) return;
+    var sec = getSection(card.getAttribute("data-sec")); if (!sec) return;
+    var fm = e.target.getAttribute("data-form");
+    if (fm) bufFor(sec.id)[fm] = e.target.value;
+  });
+  wrap.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-act]"); if (!btn) return;
+    var card = e.target.closest("[data-sec]"); if (!card) return;
+    var sec = getSection(card.getAttribute("data-sec")); if (!sec) return;
+    var act = btn.getAttribute("data-act");
+    var qi = btn.hasAttribute("data-q") ? parseInt(btn.getAttribute("data-q"), 10) : -1;
+    var si = state.sections.indexOf(sec);
+    if (act === "sec-del") { state.sections.splice(si, 1); editCtx = null; renderSections(); refreshLight(); }
+    else if (act === "sec-up" && si > 0) { swap(state.sections, si, si - 1); renderSections(); refreshLight(); }
+    else if (act === "sec-down" && si < state.sections.length - 1) { swap(state.sections, si, si + 1); renderSections(); refreshLight(); }
+    else if (act === "q-del") { sec.questions.splice(qi, 1); if (editCtx && editCtx.secId === sec.id && editCtx.idx === qi) editCtx = null; renderSections(); refreshLight(); }
+    else if (act === "q-up" && qi > 0) { swap(sec.questions, qi, qi - 1); renderSections(); refreshLight(); }
+    else if (act === "q-down" && qi < sec.questions.length - 1) { swap(sec.questions, qi, qi + 1); renderSections(); refreshLight(); }
+    else if (act === "q-edit") {
+      var q = sec.questions[qi];
+      var b = bufFor(sec.id);
+      b.q = q.q;
+      if (sec.type === "mcq") { for (var oi = 0; oi < 4; oi++) b["o" + oi] = q.opts[oi] || ""; b.ans = String(q.ans); }
+      editCtx = { secId: sec.id, idx: qi };
+      renderSections();
+    }
+    else if (act === "q-cancel-edit") { editCtx = null; formBuf[sec.id] = { q: "", o0: "", o1: "", o2: "", o3: "", ans: "0" }; renderSections(); }
+    else if (act === "q-save-edit" && editCtx) {
+      var b2 = bufFor(sec.id); var q2 = sec.questions[editCtx.idx];
+      if (!b2.q.trim()) { alert("Sawal khaali hai — pehle sawal likhein."); return; }
+      q2.q = b2.q.trim();
+      if (sec.type === "mcq") { q2.opts = [b2.o0, b2.o1, b2.o2, b2.o3].map(function (x) { return (x || "").trim(); }); q2.ans = parseInt(b2.ans, 10); if (isNaN(q2.ans)) q2.ans = 0; }
+      editCtx = null; formBuf[sec.id] = { q: "", o0: "", o1: "", o2: "", o3: "", ans: "0" };
+      renderSections(); refreshLight();
+    }
+    else if (act === "q-add") {
+      var b3 = bufFor(sec.id);
+      if (!b3.q.trim()) { alert("Sawal khaali hai — pehle sawal likhein."); return; }
+      if (sec.type === "mcq") {
+        var ans = parseInt(b3.ans, 10); if (isNaN(ans)) ans = 0;
+        sec.questions.push({ q: b3.q.trim(), opts: [b3.o0, b3.o1, b3.o2, b3.o3].map(function (x) { return (x || "").trim(); }), ans: ans });
+      } else {
+        sec.questions.push({ q: b3.q.trim() });
+      }
+      formBuf[sec.id] = { q: "", o0: "", o1: "", o2: "", o3: "", ans: "0" };
+      renderSections(); refreshLight();
+    }
+    else if (act === "bulk-add") {
+      var txt = bulkBuf[sec.id] || "";
+      var parsed = sec.type === "mcq" ? parseBulkMcq(txt) : parseBulkPlain(txt);
+      if (!parsed.length) { alert("Bulk text se koi sawal nahi mila — format check karein."); return; }
+      parsed.forEach(function (p) { sec.questions.push(p); });
+      bulkBuf[sec.id] = "";
+      renderSections(); refreshLight();
+    }
+  });
+  document.getElementById("btnAddMcq").addEventListener("click", function () { state.sections.push(makeSection("mcq")); renderSections(); refreshLight(); });
+  document.getElementById("btnAddShort").addEventListener("click", function () { state.sections.push(makeSection("short")); renderSections(); refreshLight(); });
+  document.getElementById("btnAddLong").addEventListener("click", function () { state.sections.push(makeSection("long")); renderSections(); refreshLight(); });
+}
+
+/* ================= FINISH ACTIONS + PDF ================= */
+function bindActions() {
+  document.getElementById("btnSample").addEventListener("click", function () {
+    state = sampleState(); editCtx = null; formBuf = {}; bulkBuf = {};
+    renderAll(); persist();
+  });
+  document.getElementById("btnShuffle").addEventListener("click", function () {
+    var n = 0;
+    state.sections.forEach(function (sec) {
+      if (sec.type !== "mcq") return;
+      sec.questions = sec.questions.map(function (q) { n++; return shuffleMcqOptions(q); });
+    });
+    renderSections(); refreshLight();
+    if (!n) alert("Shuffle ke liye pehle MCQ sawal shamil karein.");
+  });
+  document.getElementById("btnNew").addEventListener("click", function () {
+    if (!window.confirm("Naya paper shuru karein? Mojooda sawal khatam ho jayenge (draft save hai to mehfooz rahe ga).")) return;
+    state = defaultState(); editCtx = null; formBuf = {}; bulkBuf = {};
+    renderAll(); persist();
+  });
+  document.getElementById("btnSaveDraft").addEventListener("click", function () {
+    var name = document.getElementById("draftName").value.trim();
+    if (!name) name = (state.setup.code || "Paper") + " — " + (state.setup.subject || "Draft");
+    saveDraft(name); renderDrafts();
+    document.getElementById("draftMsg").textContent = "✔ Draft save ho gaya: " + name;
+  });
+  document.getElementById("btnLoadDraft").addEventListener("click", function () {
+    var name = document.getElementById("draftsList").value;
+    if (!name) { alert("Pehle list se draft chunein."); return; }
+    if (loadDraft(name)) { renderAll(); document.getElementById("draftMsg").textContent = "✔ Draft load ho gaya: " + name; }
+  });
+  document.getElementById("btnDeleteDraft").addEventListener("click", function () {
+    var name = document.getElementById("draftsList").value;
+    if (!name) { alert("Pehle list se draft chunein."); return; }
+    deleteDraft(name); renderDrafts();
+    document.getElementById("draftMsg").textContent = "Draft delete ho gaya: " + name;
+  });
+  document.getElementById("btnDownloadPdf").addEventListener("click", function () { downloadPDF("paper"); });
+  document.getElementById("btnDownloadKey").addEventListener("click", function () { downloadPDF("key"); });
+}
+
+function printHTML(kind) {
+  var root = document.getElementById("printRoot");
+  root.innerHTML = kind === "key" ? keyHTML(state) : paperHTML(state);
+  var old = document.title;
+  document.title = (state.setup.code || "Paper") + " - " + (state.setup.subject || "Test") + (kind === "key" ? " - Answer Key" : " - Paper");
+  window.print();
+  document.title = old;
+}
+function downloadPDF(kind) {
+  var src = kind === "key" ? document.querySelector("#keyPreview .paper") : document.querySelector("#paperPreview .paper");
+  var fname = (state.setup.code || "paper") + (kind === "key" ? "-answer-key" : "-paper") + ".pdf";
+  if (window.html2pdf && src) {
     try {
-      if (hooks.onServer) hooks.onServer(server, i, SERVERS.length);
-      var path = await gradioUpload(server, file);
-      var fd = fileDataOf(path, file.name, file.size, file.type);
-      var data = server.buildData(fd, langKey);
-      var out = await gradioCall(server, data, {
-        onProgress: function(t){ if (hooks.onProgress) hooks.onProgress(server, t); }
-      });
-      var text = (out && out[server.textIndex] != null) ? String(out[server.textIndex]).trim() : '';
-      var segText = (server.segIndex >= 0 && out && out[server.segIndex] != null) ? String(out[server.segIndex]) : '';
-      if (!text && !segText) throw new Error('server se khaali jawab aaya (koi lyrics nahi mile)');
-      var results = parseSegments(segText);
-      if (!results.length) results = [{ start:0, end:Math.max(1, Math.floor(durationSec || 0)), text:text }];
-      else if (text && results.map(function(r){ return r.text; }).join(' ').length < text.length * 0.5) {
-        results = [{ start:0, end:Math.max(1, Math.floor(durationSec || 0)), text:text }];
-      }
-      return { results: results, serverName: server.name };
-    } catch (e) {
-      if (e && e.message === '__STOPPED__') throw e;
-      var msg = (e && e.message) ? e.message : String(e);
-      errors.push(server.name + ': ' + msg);
-      if (hooks.onServerError) hooks.onServerError(server, msg, isQuotaError(msg));
+      window.html2pdf().set({
+        margin: 10, filename: fname,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["css", "legacy"] }
+      }).from(src).save();
+      return;
+    } catch (e) { /* fall through to print route */ }
+  }
+  printHTML(kind);
+}
+
+/* ================= PHOTO -> QUESTIONS ================= */
+/* Sawal-split ka tareeqa open-source photo->quiz projects (QuillQuiz / Exameow) ke
+   OCR + rules wale flow se mutasir hai: pehle text nikalo, phir numbered items,
+   ? / ؟ wali lines aur MCQ option blocks ko alag sawalon mein todo. */
+var photoCandidates = [];
+var GEMINI_LS = "kpg_gemini_key";
+var MD_BASE = "https://vikhyatk-moondream2.hf.space";
+var MD_PROMPT = "Read this textbook page carefully. List every question written on the page, exactly as written, one question per line, numbered like 1. 2. 3. If a question has options, write each option on its own line starting with a) b) c) d). Do not add explanations. If there are no questions, list the important statements as questions.";
+
+function parseOcrCandidates(text) {
+  var out = [], cur = null;
+  function flush() {
+    if (cur && cur.q) {
+      var type = cur.opts.length >= 3 ? "mcq" : "short";
+      while (cur.opts.length < 4) cur.opts.push("");
+      out.push({ type: type, q: cur.q.trim(), opts: cur.opts.slice(0, 4), ans: (typeof cur.ans === "number" ? cur.ans : -1) });
     }
+    cur = null;
   }
-  var err = new Error(errors.join(' | '));
-  err.allServersFailed = true;
-  throw err;
-}
-</script>
-
-<script>
-/* ---------- Browser Whisper path (Transformers.js, chunked) ---------- */
-async function decodeTo16k(arrayBuffer){
-  var AC = window.AudioContext || window.webkitAudioContext;
-  if (!AC) throw new Error('is browser mein AudioContext support nahi hai');
-  var tmp = new AC();
-  var decoded;
-  try { decoded = await tmp.decodeAudioData(arrayBuffer.slice(0)); }
-  catch (e) { try { tmp.close(); } catch (x) {} throw new Error('audio file decode nahi hui — file kharab hai ya format support nahi (mp3/wav try karein)'); }
-  try { tmp.close(); } catch (x) {}
-  var len = Math.max(1, Math.ceil(decoded.duration * 16000));
-  var off = new OfflineAudioContext(1, len, 16000);
-  var src = off.createBufferSource();
-  src.buffer = decoded;
-  src.connect(off.destination);
-  src.start();
-  var rendered = await off.startRendering();
-  return { data: rendered.getChannelData(0), duration: decoded.duration };
-}
-var _transcriber = null, _transcriberModel = null;
-async function loadTranscriber(modelId, hooks){
-  if (_transcriber && _transcriberModel === modelId) return _transcriber;
-  var mod;
-  try { mod = await import(TRANSFORMERS_CDN); }
-  catch (e) { throw new Error('AI library (Transformers.js) load nahi hui — internet check karein aur dobara koshish karein'); }
-  if (mod.env) { mod.env.allowLocalModels = false; }
-  var lastPct = -1;
-  var t;
-  try {
-    t = await mod.pipeline('automatic-speech-recognition', modelId, {
-      progress_callback: function(p){
-        if (!hooks || !hooks.onProgress) return;
-        if (p.status === 'progress' && p.progress != null){
-          var pct = Math.round(p.progress);
-          if (pct !== lastPct){ lastPct = pct; hooks.onProgress(pct, 'Model download ho raha hai: ' + (p.file || '') + ' — ' + pct + '%'); }
-        } else if (p.status === 'initiate') hooks.onProgress(0, 'Model download shuru: ' + (p.file || ''));
-        else if (p.status === 'done') hooks.onProgress(100, 'Model file download mukammal: ' + (p.file || ''));
-      }
-    });
-  } catch (e) { throw new Error('Whisper model load nahi hua — internet slow/band ho sakta hai. Dobara koshish karein.'); }
-  _transcriber = t; _transcriberModel = modelId;
-  return t;
-}
-/* asr: async (Float32Array slice, langCodeOrNull) => text. Testable orchestration. */
-async function transcribeAll(samples, durationSec, opts, asr, hooks){
-  var sr = 16000;
-  var chunks = planChunks(durationSec, opts.chunkSec || CHUNK_SEC);
-  var results = [];
-  for (var i = 0; i < chunks.length; i++){
-    if (hooks && hooks.shouldStop && hooks.shouldStop()) break;
-    var c = chunks[i];
-    if (hooks && hooks.onChunkStart) hooks.onChunkStart(i, chunks.length, c);
-    var slice = samples.subarray(Math.floor(c.start * sr), Math.floor(Math.min(c.end, durationSec) * sr));
-    var text = '';
-    try { text = (await asr(slice, opts.language || null) || '').trim(); } catch (e) { text = ''; }
-    var r = { start:c.start, end:c.end, text:text };
-    results.push(r);
-    if (hooks && hooks.onChunkDone) hooks.onChunkDone(i, chunks.length, r, results);
-  }
-  return results;
+  String(text || "").split(/\r?\n/).forEach(function (raw) {
+    var line = String(raw || "").trim();
+    if (!line) return;
+    var ansM = line.match(/^(?:answer|ans|key|jawab)\s*[:\-]?\s*[(]?([A-Da-d])[).]?/i);
+    if (ansM && cur) { cur.ans = LETTERS.indexOf(ansM[1].toUpperCase()); return; }
+    var optM = line.match(/^\(?\s*([a-dA-D])\s*[).:\-]\s*(.+)$/);
+    if (optM && cur && cur.opts.length < 4) {
+      var t = optM[2].trim();
+      if (/\*\s*$/.test(t)) { cur.ans = cur.opts.length; t = t.replace(/\*\s*$/, "").trim(); }
+      cur.opts.push(t);
+      return;
+    }
+    var numM = line.match(/^(?:Q\s*)?\d{1,3}\s*[).:\-]\s*(.+)$/i);
+    var endsQ = /[?؟]\s*$/.test(line);
+    if (numM) { flush(); cur = { q: numM[1].trim(), opts: [], ans: -1 }; return; }
+    if (!cur) { cur = { q: line, opts: [], ans: -1 }; return; }
+    if (cur.opts.length > 0) { flush(); cur = { q: line, opts: [], ans: -1 }; return; }
+    if (endsQ && /[?؟]\s*$/.test(cur.q)) { flush(); cur = { q: line, opts: [], ans: -1 }; return; }
+    cur.q += " " + line;
+  });
+  flush();
+  return out.filter(function (c) { return c.q.length > 1; });
 }
 
-/* ---------- UI state + wiring ---------- */
-var state = { file:null, fileUrl:null, duration:0, results:[], method:'server', busy:false, stopFlag:false, recorder:null, recChunks:[], recording:false };
-function $(id){ return document.getElementById(id); }
-function setStatus(msg, cls){
-  var el = $('statusText');
-  el.textContent = msg || '';
-  el.className = cls || '';
-}
-function setProgress(pct, text){
-  $('progWrap').style.display = 'block';
-  $('progBar').style.width = Math.max(0, Math.min(100, pct)) + '%';
-  if (text != null) $('progText').textContent = text;
-}
-function hideProgress(){ $('progWrap').style.display = 'none'; $('progBar').style.width = '0%'; $('progText').textContent = ''; }
-function renderResults(){
-  var withTs = $('tsCheck').checked;
-  $('lyricsBox').value = resultsToText(state.results, withTs);
-  updateCounts();
-}
-function updateCounts(){
-  var t = $('lyricsBox').value;
-  $('wordCount').textContent = 'Words: ' + countWords(t);
-  $('charCount').textContent = 'Characters: ' + t.length;
-}
-function fmtBytes(b){
-  if (!b && b !== 0) return '';
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
-  return (b / 1048576).toFixed(1) + ' MB';
-}
-var AUDIO_EXTS = ['mp3','wav','m4a','ogg','webm','opus','flac','aac'];
-function isAudioFile(f){
-  if (!f) return false;
-  if (f.type && f.type.indexOf('audio/') === 0) return true;
-  var ext = (f.name || '').split('.').pop().toLowerCase();
-  return AUDIO_EXTS.indexOf(ext) >= 0;
-}
-function setFile(f, sourceLabel){
-  if (!isAudioFile(f)){
-    setStatus('⚠ Ye file audio nahi lagti. Sirf audio file chunein (mp3, wav, m4a, ogg, webm). / Unsupported file — please choose an audio file.', 'err');
+function renderCandidates() {
+  var box = document.getElementById("candList");
+  if (!photoCandidates.length) {
+    box.innerHTML = '<div class="hint">Abhi koi sawal nahi. Photo par Free AI, OCR ya Gemini chalayein to sawal yahan aayenge.</div>';
     return;
   }
-  state.file = f; state.results = []; state.duration = 0;
-  if (state.fileUrl) URL.revokeObjectURL(state.fileUrl);
-  state.fileUrl = URL.createObjectURL(f);
-  $('fileInfo').style.display = 'block';
-  $('fileName').textContent = '🎵 ' + (f.name || sourceLabel || 'recording');
-  $('fileMeta').textContent = 'Size: ' + fmtBytes(f.size) + ' • Duration: …';
-  var player = $('audioPlayer');
-  player.src = state.fileUrl;
-  player.onloadedmetadata = function(){
-    if (player.duration && isFinite(player.duration)){
-      state.duration = player.duration;
-      $('fileMeta').textContent = 'Size: ' + fmtBytes(f.size) + ' • Duration: ' + fmtTime(player.duration);
+  var html = "";
+  photoCandidates.forEach(function (c, i) {
+    html += '<div class="qrow" data-cand="' + i + '"><input type="checkbox" data-cf="sel"' + (c.checked === false ? "" : " checked") + ' style="margin-top:4px">';
+    html += '<div style="flex:1"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+      '<b>#' + (i + 1) + '</b>' +
+      '<select data-cf="type"><option value="mcq"' + (c.type === "mcq" ? " selected" : "") + '>MCQ</option><option value="short"' + (c.type === "short" ? " selected" : "") + '>Short</option></select>' +
+      '<button type="button" class="mini" data-cact="del">🗑</button></div>';
+    html += '<textarea data-cf="q" rows="2">' + esc(c.q) + "</textarea>";
+    if (c.type === "mcq") {
+      html += '<div class="optgrid">' + [0, 1, 2, 3].map(function (oi) {
+        return '<input type="text" data-cf="o' + oi + '" placeholder="Option ' + LETTERS[oi] + '" value="' + esc(c.opts[oi] || "") + '">';
+      }).join("") + "</div>";
+      html += '<label class="fl">Sahi Jawab</label><select data-cf="ans">' +
+        '<option value="-1"' + (c.ans === -1 ? " selected" : "") + '>? — nahi maloom (key mein khaali)</option>' +
+        [0, 1, 2, 3].map(function (oi) {
+          return '<option value="' + oi + '"' + (c.ans === oi ? " selected" : "") + ">" + LETTERS[oi] + "</option>";
+        }).join("") + "</select>";
     }
-  };
-  renderResults();
-  setStatus('✔ Song tayyar hai: ' + (f.name || 'recording') + ' — ab "Lyrics Nikalein" dabayein.', 'ok');
-  $('switchHint').style.display = 'none';
+    html += "</div></div>";
+  });
+  box.innerHTML = html;
 }
-function setMethod(m){
-  state.method = m;
-  $('methodServer').classList.toggle('sel', m === 'server');
-  $('methodBrowser').classList.toggle('sel', m === 'browser');
-  $('modelSel').disabled = (m === 'server');
-  $('methodStatus').textContent = 'Selected: ' + (m === 'server' ? 'Server Wala Free AI' : 'Browser Mein (bina server)');
-  $('privacyLine').innerHTML = (m === 'server')
-    ? '🌐 <b>Server walay tareeqay mein</b> aap ki audio free Hugging Face server par bheji jati hai aur wahin process hoti hai — gana tez banta hai, lekin server par rush ho to intezaar ya error aa sakta hai.'
-    : '🔒 <b>Browser walay tareeqay mein</b> aap ki audio kahin upload NAHI hoti — saara kaam aap ke apne phone/browser ke andar hota hai.';
+function setCandidates(list) {
+  list.forEach(function (c) { if (c.checked === undefined) c.checked = true; });
+  photoCandidates = list;
+  renderCandidates();
 }
-async function doTranscribe(){
-  if (state.busy) return;
-  if (!state.file){ setStatus('⚠ Pehle koi audio song upload karein (upar wala box), phir Lyrics Nikalein dabayein.', 'err'); return; }
-  state.busy = true; state.stopFlag = false; state.results = [];
-  renderResults();
-  $('transcribeBtn').disabled = true;
-  $('stopBtn').classList.remove('hidden');
-  $('switchHint').style.display = 'none';
-  var langKey = $('langSel').value;
-  var started = Date.now();
-  try {
-    if (state.method === 'server'){
-      setProgress(5, 'Server ko gana bhej rahe hain…');
-      var out = await transcribeViaServers(state.file, langKey, state.duration, {
-        shouldStop: function(){ return state.stopFlag; },
-        onServer: function(server, i, n){
-          setStatus('📤 ' + server.name + ' (' + (i + 1) + '/' + n + ') ko koshish kar rahe hain…');
-          setProgress(10 + i * 20, server.name + ' — gana upload ho raha hai…');
-        },
-        onProgress: function(server, t){
-          var el = Math.round((Date.now() - started) / 1000);
-          setStatus('⏳ ' + server.name + ': ' + t + ' (' + el + 's)');
-          setProgress(45, server.name + ': ' + t);
-        },
-        onServerError: function(server, msg, quota){
-          setStatus('⚠ ' + server.name + ' nahi chala' + (quota ? ' (free quota/busy)' : '') + ' — agla server azma rahe hain…', 'err');
-        }
-      });
-      state.results = out.results;
-      renderResults();
-      setProgress(100, 'Mukammal ✔');
-      setStatus('🎉 Lyrics tayyar hain — ' + out.serverName + ' se bane. Neeche edit/copy/download kar sakte hain.', 'ok');
-    } else {
-      setStatus('🎧 Audio tayyar ki ja rahi hai (decode/resample)…');
-      var buf = await state.file.arrayBuffer();
-      var dec = await decodeTo16k(buf);
-      state.duration = dec.duration;
-      var modelKey = $('modelSel').value;
-      var model = MODEL_MAP[modelKey];
-      setStatus('⬇️ Whisper model (' + model.id + ', ' + model.mb + ') tayyar ho raha hai — pehli dafa download hoga…');
-      var asrPipe = await loadTranscriber(model.id, { onProgress: function(pct, t){ setProgress(pct, t); } });
-      var langCode = LANG_MAP[langKey];
-      setProgress(0, 'Transcribe shuru…');
-      var results = await transcribeAll(dec.data, dec.duration, { language: langCode }, async function(slice, code){
-        var o = await asrPipe(slice, code ? { language: code, task: 'transcribe' } : { task: 'transcribe' });
-        return (o && o.text) ? o.text : '';
-      }, {
-        shouldStop: function(){ return state.stopFlag; },
-        onChunkStart: function(i, n, c){ setStatus('🎙️ ' + chunkProgressText(i + 1, n) + ' — ' + c.tag + ' wala hissa sun rahe hain…'); },
-        onChunkDone: function(i, n, r, all){
-          state.results = all.slice();
-          renderResults();
-          setProgress(Math.round(((i + 1) / n) * 100), chunkProgressText(i + 1, n) + ' mukammal');
-        }
-      });
-      state.results = results;
-      renderResults();
-      if (state.stopFlag) setStatus('⏹️ Rok diya gaya — jitne lyrics banay thay, wo upar mojood hain.', '');
-      else if (!resultsToText(results, false).trim()) setStatus('⚠ Lyrics khaali aaye — gana bohat tez-music wala ho sakta hai, ya awaaz saaf nahi. Saaf/vocal wali audio se dobara try karein, ya Server wala tareeqa azmayein.', 'err');
-      else { setProgress(100, 'Mukammal ✔'); setStatus('🎉 Lyrics tayyar hain (Browser model: ' + model.id + '). Neeche edit/copy/download kar sakte hain.', 'ok'); }
-    }
-  } catch (e) {
-    var msg = (e && e.message) ? e.message : String(e);
-    if (msg === '__STOPPED__'){ setStatus('⏹️ Rok diya gaya.', ''); }
-    else if (e && e.allServersFailed){
-      setStatus(serverFailMessage('Har server ki tafseel: ' + msg), 'err');
-      $('switchHint').style.display = 'block';
-    }
-    else setStatus('⚠ ' + msg, 'err');
-  } finally {
-    state.busy = false;
-    $('transcribeBtn').disabled = false;
-    $('stopBtn').classList.add('hidden');
-    setTimeout(hideProgress, 1200);
+function addSelectedCandidates() {
+  var chosen = photoCandidates.filter(function (c) { return c.checked !== false; });
+  if (!chosen.length) return 0;
+  function target(type) {
+    var sec = null;
+    state.sections.forEach(function (s) { if (!sec && s.type === type) sec = s; });
+    if (!sec) { sec = makeSection(type); state.sections.push(sec); }
+    return sec;
   }
-}
-function downloadFile(name, content, mime){
-  var blob = new Blob([content], { type: mime || 'text/plain;charset=utf-8' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url; a.download = name;
-  document.body.appendChild(a); a.click();
-  setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 400);
-}
-function baseName(){
-  var n = (state.file && state.file.name) ? state.file.name.replace(/\.[^.]+$/, '') : 'lyrics';
-  return n || 'lyrics';
-}
-function wire(){
-  var dz = $('dropZone'), fi = $('fileInput');
-  dz.addEventListener('click', function(){ fi.click(); });
-  dz.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
-  ['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('drag'); }); });
-  ['dragleave','drop'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.remove('drag'); }); });
-  dz.addEventListener('drop', function(e){
-    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if (f) setFile(f);
-  });
-  fi.addEventListener('change', function(){
-    if (fi.files && fi.files[0]) setFile(fi.files[0]);
-    fi.value = '';
-  });
-  $('methodServer').addEventListener('click', function(){ setMethod('server'); });
-  $('methodBrowser').addEventListener('click', function(){ setMethod('browser'); });
-  $('switchHint').addEventListener('click', function(){
-    setMethod('browser');
-    $('switchHint').style.display = 'none';
-    setStatus('📱 Browser tareeqa select ho gaya — ab "Lyrics Nikalein" dabayein. Pehli dafa model download hoga.', 'ok');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-  $('tsCheck').addEventListener('change', renderResults);
-  $('lyricsBox').addEventListener('input', updateCounts);
-  $('transcribeBtn').addEventListener('click', doTranscribe);
-  $('stopBtn').addEventListener('click', function(){ state.stopFlag = true; setStatus('⏹️ Rok rahe hain…', ''); });
-  $('copyBtn').addEventListener('click', async function(){
-    var t = $('lyricsBox').value;
-    if (!t.trim()){ setStatus('⚠ Copy karne ke liye lyrics khaali hain.', 'err'); return; }
-    try { await navigator.clipboard.writeText(t); setStatus('📋 Lyrics copy ho gaye ✔', 'ok'); }
-    catch (e) { $('lyricsBox').select(); document.execCommand && document.execCommand('copy'); setStatus('📋 Lyrics copy ho gaye ✔', 'ok'); }
-  });
-  $('dlTxtBtn').addEventListener('click', function(){
-    var t = $('lyricsBox').value;
-    if (!t.trim()){ setStatus('⚠ Download ke liye lyrics khaali hain.', 'err'); return; }
-    downloadFile(baseName() + '-lyrics.txt', t);
-  });
-  $('dlSrtBtn').addEventListener('click', function(){
-    if (!state.results.length){ setStatus('⚠ .srt ke liye pehle transcribe karein (timestamps results se bante hain).', 'err'); return; }
-    var srt = buildSrt(state.results);
-    if (!srt.trim()){ setStatus('⚠ .srt khaali hai — lyrics nahi mile thay.', 'err'); return; }
-    downloadFile(baseName() + '-lyrics.srt', srt);
-  });
-  $('clearBtn').addEventListener('click', function(){
-    state.file = null; state.results = []; state.duration = 0;
-    if (state.fileUrl) URL.revokeObjectURL(state.fileUrl);
-    state.fileUrl = null;
-    $('fileInfo').style.display = 'none';
-    $('audioPlayer').removeAttribute('src');
-    renderResults();
-    setStatus('🗑️ Saaf kar diya — naya song upload karein.', '');
-  });
-  $('micBtn').addEventListener('click', async function(){
-    if (state.recording){
-      if (state.recorder) state.recorder.stop();
-      return;
+  chosen.forEach(function (c) {
+    if (c.type === "mcq") {
+      var opts = [0, 1, 2, 3].map(function (oi) { return (c.opts[oi] || "").trim(); });
+      target("mcq").questions.push({ q: c.q.trim(), opts: opts, ans: (typeof c.ans === "number" ? c.ans : -1) });
+    } else {
+      target("short").questions.push({ q: c.q.trim() });
     }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === 'undefined'){
-      $('micStatus').textContent = '⚠ Is browser mein mic recording support nahi hai. File upload wala tareeqa istemal karein.';
-      return;
-    }
+  });
+  photoCandidates = photoCandidates.filter(function (c) { return c.checked === false; });
+  renderCandidates(); renderSections(); refreshLight();
+  return chosen.length;
+}
+
+/* ---- Gradio helpers (HF Spaces, bina key) ---- */
+function gradioUpload(base, file) {
+  var fd = new FormData();
+  fd.append("files", file);
+  return fetch(base + "/gradio_api/upload", { method: "POST", body: fd })
+    .then(function (r) { if (!r.ok) throw new Error("upload fail " + r.status); return r.json(); })
+    .then(function (paths) {
+      if (!paths || !paths.length) throw new Error("upload se file path nahi mila");
+      return { path: paths[0], meta: { _type: "gradio.FileData" } };
+    });
+}
+function gradioCall(base, apiName, data, onStatus, timeoutMs) {
+  timeoutMs = timeoutMs || 420000;
+  var started = Date.now();
+  return fetch(base + "/gradio_api/call/" + apiName, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: data })
+  }).then(function (r) { if (!r.ok) throw new Error("server join fail " + r.status); return r.json(); })
+    .then(function (j) {
+      var ev = j.event_id;
+      if (!ev) throw new Error("server ne event id nahi di");
+      return fetch(base + "/gradio_api/call/" + apiName + "/" + ev).then(function (resp) {
+        if (!resp.ok || !resp.body || !resp.body.getReader) throw new Error("server stream nahi mili");
+        var reader = resp.body.getReader();
+        var dec = new TextDecoder();
+        var buf = "";
+        function pump() {
+          if (Date.now() - started > timeoutMs) throw new Error("server timeout — zyada waqt lag gaya");
+          return reader.read().then(function (res) {
+            if (res.done) throw new Error("server ne jawab diye baghair stream band kar di");
+            buf += dec.decode(res.value, { stream: true });
+            var lines = buf.split("\n");
+            buf = lines.pop();
+            for (var i = 0; i < lines.length; i++) {
+              var ln = lines[i].trim();
+              if (ln.indexOf("data:") !== 0) continue;
+              var payload = ln.slice(5).trim();
+              if (!payload || payload === "null") continue;
+              var msg;
+              try { msg = JSON.parse(payload); } catch (e) { continue; }
+              if (msg.msg === "process_generating" && onStatus) onStatus("generating");
+              if (msg.msg === "process_completed") {
+                if (msg.success === false) throw new Error(msg.error || "server par ghalti hui");
+                return (msg.output && msg.output.data) || [];
+              }
+              if (msg.msg === "process_failed" || msg.msg === "error") throw new Error(msg.error || "server fail ho gaya");
+            }
+            return pump();
+          });
+        }
+        return pump();
+      });
+    });
+}
+
+function selectedPhotoFiles() {
+  var inp = document.getElementById("photoFiles");
+  return inp && inp.files ? Array.prototype.slice.call(inp.files) : [];
+}
+function showPreviews(files) {
+  var box = document.getElementById("photoPreviews");
+  box.innerHTML = "";
+  files.forEach(function (f) {
     try {
-      var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      state.recChunks = [];
-      var rec = new MediaRecorder(stream);
-      state.recorder = rec;
-      rec.ondataavailable = function(e){ if (e.data && e.data.size) state.recChunks.push(e.data); };
-      rec.onstop = function(){
-        stream.getTracks().forEach(function(t){ t.stop(); });
-        state.recording = false;
-        $('micBtn').textContent = '🎤 Mic se Record karein (paas baj raha gana)';
-        $('micStatus').textContent = '';
-        var blob = new Blob(state.recChunks, { type: rec.mimeType || 'audio/webm' });
-        var f = new File([blob], 'mic-recording.webm', { type: blob.type });
-        setFile(f, 'mic recording');
-      };
-      rec.start();
-      state.recording = true;
-      $('micBtn').textContent = '⏹️ Recording rokne ke liye dabayein';
-      $('micStatus').textContent = '🔴 Record ho raha hai… gana paas bajayein, phir rok dein.';
-    } catch (e) {
-      $('micStatus').textContent = '⚠ Mic ki ijazat nahi mili (permission denied). Browser settings mein mic allow karein, ya file upload karein.';
-    }
+      var img = document.createElement("img");
+      img.src = URL.createObjectURL(f);
+      img.alt = f.name;
+      img.style.cssText = "max-width:130px;max-height:170px;border:1px solid var(--line);border-radius:7px;margin:0 6px 6px 0;object-fit:cover";
+      box.appendChild(img);
+    } catch (e) {}
   });
-  setMethod('server');
-  updateCounts();
 }
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
-else wire();
+
+/* ---- Route A: Free AI (Moondream2, CPU space, bina key) ---- */
+function runFreeAi(files) {
+  var st = document.getElementById("aiStatus");
+  if (!files.length) { st.textContent = "⚠ Pehle page ki photo select karein."; return Promise.resolve(0); }
+  st.textContent = "🤖 Free AI ko photo bhej rahe hain… (CPU server hai, 1 photo par 1–3 minute lag sakte hain)";
+  var texts = [];
+  var chain = Promise.resolve();
+  files.forEach(function (f, i) {
+    chain = chain.then(function () {
+      return gradioUpload(MD_BASE, f).then(function (fd) {
+        st.textContent = "🤖 Photo " + (i + 1) + "/" + files.length + " — AI parh raha hai…";
+        return gradioCall(MD_BASE, "answer_question", [fd, MD_PROMPT], function () {
+          st.textContent = "🤖 Photo " + (i + 1) + "/" + files.length + " — AI jawab bana raha hai…";
+        }, 420000);
+      }).then(function (data) {
+        var txt = (data && data[0]) ? String(data[0]) : "";
+        if (txt) texts.push(txt);
+      }).catch(function (e) {
+        texts.push("");
+        st.textContent = "⚠ Photo " + (i + 1) + " par AI fail: " + (e && e.message ? e.message : e) + " — baqi koshish jari hai…";
+      });
+    });
+  });
+  return chain.then(function () {
+    var joined = texts.join("\n");
+    var cands = parseOcrCandidates(joined);
+    if (!cands.length) {
+      st.textContent = "⚠ AI ne koi sawal nahi nikala. Photo saaf aur seedhi ho to dobara koshish karein, warna neeche OCR wala tareeqa use karein.";
+      return 0;
+    }
+    setCandidates(cands);
+    st.textContent = "✔ Free AI ne " + cands.length + " sawal nikale — neeche Review mein check karke paper mein shamil karein.";
+    return cands.length;
+  });
+}
+
+/* ---- Route B: Local OCR (Tesseract.js, offline) ---- */
+function runOcr(files) {
+  var st = document.getElementById("ocrStatus");
+  if (!files.length) { st.textContent = "⚠ Pehle page ki photo select karein."; return Promise.resolve(0); }
+  if (!window.Tesseract) {
+    st.textContent = "⚠ OCR library (Tesseract.js) load nahi hui — internet check karke page refresh karein, ya upar Free AI wala tareeqa use karein.";
+    return Promise.resolve(0);
+  }
+  var lang = document.getElementById("ocrLang").value || "eng+urd";
+  st.textContent = "🔍 OCR tayyar ho raha hai (model pehli dafa download hoga)…";
+  var worker = null;
+  return window.Tesseract.createWorker(lang).then(function (w) {
+    worker = w;
+    var texts = [];
+    var chain = Promise.resolve();
+    files.forEach(function (f, i) {
+      chain = chain.then(function () {
+        st.textContent = "🔍 Photo " + (i + 1) + "/" + files.length + " parhi ja rahi hai…";
+        return worker.recognize(f).then(function (res) { texts.push((res && res.data && res.data.text) || ""); });
+      });
+    });
+    return chain.then(function () { return texts; });
+  }).then(function (texts) {
+    if (worker) { try { worker.terminate(); } catch (e) {} }
+    var cands = parseOcrCandidates(texts.join("\n"));
+    if (!cands.length) {
+      st.textContent = "⚠ OCR se koi sawal nahi mila. Photo saaf, seedhi aur roshni mein li hui ho to behtar result aayega.";
+      return 0;
+    }
+    setCandidates(cands);
+    st.textContent = "✔ OCR ne " + cands.length + " sawal nikale — Review mein ghaltian theek karke shamil karein.";
+    return cands.length;
+  }).catch(function (e) {
+    if (worker) { try { worker.terminate(); } catch (e2) {} }
+    st.textContent = "⚠ OCR fail ho gaya: " + (e && e.message ? e.message : e) + " — Free AI wala tareeqa azmayein.";
+    return 0;
+  });
+}
+
+/* ---- Route C: Gemini (user ki apni key, optional) ---- */
+function fileToBase64(file) {
+  return new Promise(function (resolve, reject) {
+    var r = new FileReader();
+    r.onload = function () { resolve(String(r.result).split(",")[1] || ""); };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+function parseGeminiJson(txt) {
+  var s = String(txt || "").replace(/```json|```/g, "").trim();
+  var a = s.indexOf("["), b = s.lastIndexOf("]");
+  if (a < 0 || b < a) return [];
+  try {
+    var arr = JSON.parse(s.slice(a, b + 1));
+    if (!Array.isArray(arr)) return [];
+    return arr.map(function (it) {
+      var opts = Array.isArray(it.opts) ? it.opts.slice(0, 4).map(function (x) { return String(x); }) : [];
+      while (opts.length < 4) opts.push("");
+      var ans = -1;
+      if (typeof it.ans === "number") ans = it.ans;
+      else if (typeof it.ans === "string" && /^[A-D]$/i.test(it.ans.trim())) ans = LETTERS.indexOf(it.ans.trim().toUpperCase());
+      return { type: (it.type === "mcq" || opts.filter(Boolean).length >= 3) ? "mcq" : "short", q: String(it.q || ""), opts: opts, ans: ans };
+    }).filter(function (c) { return c.q; });
+  } catch (e) { return []; }
+}
+function geminiExtract(file, key) {
+  return fileToBase64(file).then(function (b64) {
+    var prompt = "Extract ALL questions from this textbook page image. Return ONLY a JSON array. Each item: {\"type\":\"mcq\" or \"short\", \"q\":\"question text exactly as written\", \"opts\":[\"A\",\"B\",\"C\",\"D\"] (only for mcq, else []), \"ans\": correct option index 0-3 if printed or -1}. Keep Urdu text in Urdu script. No extra text outside the JSON array.";
+    return fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + encodeURIComponent(key), {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: file.type || "image/jpeg", data: b64 } }] }] })
+    }).then(function (r) { if (!r.ok) throw new Error("Gemini ne jawab nahi diya (" + r.status + ") — key check karein"); return r.json(); })
+      .then(function (j) {
+        var parts = (((j.candidates || [])[0] || {}).content || {}).parts || [];
+        var txt = parts.map(function (p) { return p.text || ""; }).join("");
+        return parseGeminiJson(txt);
+      });
+  });
+}
+function runGemini(files) {
+  var st = document.getElementById("geminiStatus");
+  var keyInput = document.getElementById("geminiKey");
+  var key = (keyInput.value || "").trim();
+  if (!key) { try { key = localStorage.getItem(GEMINI_LS) || ""; } catch (e) { key = ""; } }
+  if (!key) { st.textContent = "⚠ Pehle apni Gemini API key lagayein — ya bina key walay Free AI / OCR tareeqay use karein (key dena zaroori nahi)."; return Promise.resolve(0); }
+  if (!files.length) { st.textContent = "⚠ Pehle page ki photo select karein."; return Promise.resolve(0); }
+  try { localStorage.setItem(GEMINI_LS, key); } catch (e) {}
+  keyInput.value = "";
+  document.getElementById("geminiKeyState").textContent = "✔ Key is browser mein save hai.";
+  st.textContent = "✨ Gemini photo parh raha hai…";
+  var all = [];
+  var chain = Promise.resolve();
+  files.forEach(function (f) {
+    chain = chain.then(function () {
+      return geminiExtract(f, key).then(function (c) { all = all.concat(c); })
+        .catch(function (e) { st.textContent = "⚠ " + (e && e.message ? e.message : e); });
+    });
+  });
+  return chain.then(function () {
+    if (!all.length) { if (!st.textContent) st.textContent = "⚠ Gemini se koi sawal nahi mila."; return 0; }
+    setCandidates(all);
+    st.textContent = "";
+    document.getElementById("candMsg").textContent = "✔ Gemini ne " + all.length + " sawal nikale — Review karke shamil karein.";
+    return all.length;
+  });
+}
+
+function bindPhoto() {
+  var inp = document.getElementById("photoFiles");
+  inp.addEventListener("change", function () { showPreviews(selectedPhotoFiles()); });
+  document.getElementById("btnFreeAi").addEventListener("click", function () { runFreeAi(selectedPhotoFiles()); });
+  document.getElementById("btnOcr").addEventListener("click", function () { runOcr(selectedPhotoFiles()); });
+  document.getElementById("btnGemini").addEventListener("click", function () { runGemini(selectedPhotoFiles()); });
+  document.getElementById("btnGeminiForget").addEventListener("click", function () {
+    try { localStorage.removeItem(GEMINI_LS); } catch (e) {}
+    document.getElementById("geminiKey").value = "";
+    document.getElementById("geminiKeyState").textContent = "Key hata di gayi hai.";
+  });
+  var saved = "";
+  try { saved = localStorage.getItem(GEMINI_LS) || ""; } catch (e) {}
+  if (saved) document.getElementById("geminiKeyState").textContent = "✔ Key is browser mein save hai (dobara likhne ki zaroorat nahi).";
+  var list = document.getElementById("candList");
+  list.addEventListener("input", function (e) {
+    var row = e.target.closest("[data-cand]"); if (!row) return;
+    var c = photoCandidates[parseInt(row.getAttribute("data-cand"), 10)]; if (!c) return;
+    var f = e.target.getAttribute("data-cf"); if (!f) return;
+    if (f === "sel") c.checked = e.target.checked;
+    else if (f === "type") { c.type = e.target.value; renderCandidates(); }
+    else if (f === "q") c.q = e.target.value;
+    else if (f === "ans") c.ans = parseInt(e.target.value, 10);
+    else if (f.indexOf("o") === 0) c.opts[parseInt(f.slice(1), 10)] = e.target.value;
+  });
+  list.addEventListener("change", function (e) {
+    var row = e.target.closest("[data-cand]"); if (!row) return;
+    var c = photoCandidates[parseInt(row.getAttribute("data-cand"), 10)]; if (!c) return;
+    var f = e.target.getAttribute("data-cf"); if (!f) return;
+    if (f === "type") { c.type = e.target.value; renderCandidates(); }
+    else if (f === "ans") c.ans = parseInt(e.target.value, 10);
+    else if (f === "sel") c.checked = e.target.checked;
+  });
+  list.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-cact]"); if (!btn) return;
+    var row = e.target.closest("[data-cand]"); if (!row) return;
+    photoCandidates.splice(parseInt(row.getAttribute("data-cand"), 10), 1);
+    renderCandidates();
+  });
+  document.getElementById("btnAddSelected").addEventListener("click", function () {
+    var n = addSelectedCandidates();
+    document.getElementById("candMsg").textContent = n ? ("✔ " + n + " sawal paper mein shamil ho gaye — upar preview aur Answer Key mein check karein.") : "⚠ Pehle kam az kam ek sawal select karein.";
+  });
+  document.getElementById("btnCandAll").addEventListener("click", function () { photoCandidates.forEach(function (c) { c.checked = true; }); renderCandidates(); });
+  document.getElementById("btnCandNone").addEventListener("click", function () { photoCandidates.forEach(function (c) { c.checked = false; }); renderCandidates(); });
+}
+
+/* ================= TEST HOOKS ================= */
+window.KPG = {
+  getState: function () { return state; },
+  setState: function (s) { state = s; },
+  autoCode: autoCode, computeTotals: computeTotals,
+  shuffleMcqOptions: shuffleMcqOptions,
+  parseBulkMcq: parseBulkMcq, parseBulkPlain: parseBulkPlain,
+  buildKey: buildKey, paperHTML: paperHTML, keyHTML: keyHTML,
+  sampleState: sampleState, defaultState: defaultState,
+  saveDraft: saveDraft, loadDraft: loadDraft, deleteDraft: deleteDraft, getDrafts: getDrafts,
+  parseOcrCandidates: parseOcrCandidates, parseGeminiJson: parseGeminiJson,
+  getCandidates: function () { return photoCandidates; },
+  setCandidates: setCandidates,
+  addSelectedCandidates: addSelectedCandidates,
+  runFreeAi: runFreeAi, runOcr: runOcr, runGemini: runGemini,
+  renderAll: renderAll, renderSections: renderSections, renderPreview: renderPreview
+};
+
+/* ================= INIT ================= */
+function init() {
+  if (!loadPersisted()) { state = defaultState(); persist(); }
+  renderAll();
+  bindSetup(); bindSections(); bindActions(); bindPhoto();
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+else init();
 </script>
 </body>
 </html>
